@@ -175,19 +175,25 @@ namespace WorldForge
             _settings.SeaLevel = EditorGUILayout.Slider("Sea Level %", _settings.SeaLevel, 0.2f, 0.7f);
 
             SectionLabel("지물 수");
-            // 슬라이더(빠른 조작) + IntField(직접 입력) 병행 — 상한 없음
-            FeatureCountField("Nations", ref _settings.NumNations,  2,  100, 2);
-            FeatureCountField("Cities",  ref _settings.NumCities,   0,  500, 0);
-            FeatureCountField("Rivers",  ref _settings.NumRivers,   0,  200, 0);
-            FeatureCountField("Spots",   ref _settings.NumSpots,    0,  300, 0);
+            FeatureCountField("Nations",   ref _settings.NumNations,      2, 100,  2);
+            FeatureCountField("Rivers",    ref _settings.NumRivers,        0, 200,  0);
+            FeatureCountField("Spots",     ref _settings.NumSpots,         0, 300,  0);
 
-            // 지물 수 vs 맵 크기 경고
-            long tileCount2 = (long)_settings.MapWidth * _settings.MapHeight;
-            int landEst = (int)(tileCount2 * (1f - _settings.SeaLevel));
-            int totalFeatures = _settings.NumCities + _settings.NumSpots;
+            SectionLabel("도시 수 (등급별)");
+            // 수도는 국가 수와 연동 — 표시만
+            EditorGUILayout.LabelField("수도 (Capital)",
+                $"{_settings.NumNations}  ← 국가 수와 동일", _styleMiniLabel);
+            FeatureCountField("대도시",  ref _settings.NumMajorCities,  0, 500,  0);
+            FeatureCountField("중도시",  ref _settings.NumMinorCities,  0, 1000, 0);
+            FeatureCountField("소도시",  ref _settings.NumVillages,     0, 2000, 0);
+
+            // 도시 수 vs 맵 크기 경고
+            long tileCount2  = (long)_settings.MapWidth * _settings.MapHeight;
+            int  landEst     = (int)(tileCount2 * (1f - _settings.SeaLevel));
+            int  totalFeatures = _settings.TotalCities + _settings.NumSpots;
             if (totalFeatures > landEst / 4)
                 EditorGUILayout.HelpBox(
-                    $"⚠ 지물 수({totalFeatures})가 추정 육지 타일({landEst:N0})에 비해 많습니다. 배치가 실패할 수 있습니다.",
+                    $"⚠ 지물 합계({totalFeatures})가 추정 육지 타일({landEst:N0})에 비해 많습니다.",
                     MessageType.Warning);
 
             GUILayout.Space(10);
@@ -242,7 +248,21 @@ namespace WorldForge
 
             SectionLabel("지물");
             StatRow("국가",      $"{_world.Nations.Count}");
-            StatRow("도시",      $"{_world.Cities.Count}");
+            // 등급별 도시 수
+            int caps=0, majors=0, minors=0, villages=0;
+            foreach (var c in _world.Cities)
+                switch (c.Tier)
+                {
+                    case CityTier.Capital: caps++;    break;
+                    case CityTier.Major:   majors++;  break;
+                    case CityTier.Minor:   minors++;  break;
+                    default:               villages++; break;
+                }
+            StatRow("수도",      $"{caps}");
+            StatRow("대도시",    $"{majors}");
+            StatRow("중도시",    $"{minors}");
+            StatRow("소도시",    $"{villages}");
+            StatRow("도시 합계", $"{_world.Cities.Count}");
             StatRow("강",        $"{_world.Rivers.Count}");
             StatRow("특수 스폿", $"{_world.Spots.Count}");
             StatRow("교역로",    $"{_world.Roads.Count}");

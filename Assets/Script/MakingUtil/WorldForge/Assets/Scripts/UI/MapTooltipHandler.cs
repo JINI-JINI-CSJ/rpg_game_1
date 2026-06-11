@@ -82,7 +82,14 @@ namespace WorldForge
             {
                 var c = city.Value;
                 sb.AppendLine($"<b>{c.Name}</b>");
-                sb.AppendLine($"{(c.IsCapital ? "★ 수도" : c.Size == CitySize.Large ? "대도시" : c.Size == CitySize.Medium ? "도시" : "마을")}");
+                string tierName = c.Tier switch
+                {
+                    CityTier.Capital => "★ 수도",
+                    CityTier.Major   => "◆ 대도시",
+                    CityTier.Minor   => "● 중도시",
+                    _                => "· 소도시"
+                };
+                sb.AppendLine(tierName);
                 if (n >= 0 && n < w.Nations.Count)
                     sb.AppendLine($"◈ {w.Nations[n].Name}");
             }

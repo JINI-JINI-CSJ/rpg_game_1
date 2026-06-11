@@ -164,17 +164,50 @@ namespace WorldForge
             // ── 도시 ────────────────────────────────────────────────
             if (opt.ShowCities)
             {
-                foreach (var c in w.Cities)
+                // 소도시 → 중도시 → 대도시 → 수도 순으로 그려 위에 덮이게
+                CityTier[] drawOrder = { CityTier.Village, CityTier.Minor,
+                                         CityTier.Major,   CityTier.Capital };
+                foreach (var tier in drawOrder)
                 {
-                    Color col = c.IsCapital ? new Color(0.96f, 0.82f, 0.25f)
-                              : c.Size == CitySize.Large  ? new Color(0.91f, 0.66f, 0.16f)
-                              : c.Size == CitySize.Medium ? new Color(0.78f, 0.50f, 0.13f)
-                                                           : new Color(0.63f, 0.38f, 0.08f);
-                    int r = c.IsCapital ? 2 : c.Size == CitySize.Large ? 2 : 1;
-                    DrawCircle(pixels, W, H, c.X, c.Y, r, col);
-                    // 수도는 외곽 링 추가
-                    if (c.IsCapital)
-                        DrawCircleOutline(pixels, W, H, c.X, c.Y, r + 2, new Color(0.96f, 0.82f, 0.25f, 0.8f));
+                    foreach (var c in w.Cities)
+                    {
+                        if (c.Tier != tier) continue;
+
+                        switch (c.Tier)
+                        {
+                            case CityTier.Capital:
+                                // 수도: 금색 큰 원 + 이중 링
+                                DrawCircle(pixels, W, H, c.X, c.Y, 3,
+                                    new Color(0.97f, 0.85f, 0.20f));
+                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 4,
+                                    new Color(0.97f, 0.85f, 0.20f, 0.90f));
+                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 6,
+                                    new Color(0.97f, 0.85f, 0.20f, 0.45f));
+                                break;
+
+                            case CityTier.Major:
+                                // 대도시: 주황 중간 원 + 외곽 링
+                                DrawCircle(pixels, W, H, c.X, c.Y, 2,
+                                    new Color(0.92f, 0.60f, 0.15f));
+                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 3,
+                                    new Color(0.92f, 0.60f, 0.15f, 0.70f));
+                                break;
+
+                            case CityTier.Minor:
+                                // 중도시: 밝은 갈색 작은 원
+                                DrawCircle(pixels, W, H, c.X, c.Y, 1,
+                                    new Color(0.80f, 0.48f, 0.12f));
+                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 2,
+                                    new Color(0.80f, 0.48f, 0.12f, 0.55f));
+                                break;
+
+                            case CityTier.Village:
+                                // 소도시: 어두운 점 하나
+                                DrawDot(pixels, W, H, c.X, c.Y,
+                                    new Color(0.60f, 0.35f, 0.08f));
+                                break;
+                        }
+                    }
                 }
             }
 

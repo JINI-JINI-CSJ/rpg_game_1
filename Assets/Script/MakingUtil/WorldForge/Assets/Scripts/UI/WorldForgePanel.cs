@@ -49,10 +49,12 @@ namespace WorldForge
         public Slider SlEdgeFalloff;
 
         [Header("Feature Sliders")]
-        public Slider SlNumNations;   // 0 ~ 200
-        public Slider SlNumCities;    // 0 ~ 1000
-        public Slider SlNumRivers;    // 0 ~ 500
-        public Slider SlNumSpots;     // 0 ~ 500
+        public Slider SlNumNations;       // 0 ~ 200
+        public Slider SlNumMajorCities;   // 0 ~ 500
+        public Slider SlNumMinorCities;   // 0 ~ 1000
+        public Slider SlNumVillages;      // 0 ~ 2000
+        public Slider SlNumRivers;        // 0 ~ 500
+        public Slider SlNumSpots;         // 0 ~ 500
 
         // ── 레이블 (슬라이더 옆에 현재값 표시) ───────────────────
         [Header("Slider Value Labels")]
@@ -63,7 +65,9 @@ namespace WorldForge
         public Text LblContinentBias;
         public Text LblEdgeFalloff;
         public Text LblNumNations;
-        public Text LblNumCities;
+        public Text LblNumMajorCities;
+        public Text LblNumMinorCities;
+        public Text LblNumVillages;
         public Text LblNumRivers;
         public Text LblNumSpots;
 
@@ -118,10 +122,12 @@ namespace WorldForge
             SetSlider(SlSeaLevel,      s.SeaLevel,      0.2f, 0.7f, LblSeaLevel,     "P0");
             SetSlider(SlContinentBias, s.ContinentBias, 0f,   0.8f, LblContinentBias,"F2");
             SetSlider(SlEdgeFalloff,   s.EdgeFalloff,   0f,   1f,   LblEdgeFalloff,  "F2");
-            SetSlider(SlNumNations,    s.NumNations,    0,    200,   LblNumNations,   "F0");
-            SetSlider(SlNumCities,     s.NumCities,     0,    1000,  LblNumCities,    "F0");
-            SetSlider(SlNumRivers,     s.NumRivers,     0,    500,   LblNumRivers,    "F0");
-            SetSlider(SlNumSpots,      s.NumSpots,      0,    500,   LblNumSpots,     "F0");
+            SetSlider(SlNumNations,      s.NumNations,      0, 200,   LblNumNations,      "F0");
+            SetSlider(SlNumMajorCities,  s.NumMajorCities,  0, 500,   LblNumMajorCities,  "F0");
+            SetSlider(SlNumMinorCities,  s.NumMinorCities,  0, 1000,  LblNumMinorCities,  "F0");
+            SetSlider(SlNumVillages,     s.NumVillages,     0, 2000,  LblNumVillages,     "F0");
+            SetSlider(SlNumRivers,       s.NumRivers,       0, 500,   LblNumRivers,       "F0");
+            SetSlider(SlNumSpots,        s.NumSpots,        0, 500,   LblNumSpots,        "F0");
 
             if (SeedInput) SeedInput.text = s.Seed.ToString();
 
@@ -146,10 +152,12 @@ namespace WorldForge
             BindSlider(SlSeaLevel,      LblSeaLevel,      "P0", v => Apply(s => s.SeaLevel      = v));
             BindSlider(SlContinentBias, LblContinentBias, "F2", v => Apply(s => s.ContinentBias = v));
             BindSlider(SlEdgeFalloff,   LblEdgeFalloff,   "F2", v => Apply(s => s.EdgeFalloff   = v));
-            BindSlider(SlNumNations,    LblNumNations,    "F0", v => Apply(s => s.NumNations    = (int)v));
-            BindSlider(SlNumCities,     LblNumCities,     "F0", v => Apply(s => s.NumCities     = (int)v));
-            BindSlider(SlNumRivers,     LblNumRivers,     "F0", v => Apply(s => s.NumRivers     = (int)v));
-            BindSlider(SlNumSpots,      LblNumSpots,      "F0", v => Apply(s => s.NumSpots      = (int)v));
+            BindSlider(SlNumNations,     LblNumNations,     "F0", v => Apply(s => s.NumNations     = (int)v));
+            BindSlider(SlNumMajorCities, LblNumMajorCities, "F0", v => Apply(s => s.NumMajorCities = (int)v));
+            BindSlider(SlNumMinorCities, LblNumMinorCities, "F0", v => Apply(s => s.NumMinorCities = (int)v));
+            BindSlider(SlNumVillages,    LblNumVillages,    "F0", v => Apply(s => s.NumVillages    = (int)v));
+            BindSlider(SlNumRivers,      LblNumRivers,      "F0", v => Apply(s => s.NumRivers      = (int)v));
+            BindSlider(SlNumSpots,       LblNumSpots,       "F0", v => Apply(s => s.NumSpots       = (int)v));
 
             // Seed
             if (SeedInput) SeedInput.onEndEdit.AddListener(v => { if (int.TryParse(v, out int sv)) Apply(s => s.Seed = sv); });
@@ -186,14 +194,23 @@ namespace WorldForge
             int total = w.Width * w.Height;
             int land  = 0;
             foreach (var b in w.Biomes) if (BiomeClassifier.IsLand(b)) land++;
-            int sea = total - land;
 
             SetTxt(TxtStatLand,    $"{land:N0}");
-            SetTxt(TxtStatSea,     $"{sea:N0}");
+            SetTxt(TxtStatSea,     $"{(total - land):N0}");
             SetTxt(TxtStatNations, $"{w.Nations.Count}");
-            SetTxt(TxtStatCities,  $"{w.Cities.Count}");
-            SetTxt(TxtStatSpots,   $"{w.Spots.Count}");
-            SetTxt(TxtStatRivers,  $"{w.Rivers.Count}");
+
+            int caps=0, maj=0, min=0, vil=0;
+            foreach (var c in w.Cities)
+                switch (c.Tier)
+                {
+                    case CityTier.Capital: caps++; break;
+                    case CityTier.Major:   maj++;  break;
+                    case CityTier.Minor:   min++;  break;
+                    default:               vil++;  break;
+                }
+            SetTxt(TxtStatCities, $"수도{caps} 대{maj} 중{min} 소{vil}");
+            SetTxt(TxtStatSpots,  $"{w.Spots.Count}");
+            SetTxt(TxtStatRivers, $"{w.Rivers.Count}");
         }
 
         // ── 프리셋 로드 ───────────────────────────────────────────

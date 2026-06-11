@@ -264,18 +264,22 @@ namespace WorldForge
         }
 
         // ════════════════════════════════════════════════════════
-        // STEP 7: 도시
+        // STEP 7: 도시 (4등급 — 수도 / 대도시 / 중도시 / 소도시)
         // ════════════════════════════════════════════════════════
         private static void GenerateCities(WorldData w, WorldGenSettings s, Mulberry32 rng)
         {
             int W = w.Width, H = w.Height;
             float seaTh   = w.SeaThreshold;
             float mountTh = w.MountThreshold;
-            var perlinM = new PerlinNoise(s.Seed ^ unchecked((int)0xCAFEBABE));
+
+            // ── 타일 점수 계산 (입지 점수) ────────────────────────
+            var perlinM  = new PerlinNoise(s.Seed ^ unchecked((int)0xCAFEBABE));
             float scaleM = s.NoiseScale * Math.Max(W, H) / 10f;
 
-            // 각 타일 점수 계산
             var scores = new float[W * H];
+            int[][] dirs4 = { new[]{-1,0},new[]{1,0},new[]{0,-1},new[]{0,1} };
+            int[][] dirs5 = { new[]{-1,0},new[]{1,0},new[]{0,-1},new[]{0,1},new[]{0,0} };
+
             for (int y = 0; y < H; y++)
             {
                 for (int x = 0; x < W; x++)
@@ -284,79 +288,148 @@ namespace WorldForge
                     if (h < seaTh || h > mountTh) continue;
 
                     float sc = 0f;
-
-                    // 강 인접
-                    int[][] dirs4 = { new[]{-1,0}, new[]{1,0}, new[]{0,-1}, new[]{0,1} };
                     foreach (var d in dirs4)
                     {
-                        int nx = x + d[0], ny = y + d[1];
-                        if (w.InBounds(nx, ny) && w.RiverMap[w.Idx(nx, ny)]) sc += 2.5f;
+                        int nx = x+d[0], ny = y+d[1];
+                        if (w.InBounds(nx,ny) && w.RiverMap[w.Idx(nx,ny)]) sc += 2.5f;
                     }
-                    // 해안 인접
-                    int[][] dirs5 = { new[]{-1,0}, new[]{1,0}, new[]{0,-1}, new[]{0,1}, new[]{0,0} };
                     foreach (var d in dirs5)
                     {
-                        int nx = x + d[0], ny = y + d[1];
-                        if (w.InBounds(nx, ny) && w.HeightMap[w.Idx(nx, ny)] < seaTh) sc += 1.2f;
+                        int nx = x+d[0], ny = y+d[1];
+                        if (w.InBounds(nx,ny) && w.HeightMap[w.Idx(nx,ny)] < seaTh) sc += 1.2f;
                     }
-                    // 평지 선호
                     sc += (1f - (h - seaTh) / (mountTh - seaTh)) * 1.5f;
-                    // 약간의 노이즈 지터
                     sc += (perlinM.FBm(x, y, 2, scaleM, 0.5f) + 1f) * 0.5f * 0.4f;
                     scores[w.Idx(x, y)] = sc;
                 }
             }
 
-            // 내림차순 정렬
-            var candidates = new List<int>();
-            for (int i = 0; i < scores.Length; i++) if (scores[i] > 0f) candidates.Add(i);
-            candidates.Sort((a, b) => scores[b].CompareTo(scores[a]));
-
-            // 도시간 최소 거리²
-            float minD2 = MathF.Pow((W + H) * 0.5f / Math.Max(s.NumCities, 1) * 2.2f, 2);
+            // 후보 목록 (점수 내림차순)
+            var allCands = new List<int>();
+            for (int i = 0; i < scores.Length; i++)
+                if (scores[i] > 0f) allCands.Add(i);
+            allCands.Sort((a, b) => scores[b].CompareTo(scores[a]));
 
             var nameRng = new Mulberry32(s.Seed ^ 0x9999);
 
-            foreach (int idx in candidates)
-            {
-                if (w.Cities.Count >= s.NumCities) break;
-                int cx = idx % W, cy = idx / W;
-                bool tooClose = false;
-                foreach (var c in w.Cities)
-                    if ((cx - c.X) * (cx - c.X) + (cy - c.Y) * (cy - c.Y) < minD2)
-                    { tooClose = true; break; }
-                if (tooClose) continue;
+            // ── 총 도시 수 기반 글로벌 최소 거리 ─────────────────
+            int totalCities = s.TotalCities;
+            // 육지 타일 수 추정으로 평균 간격 계산
+            int landEst = (int)(W * H * (1f - s.SeaLevel));
+            float baseSpacing = MathF.Sqrt((float)landEst / Math.Max(totalCities, 1));
 
-                float sc = scores[idx];
+            // 등급별 최소 거리 (수도 > 대도시 > 중도시 > 소도시)
+            float capMinD    = baseSpacing * 3.0f;   // 수도끼리
+            float majorMinD  = baseSpacing * 2.0f;   // 대도시끼리
+            float minorMinD  = baseSpacing * 1.2f;   // 중도시끼리
+            float villageMinD= baseSpacing * 0.8f;   // 소도시끼리
+            // 상위 등급이 하위 등급 배치를 막는 거리
+            float capBlockD  = baseSpacing * 1.8f;   // 수도→대도시/중도시/소도시
+            float majorBlockD= baseSpacing * 1.0f;   // 대도시→중도시/소도시
+            float minorBlockD= baseSpacing * 0.6f;   // 중도시→소도시
+
+            // ── 1단계: 수도 배치 (국가 수도 = NumNations) ─────────
+            // 국가 중심(캐피탈 포지션)에서 가장 가까운 고점수 타일 선택
+            var capPositions = new List<(int cx, int cy)>();
+            foreach (var nat in w.Nations)
+                capPositions.Add((nat.CapitalX, nat.CapitalY));
+
+            foreach (var (capX, capY) in capPositions)
+            {
+                // 수도 후보: 해당 국가 영토 안, 점수 높은 순
+                int natId = w.NationMap[w.Idx(capX, capY)];
+                (int bx, int by, float bs) = (capX, capY, -1f);
+
+                foreach (int idx in allCands)
+                {
+                    int cx = idx % W, cy = idx / W;
+                    if (w.NationMap[idx] != natId) continue;
+
+                    // 다른 수도와 최소 거리
+                    bool tooClose = false;
+                    foreach (var c in w.Cities)
+                        if (c.Tier == CityTier.Capital)
+                        {
+                            float d2 = (cx-c.X)*(cx-c.X)+(float)(cy-c.Y)*(cy-c.Y);
+                            if (d2 < capMinD * capMinD) { tooClose = true; break; }
+                        }
+                    if (tooClose) continue;
+
+                    if (scores[idx] > bs) { bs = scores[idx]; bx = cx; by = cy; }
+                    if (bs > 0f) break; // 첫 번째 고점수 타일로 충분
+                }
+
                 w.Cities.Add(new CityData
                 {
-                    X = cx, Y = cy,
-                    Name = RandCityName(nameRng),
-                    Nation = w.NationMap[idx],
-                    IsCapital = false,
-                    Size = sc > 5f ? CitySize.Large : sc > 2.5f ? CitySize.Medium : CitySize.Small,
-                    Score = sc,
+                    X = bx, Y = by,
+                    Name   = RandCityName(nameRng),
+                    Nation = w.NationMap[w.Idx(bx, by)],
+                    Tier   = CityTier.Capital,
+                    Score  = scores[w.Idx(bx, by)],
                 });
             }
 
-            // 국가별 수도 지정 (가장 점수 높은 도시)
-            foreach (var nat in w.Nations)
+            // ── 공통 배치 함수 ────────────────────────────────────
+            // selfMinD:  같은 등급끼리 최소 거리
+            // blockD:    상위 등급(수도/대도시 등)이 이 등급을 막는 거리 배열
+            void PlaceTier(CityTier tier, int count,
+                           float selfMinD, float[] blockDists, CityTier[] blockTiers)
             {
-                CityData? best = null;
-                float bs = -1f;
-                for (int i = 0; i < w.Cities.Count; i++)
+                float selfMinD2 = selfMinD * selfMinD;
+                int placed = 0;
+
+                foreach (int idx in allCands)
                 {
-                    var c = w.Cities[i];
-                    if (c.Nation == nat.Id && c.Score > bs) { bs = c.Score; best = c; }
-                }
-                if (best.HasValue)
-                {
-                    var c = best.Value;
-                    c.IsCapital = true;
-                    c.Size = CitySize.Large;
-                    w.Cities[w.Cities.IndexOf(best.Value)] = c;
+                    if (placed >= count) break;
+                    int cx = idx % W, cy = idx / W;
+
+                    bool tooClose = false;
+                    foreach (var c in w.Cities)
+                    {
+                        float d2 = (cx-c.X)*(cx-c.X)+(float)(cy-c.Y)*(cy-c.Y);
+
+                        // 같은 등급끼리 간격
+                        if (c.Tier == tier && d2 < selfMinD2)
+                            { tooClose = true; break; }
+
+                        // 상위 등급이 막는 거리
+                        for (int bi = 0; bi < blockTiers.Length; bi++)
+                            if (c.Tier == blockTiers[bi] && d2 < blockDists[bi] * blockDists[bi])
+                                { tooClose = true; break; }
+
+                        if (tooClose) break;
+                    }
+                    if (tooClose) continue;
+
+                    w.Cities.Add(new CityData
+                    {
+                        X = cx, Y = cy,
+                        Name   = RandCityName(nameRng),
+                        Nation = w.NationMap[idx],
+                        Tier   = tier,
+                        Score  = scores[idx],
+                    });
+                    placed++;
                 }
             }
+
+            // ── 2단계: 대도시 ─────────────────────────────────────
+            PlaceTier(CityTier.Major,   s.NumMajorCities,
+                selfMinD:   majorMinD,
+                blockDists: new[]{ capBlockD },
+                blockTiers: new[]{ CityTier.Capital });
+
+            // ── 3단계: 중도시 ─────────────────────────────────────
+            PlaceTier(CityTier.Minor,   s.NumMinorCities,
+                selfMinD:   minorMinD,
+                blockDists: new[]{ capBlockD, majorBlockD },
+                blockTiers: new[]{ CityTier.Capital, CityTier.Major });
+
+            // ── 4단계: 소도시 ─────────────────────────────────────
+            PlaceTier(CityTier.Village, s.NumVillages,
+                selfMinD:   villageMinD,
+                blockDists: new[]{ capBlockD, majorBlockD, minorBlockD },
+                blockTiers: new[]{ CityTier.Capital, CityTier.Major, CityTier.Minor });
         }
 
         // ════════════════════════════════════════════════════════
@@ -368,16 +441,17 @@ namespace WorldForge
             for (int i = 0; i < count; i++)
             {
                 var ci = w.Cities[i];
-                // 가장 가까운 도시 2~3개와 연결
-                int kmax = ci.Size == CitySize.Large ? 3 : 2;
-
-                // 거리 정렬
+                // 등급이 높을수록 더 많은 교역로
+                int kmax = ci.Tier == CityTier.Capital ? 4
+                         : ci.Tier == CityTier.Major   ? 3
+                         : ci.Tier == CityTier.Minor   ? 2
+                                                        : 1;
                 var dists = new List<(int j, float d)>();
                 for (int j = 0; j < count; j++)
                     if (i != j)
                     {
                         var cj = w.Cities[j];
-                        float d = (cj.X - ci.X) * (cj.X - ci.X) + (cj.Y - ci.Y) * (cj.Y - ci.Y);
+                        float d = (cj.X-ci.X)*(cj.X-ci.X)+(float)(cj.Y-ci.Y)*(cj.Y-ci.Y);
                         dists.Add((j, d));
                     }
                 dists.Sort((a, b) => a.d.CompareTo(b.d));
@@ -411,9 +485,9 @@ namespace WorldForge
             if (landCands.Count == 0) return;
 
             // ── 도시와의 최소 거리² ────────────────────────────────
-            // 도시 수가 많을수록 거리 기준을 줄여 배치 실패를 방지
+            // 총 도시 수가 많을수록 거리 기준을 줄여 배치 실패를 방지
             float cityMinD2 = MathF.Pow(
-                (W + H) * 0.5f / Math.Max(s.NumCities + 1, 4) * 1.2f, 2);
+                (W + H) * 0.5f / Math.Max(s.TotalCities + 1, 4) * 1.2f, 2);
 
             // ── 스폿 간 최소 거리² (육지 면적 기반) ───────────────
             float spotMinD2 = MathF.Pow(
