@@ -71,6 +71,7 @@
     "dotnet.enableWorkspaceBasedDevelopment": false,
     "cSpell.words": [
         "Behaviour",
-        "Cinemachine"
+        "Cinemachine",
+        "Xoshiro"
     ]
 }
