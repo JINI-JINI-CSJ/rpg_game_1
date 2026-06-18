@@ -32,17 +32,6 @@ namespace WorldForge
         private static string RandCityName(Mulberry32 rng) =>
             Syl1[rng.NextInt(Syl1.Length)] + Syl2[rng.NextInt(Syl2.Length)] + " " + Suf[rng.NextInt(Suf.Length)];
 
-        // ── 스폿 정의 ─────────────────────────────────────────────
-        private static readonly (SpotType type, string[] names, bool prefHigh, bool allowMount)[] SpotDefs =
-        {
-            (SpotType.Dungeon,     new[]{"어둠의 지하","철의 미궁","고블린 소굴","트롤 동굴","흑마의 지하","저주받은 던전","심연의 미로","지옥의 입구"}, true,  true ),
-            (SpotType.AncientRuin, new[]{"고대 신전","잊혀진 왕국","석상의 묘","사라진 제국","낡은 제단","황폐한 도시","고대의 탑","침묵의 신전"},   false, false),
-            (SpotType.MagicTower,  new[]{"별의 탑","결정탑","점술사의 탑","금지된 탑","에테르 첨탑","마법사의 은신처","칠흑탑","섬광의 탑"},         true,  false),
-            (SpotType.Graveyard,   new[]{"전사자의 묘","저주받은 묘지","영혼의 안식처","망자의 언덕","흑사의 묘","어둠의 납골당","영원한 잠","무너진 영묘"}, false, false),
-            (SpotType.Volcano,     new[]{"화염산","용암의 심장","지옥의 불구덩이","불타는 봉우리","마그마의 심연","화신의 산","적화봉","분노의 화구"}, true,  true ),
-            (SpotType.DragonLair,  new[]{"고대 용의 소굴","드래곤 봉우리","비늘 산","화룡의 둥지","폭풍룡의 절벽","빙룡의 동굴","독룡의 계곡","흑룡의 성채"}, true, true),
-        };
-
         // ════════════════════════════════════════════════════════
         // MAIN ENTRY
         // ════════════════════════════════════════════════════════
@@ -466,16 +455,16 @@ namespace WorldForge
         }
 
         // ════════════════════════════════════════════════════════
-        // STEP 9: 특수 스폿
+        // STEP 9: 특수 스폿 (5종류 독립 배치)
         // ════════════════════════════════════════════════════════
         private static void GenerateSpots(WorldData w, WorldGenSettings s, Mulberry32 rng)
         {
-            if (s.NumSpots <= 0) return;
+            if (s.TotalSpots <= 0) return;
 
             int W = w.Width, H = w.Height;
             float seaTh = w.SeaThreshold;
 
-            // ── 육지 타일 전체 수집 (고도 조건 없음) ──────────────
+            // ── 육지 후보 타일 수집 ───────────────────────────────
             var landCands = new List<(int x, int y)>();
             for (int y = 2; y < H - 2; y++)
                 for (int x = 2; x < W - 2; x++)
@@ -484,89 +473,111 @@ namespace WorldForge
 
             if (landCands.Count == 0) return;
 
-            // ── 도시와의 최소 거리² ────────────────────────────────
-            // 총 도시 수가 많을수록 거리 기준을 줄여 배치 실패를 방지
+            // ── 도시와의 최소 거리 (전역 공통) ───────────────────
             float cityMinD2 = MathF.Pow(
                 (W + H) * 0.5f / Math.Max(s.TotalCities + 1, 4) * 1.2f, 2);
 
-            // ── 스폿 간 최소 거리² (육지 면적 기반) ───────────────
-            float spotMinD2 = MathF.Pow(
-                MathF.Sqrt(landCands.Count / Math.Max(s.NumSpots, 1)) * 0.6f, 2);
-
-            // ── 타입 순환 배분 후 셔플 ────────────────────────────
-            var typeSeq = new List<int>();
-            for (int i = 0; i < s.NumSpots; i++) typeSeq.Add(i % SpotDefs.Length);
-            for (int i = typeSeq.Count - 1; i > 0; i--)
+            // ── 종류별 배치 요청 목록 ─────────────────────────────
+            // (SpotType, 개수)
+            var requests = new (SpotType type, int count)[]
             {
-                int j = rng.NextInt(i + 1);
-                (typeSeq[i], typeSeq[j]) = (typeSeq[j], typeSeq[i]);
-            }
+                (SpotType.Dungeon,     s.NumDungeons),
+                (SpotType.AncientRuin, s.NumRuins),
+                (SpotType.MagicTower,  s.NumMagicTowers),
+                (SpotType.Graveyard,   s.NumGraveyards),
+                (SpotType.Volcano,     s.NumVolcanoes),
+            };
 
-            // ── 배치: 랜덤 샘플링 → 도시·스폿 거리만 체크 ──────────
-            // 고도/바이옴 선호 점수는 제거 — 순수 거리 조건만 사용
-            var nameIdx = new int[SpotDefs.Length];
+            int maxTries = Math.Max(600, landCands.Count / 2);
 
-            // 시도 횟수: 후보가 적으면 완화
-            int maxTries = Math.Max(500, landCands.Count / 2);
-
-            foreach (int si in typeSeq)
+            foreach (var (spotType, count) in requests)
             {
-                var (sType, names, _, _) = SpotDefs[si];
+                if (count <= 0) continue;
 
-                (int x, int y) placed = (-1, -1);
+                // 이 종류의 스폿끼리 최소 거리
+                // 육지 면적 / 해당 종류 수로 자연스러운 간격 계산
+                float sameMinD2 = MathF.Pow(
+                    MathF.Sqrt((float)landCands.Count / Math.Max(count, 1)) * 0.65f, 2);
 
-                for (int t = 0; t < maxTries; t++)
+                // 다른 종류 스폿과의 최소 거리 (같은 종류보다 짧게)
+                float otherMinD2 = sameMinD2 * 0.35f;
+
+                int placed = 0;
+                for (int attempt = 0; attempt < count; attempt++)
                 {
-                    var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
+                    (int x, int y) best = (-1, -1);
 
-                    // 도시와 최소 거리
-                    bool tooClose = false;
-                    foreach (var c in w.Cities)
-                    {
-                        int dx = cx - c.X, dy = cy - c.Y;
-                        if (dx * dx + dy * dy < cityMinD2) { tooClose = true; break; }
-                    }
-                    if (tooClose) continue;
-
-                    // 기존 스폿과 최소 거리
-                    foreach (var sp in w.Spots)
-                    {
-                        int dx = cx - sp.X, dy = cy - sp.Y;
-                        if (dx * dx + dy * dy < spotMinD2) { tooClose = true; break; }
-                    }
-                    if (tooClose) continue;
-
-                    placed = (cx, cy);
-                    break;
-                }
-
-                // 거리 조건을 만족하는 위치를 못 찾으면 스폿 간 거리만 완화해서 재시도
-                if (placed.x < 0)
-                {
+                    // 1차 시도: 도시 거리 + 같은종류 거리 + 다른종류 거리 모두 체크
                     for (int t = 0; t < maxTries; t++)
                     {
                         var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
-                        bool tooClose = false;
-                        foreach (var c in w.Cities)
-                        {
-                            int dx = cx - c.X, dy = cy - c.Y;
-                            if (dx * dx + dy * dy < cityMinD2 * 0.5f) { tooClose = true; break; }
-                        }
-                        if (!tooClose) { placed = (cx, cy); break; }
+                        if (IsTooClose(w, cx, cy, spotType,
+                                cityMinD2, sameMinD2, otherMinD2)) continue;
+                        best = (cx, cy);
+                        break;
                     }
+
+                    // 2차 시도: 다른 종류 거리 조건 완화
+                    if (best.x < 0)
+                    {
+                        for (int t = 0; t < maxTries; t++)
+                        {
+                            var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
+                            if (IsTooClose(w, cx, cy, spotType,
+                                    cityMinD2, sameMinD2, 0f)) continue;
+                            best = (cx, cy);
+                            break;
+                        }
+                    }
+
+                    // 3차 시도: 도시 거리만 절반으로 완화
+                    if (best.x < 0)
+                    {
+                        for (int t = 0; t < maxTries; t++)
+                        {
+                            var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
+                            if (IsTooClose(w, cx, cy, spotType,
+                                    cityMinD2 * 0.4f, sameMinD2 * 0.5f, 0f)) continue;
+                            best = (cx, cy);
+                            break;
+                        }
+                    }
+
+                    if (best.x < 0) continue; // 배치 불가 → 스킵
+
+                    w.Spots.Add(new SpotData
+                    {
+                        X    = best.x,
+                        Y    = best.y,
+                        Type = spotType,
+                        Name = string.Empty,   // 이름 없음
+                    });
+                    placed++;
                 }
-
-                if (placed.x < 0) continue; // 그래도 없으면 스킵
-
-                w.Spots.Add(new SpotData
-                {
-                    X    = placed.x,
-                    Y    = placed.y,
-                    Type = sType,
-                    Name = names[nameIdx[si] % names.Length],
-                });
-                nameIdx[si]++;
             }
+        }
+
+        /// <summary>
+        /// 해당 위치가 도시 / 같은 종류 스폿 / 다른 종류 스폿과 너무 가까운지 체크
+        /// </summary>
+        private static bool IsTooClose(WorldData w, int cx, int cy, SpotType type,
+            float cityMinD2, float sameMinD2, float otherMinD2)
+        {
+            // 도시와 거리
+            foreach (var c in w.Cities)
+            {
+                int dx = cx - c.X, dy = cy - c.Y;
+                if ((float)(dx*dx + dy*dy) < cityMinD2) return true;
+            }
+            // 기존 스폿과 거리
+            foreach (var sp in w.Spots)
+            {
+                int dx = cx - sp.X, dy = cy - sp.Y;
+                float d2 = dx*dx + (float)(dy*dy);
+                float minD2 = sp.Type == type ? sameMinD2 : otherMinD2;
+                if (minD2 > 0f && d2 < minD2) return true;
+            }
+            return false;
         }
     }
 }

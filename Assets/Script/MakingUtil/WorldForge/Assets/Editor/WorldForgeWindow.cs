@@ -177,20 +177,25 @@ namespace WorldForge
             SectionLabel("지물 수");
             FeatureCountField("Nations",   ref _settings.NumNations,      2, 100,  2);
             FeatureCountField("Rivers",    ref _settings.NumRivers,        0, 200,  0);
-            FeatureCountField("Spots",     ref _settings.NumSpots,         0, 300,  0);
 
             SectionLabel("도시 수 (등급별)");
-            // 수도는 국가 수와 연동 — 표시만
             EditorGUILayout.LabelField("수도 (Capital)",
                 $"{_settings.NumNations}  ← 국가 수와 동일", _styleMiniLabel);
             FeatureCountField("대도시",  ref _settings.NumMajorCities,  0, 500,  0);
             FeatureCountField("중도시",  ref _settings.NumMinorCities,  0, 1000, 0);
             FeatureCountField("소도시",  ref _settings.NumVillages,     0, 2000, 0);
 
-            // 도시 수 vs 맵 크기 경고
+            SectionLabel("스폿 수 (종류별)");
+            FeatureCountField("⚔ 던전",    ref _settings.NumDungeons,    0, 200, 0);
+            FeatureCountField("🏛 유적",    ref _settings.NumRuins,       0, 200, 0);
+            FeatureCountField("🗼 마법탑",  ref _settings.NumMagicTowers, 0, 200, 0);
+            FeatureCountField("💀 묘지",    ref _settings.NumGraveyards,  0, 200, 0);
+            FeatureCountField("🌋 화산",    ref _settings.NumVolcanoes,   0, 200, 0);
+
+            // 경고
             long tileCount2  = (long)_settings.MapWidth * _settings.MapHeight;
             int  landEst     = (int)(tileCount2 * (1f - _settings.SeaLevel));
-            int  totalFeatures = _settings.TotalCities + _settings.NumSpots;
+            int  totalFeatures = _settings.TotalCities + _settings.TotalSpots;
             if (totalFeatures > landEst / 4)
                 EditorGUILayout.HelpBox(
                     $"⚠ 지물 합계({totalFeatures})가 추정 육지 타일({landEst:N0})에 비해 많습니다.",
@@ -264,7 +269,23 @@ namespace WorldForge
             StatRow("소도시",    $"{villages}");
             StatRow("도시 합계", $"{_world.Cities.Count}");
             StatRow("강",        $"{_world.Rivers.Count}");
-            StatRow("특수 스폿", $"{_world.Spots.Count}");
+            // 스폿 종류별 집계
+            int dungeons=0, ruins=0, towers=0, graves=0, volcs=0;
+            foreach (var sp in _world.Spots)
+                switch (sp.Type)
+                {
+                    case SpotType.Dungeon:     dungeons++; break;
+                    case SpotType.AncientRuin: ruins++;    break;
+                    case SpotType.MagicTower:  towers++;   break;
+                    case SpotType.Graveyard:   graves++;   break;
+                    case SpotType.Volcano:     volcs++;    break;
+                }
+            StatRow("⚔ 던전",   $"{dungeons}");
+            StatRow("🏛 유적",   $"{ruins}");
+            StatRow("🗼 마법탑", $"{towers}");
+            StatRow("💀 묘지",   $"{graves}");
+            StatRow("🌋 화산",   $"{volcs}");
+            StatRow("스폿 합계", $"{_world.Spots.Count}");
             StatRow("교역로",    $"{_world.Roads.Count}");
 
             SectionLabel("국가 목록");

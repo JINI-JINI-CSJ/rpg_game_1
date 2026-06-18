@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class Make_ConteMission : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+/// <summary>
+/// 전설 스토리 , 연속 퀘스트
+/// 유니크 들을 만들고 , 각각 연퀘를 만들자.
+/// 유니크의 등급별로 연속 퀘스트 갯수 
+/// 간단하게 2등급이면 1,2 등급 퀘스트 연결 , 5등급이면 1,2,3,4,5 
+/// 
+/// ==정보 , 소문==
+/// - 각 연퀘 마다 바로 등장하는게 아니고 , 소문이나 서브 퀘스트나 시청퀘의 보상으로 정보를 얻음
+/// - 상등급 퀘스트일수록 힌트의 범위가 넓다. ( 1.소도시근처  ..... 5. 델시아 국가의 어느 도시 또는 어느 던전 )
+/// 
+/// 고레벨 던전이라도 전투 회피 파티라면 가능할수 있게 하자.
+/// </summary>
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+public class Make_ConteMission : MakeBase
+{
+    
 }

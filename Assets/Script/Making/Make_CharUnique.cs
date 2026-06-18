@@ -1,16 +1,12 @@
 using UnityEngine;
 
-public class Make_CharUnique : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+/// <summary>
+/// 유니크 캐릭터
+/// 인게임에서 만들수도 있다.
+/// 
+/// </summary>
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+public class Make_CharUnique : MakeBase
+{
+
 }

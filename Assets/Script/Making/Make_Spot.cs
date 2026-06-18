@@ -1,16 +1,20 @@
 using UnityEngine;
 
-public class Make_Spot : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+/// <summary>
+/// 던전 및 필드 등등
+/// 이것도 메이커에서 등급을 나누어서 해놓자.
+/// 낮은 등급은 거의 처음부터 보인다.
+/// 비밀 던전을 정해놓고 , 특정 이벤트로 해금
+/// ==해금 방식==
+///     - 등급 상승하여 허가
+///     - 관청 보상으로 허가
+///     - 소문 입수로 허가
+///     - 전설 스토리 발견
+///     - 기타...
+/// </summary>
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+public class Make_Spot : MakeBase
+{
+
 }

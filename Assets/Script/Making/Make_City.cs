@@ -1,16 +1,12 @@
 using UnityEngine;
 
-public class Make_City : MonoBehaviour
+// 도시
+// 스타팅 도시 , 등급 , 레벨 차등
+// 월드 메이커에서 도시 등급이 정해져 있으니 , 대략 소도시 중 한개 랜덤해서 스타팅
+// 이론상 모든 도시를 다 갈수 있으나 
+// 도로 가도 이동 난이도가 있으니 힘들수 있다.
+// 하지만 각종 스킬(은신,뇌물,협상등등) 로 갈수도 있다.
+public class Make_City : MakeBase
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

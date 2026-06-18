@@ -49,12 +49,17 @@ namespace WorldForge
         public Slider SlEdgeFalloff;
 
         [Header("Feature Sliders")]
-        public Slider SlNumNations;       // 0 ~ 200
-        public Slider SlNumMajorCities;   // 0 ~ 500
-        public Slider SlNumMinorCities;   // 0 ~ 1000
-        public Slider SlNumVillages;      // 0 ~ 2000
-        public Slider SlNumRivers;        // 0 ~ 500
-        public Slider SlNumSpots;         // 0 ~ 500
+        public Slider SlNumNations;
+        public Slider SlNumMajorCities;
+        public Slider SlNumMinorCities;
+        public Slider SlNumVillages;
+        public Slider SlNumRivers;
+        // 스폿 5종류
+        public Slider SlNumDungeons;
+        public Slider SlNumRuins;
+        public Slider SlNumMagicTowers;
+        public Slider SlNumGraveyards;
+        public Slider SlNumVolcanoes;
 
         // ── 레이블 (슬라이더 옆에 현재값 표시) ───────────────────
         [Header("Slider Value Labels")]
@@ -69,7 +74,11 @@ namespace WorldForge
         public Text LblNumMinorCities;
         public Text LblNumVillages;
         public Text LblNumRivers;
-        public Text LblNumSpots;
+        public Text LblNumDungeons;
+        public Text LblNumRuins;
+        public Text LblNumMagicTowers;
+        public Text LblNumGraveyards;
+        public Text LblNumVolcanoes;
 
         // ── 버튼 ─────────────────────────────────────────────────
         [Header("Buttons")]
@@ -122,12 +131,16 @@ namespace WorldForge
             SetSlider(SlSeaLevel,      s.SeaLevel,      0.2f, 0.7f, LblSeaLevel,     "P0");
             SetSlider(SlContinentBias, s.ContinentBias, 0f,   0.8f, LblContinentBias,"F2");
             SetSlider(SlEdgeFalloff,   s.EdgeFalloff,   0f,   1f,   LblEdgeFalloff,  "F2");
-            SetSlider(SlNumNations,      s.NumNations,      0, 200,   LblNumNations,      "F0");
-            SetSlider(SlNumMajorCities,  s.NumMajorCities,  0, 500,   LblNumMajorCities,  "F0");
-            SetSlider(SlNumMinorCities,  s.NumMinorCities,  0, 1000,  LblNumMinorCities,  "F0");
-            SetSlider(SlNumVillages,     s.NumVillages,     0, 2000,  LblNumVillages,     "F0");
-            SetSlider(SlNumRivers,       s.NumRivers,       0, 500,   LblNumRivers,       "F0");
-            SetSlider(SlNumSpots,        s.NumSpots,        0, 500,   LblNumSpots,        "F0");
+            SetSlider(SlNumNations,      s.NumNations,      0, 200,  LblNumNations,      "F0");
+            SetSlider(SlNumMajorCities,  s.NumMajorCities,  0, 500,  LblNumMajorCities,  "F0");
+            SetSlider(SlNumMinorCities,  s.NumMinorCities,  0, 1000, LblNumMinorCities,  "F0");
+            SetSlider(SlNumVillages,     s.NumVillages,     0, 2000, LblNumVillages,     "F0");
+            SetSlider(SlNumRivers,       s.NumRivers,       0, 500,  LblNumRivers,       "F0");
+            SetSlider(SlNumDungeons,     s.NumDungeons,     0, 200,  LblNumDungeons,     "F0");
+            SetSlider(SlNumRuins,        s.NumRuins,        0, 200,  LblNumRuins,        "F0");
+            SetSlider(SlNumMagicTowers,  s.NumMagicTowers,  0, 200,  LblNumMagicTowers,  "F0");
+            SetSlider(SlNumGraveyards,   s.NumGraveyards,   0, 200,  LblNumGraveyards,   "F0");
+            SetSlider(SlNumVolcanoes,    s.NumVolcanoes,    0, 200,  LblNumVolcanoes,    "F0");
 
             if (SeedInput) SeedInput.text = s.Seed.ToString();
 
@@ -157,7 +170,11 @@ namespace WorldForge
             BindSlider(SlNumMinorCities, LblNumMinorCities, "F0", v => Apply(s => s.NumMinorCities = (int)v));
             BindSlider(SlNumVillages,    LblNumVillages,    "F0", v => Apply(s => s.NumVillages    = (int)v));
             BindSlider(SlNumRivers,      LblNumRivers,      "F0", v => Apply(s => s.NumRivers      = (int)v));
-            BindSlider(SlNumSpots,       LblNumSpots,       "F0", v => Apply(s => s.NumSpots       = (int)v));
+            BindSlider(SlNumDungeons,    LblNumDungeons,    "F0", v => Apply(s => s.NumDungeons    = (int)v));
+            BindSlider(SlNumRuins,       LblNumRuins,       "F0", v => Apply(s => s.NumRuins       = (int)v));
+            BindSlider(SlNumMagicTowers, LblNumMagicTowers, "F0", v => Apply(s => s.NumMagicTowers = (int)v));
+            BindSlider(SlNumGraveyards,  LblNumGraveyards,  "F0", v => Apply(s => s.NumGraveyards  = (int)v));
+            BindSlider(SlNumVolcanoes,   LblNumVolcanoes,   "F0", v => Apply(s => s.NumVolcanoes   = (int)v));
 
             // Seed
             if (SeedInput) SeedInput.onEndEdit.AddListener(v => { if (int.TryParse(v, out int sv)) Apply(s => s.Seed = sv); });
@@ -209,7 +226,18 @@ namespace WorldForge
                     default:               vil++;  break;
                 }
             SetTxt(TxtStatCities, $"수도{caps} 대{maj} 중{min} 소{vil}");
-            SetTxt(TxtStatSpots,  $"{w.Spots.Count}");
+            int dungeons=0, ruins=0, towers=0, graves=0, volcs=0;
+            foreach (var sp in w.Spots)
+                switch (sp.Type)
+                {
+                    case SpotType.Dungeon:     dungeons++; break;
+                    case SpotType.AncientRuin: ruins++;    break;
+                    case SpotType.MagicTower:  towers++;   break;
+                    case SpotType.Graveyard:   graves++;   break;
+                    case SpotType.Volcano:     volcs++;    break;
+                }
+            SetTxt(TxtStatSpots,
+                $"⚔{dungeons} 🏛{ruins} 🗼{towers} 💀{graves} 🌋{volcs}");
             SetTxt(TxtStatRivers, $"{w.Rivers.Count}");
         }
 

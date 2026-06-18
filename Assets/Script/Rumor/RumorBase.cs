@@ -1,16 +1,10 @@
 using UnityEngine;
 
-public class RumorBase : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+/// <summary>
+/// 소문 베이스
+/// </summary>
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+public class RumorBase
+{
+    
 }
