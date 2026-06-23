@@ -11,6 +11,13 @@ using UnityEngine;
 
 public class MakingMain : MonoBehaviour
 {
+    static public MakingMain G;
+
+    void Awake()
+    {
+        G = this;
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -22,4 +29,6 @@ public class MakingMain : MonoBehaviour
     {
         
     }
+
+    
 }
