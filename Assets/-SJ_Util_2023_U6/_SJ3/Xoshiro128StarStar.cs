@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public struct DeterministicRngState
 {
@@ -88,5 +89,123 @@ public class Xoshiro128StarStar
         z = (z ^ (z >> 16)) * 0x85EBCA6B;
         z = (z ^ (z >> 13)) * 0xC2B2AE35;
         return z ^ (z >> 16);
+    }
+}
+
+// 랜덤 메이커 매니저 및 유틸
+public class Mng_X128SS
+{
+    public uint seed;
+    public bool save_state; // 저장 할 때 상태도 저장할지.. 월드 메이킹에는 저장안하고 처음부터 생성하게 된다.
+    Xoshiro128StarStar xoshiro;
+    public Mng_X128SS( uint _seed )
+    {
+        seed = _seed;
+        xoshiro = new Xoshiro128StarStar(seed);
+    } 
+
+    public void Load()
+    {
+    }
+
+    public void Save()
+    {
+    }
+
+    public uint NextUInt()
+    {
+        return xoshiro.NextUInt();
+    }
+
+    public int NextInt(int min, int max)
+    {
+        return xoshiro.NextInt(min , max);
+    }
+
+    public float NextFloat()
+    {
+        return xoshiro.NextFloat();
+    }
+
+    public float NextFloat( float min , float max )
+    {
+        return xoshiro.NextFloat(min , max );
+    }
+
+
+    public class _STEP_Val
+    {
+        public float val; // 이전값과 더함
+        public object obj;
+    }
+
+    // 간단 성공 ( 0 ~ 1 )
+    public bool RandomFloat_Per( float val_succ )
+    {
+        if(NextFloat() <= val_succ )
+        {
+            return true;
+        }
+        return false;
+    }
+
+    // 스텝 랜덤
+    List<_STEP_Val> lt_step = new List<_STEP_Val>();
+    public void Step_Clear()
+    {
+        lt_step.Clear();
+    }
+    public void Step_Start_Add( float val , object obj )
+    {
+        Step_Clear();
+        Step_Add( val , obj );
+    }
+    public void Step_Add( float val , object obj )
+    {
+        _STEP_Val sv_pre = null;
+        if( lt_step.Count > 0 )
+        {
+            sv_pre = lt_step[ lt_step.Count - 1 ];
+        }
+
+        _STEP_Val sv_cur = new _STEP_Val();
+        sv_cur.obj = obj;
+        sv_cur.val = val;
+        if( sv_pre != null )sv_cur.val += sv_pre.val; // 이전꺼랑 계속 누적
+        lt_step.Add( sv_cur );
+    }
+    public object Step_Random()
+    {
+        if( lt_step.Count < 1 ) return null;
+        float r = NextFloat();
+        _STEP_Val  sv_last = lt_step[ lt_step.Count - 1 ];
+        r *= sv_last.val; // 마지막 값을 최대치 대응
+        foreach( var s in lt_step )
+        {
+            if( r <= s.val )
+            {
+                return s.obj;
+            }
+        }
+        return lt_step[ lt_step.Count - 1 ].obj;
+    }
+
+    // 심플 스텝
+    public T RandomListParams<T>( params T[] args )
+    {
+        if( args.Length < 1 ) return default;
+        int idx = NextInt( 0 , args.Length );
+        return args[idx];
+    }
+
+    // 리스트 목록 
+    public T RandomList<T>( List<T> lt , bool remove = false )
+    {
+        if( lt.Count < 1 ) return default;
+        int idx = NextInt( 0 , lt.Count );
+        T r_obj = lt[idx];
+        if( remove )
+            lt.RemoveAt( idx );
+        return r_obj;
     }
 }

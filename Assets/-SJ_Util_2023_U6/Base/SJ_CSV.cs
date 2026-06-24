@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 
 //SJ_CSV_Read.OpenCSV( "TH_Ruins_Lite" );
@@ -816,6 +817,18 @@ public	class SJ_CSV_BasePage
 				dic_int[kv.Key] = kv.Value;
 			}
 		}
+	}
+
+	public List<T> CopyData_INT<T>()
+	{
+		List<T> values = new( dic_int.Values.Cast<T>() );
+		return values;
+	}
+
+	public List<T> CopyData_STR<T>()
+	{
+		List<T> values = new( dic_str.Values.Cast<T>() );
+		return values;
 	}
 
 	virtual public void LoadAfter(){}
