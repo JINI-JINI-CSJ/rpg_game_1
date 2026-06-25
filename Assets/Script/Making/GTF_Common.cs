@@ -12,7 +12,7 @@ public enum CHAR_STAT
 {
     None = 0 ,
     HP ,
-    ACTION_SPEED ,      // 행동순서    
+    ACTION_SPEED ,      // 행동속도   
     ATK_P ,
     DEF_P ,
     HIT_RATE_P ,        // 물리 명중률
@@ -23,7 +23,7 @@ public enum CHAR_STAT
 }
 
 // 직업 큰 분류
-//  , 전사 , 마법사 , 지원가
+// 공통(보통 적군) , 전사 , 마법사 , 지원가
 public enum JOB_BASE
 {
     Common = 0,

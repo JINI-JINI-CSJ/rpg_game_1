@@ -14,9 +14,9 @@ public class _BIAS_COMMON
     public Mng_X128SS rd_make;
     public Mng_X128SS rd_inGame;
 
-    public void SetRandom_Init( Mng_X128SS _rd_random , Mng_X128SS _rd_inGame )
+    public void SetRandom_Init( Mng_X128SS _rd_make , Mng_X128SS _rd_inGame )
     {
-        rd_make = _rd_random;
+        rd_make = _rd_make;
         rd_inGame = _rd_inGame;
         OnSetRandom_Init();
     }
@@ -53,18 +53,16 @@ public class _BIAS_JOB
     Mng_X128SS rd_make;
     Mng_X128SS rd_inGame;
 
-    public void SetRandom_Init( Mng_X128SS _rd_random , Mng_X128SS _rd_inGame )
+    public void SetRandom_Init( Mng_X128SS _rd_make , Mng_X128SS _rd_inGame )
     {
-        rd_make = _rd_random;
+        rd_make = _rd_make;
         rd_inGame = _rd_inGame;
-    }
 
-    public void Init( )
-    {
         WARRIOR     = rd_make.NextFloat(0.1f , 1);
         WIZARD      = rd_make.NextFloat(0.1f , 1);
         SUPPORTER   = rd_make.NextFloat(0.1f , 1);
     }
+
 
     public JOB_BASE Random()
     {
@@ -77,8 +75,9 @@ public class _BIAS_JOB
 
 
 // 직업 메이킹 스킬들
+// 직업 대분류 갯수만큼
 // 무기 종류 , 마법장착 종류
-public class _BIAS_SKILL_JOB : _BIAS_COMMON
+public class _BIAS_SKILL_MAIN_JOB : _BIAS_COMMON
 {
     public void FillInit( JOB_BASE jOB_BASE , int init_num = 3 )
     {
@@ -123,6 +122,33 @@ public class _BIAS_MAGIC_DEFINE : _BIAS_COMMON
     public CSV_MagicPropDefine RandomMagicDefine()
     {
         return Random() as CSV_MagicPropDefine;
+    }
+}
+
+
+
+// 캐릭터 기본 수치들
+// 직업 대분류 갯수만큼
+public class _BIAS_CHAR_STAT : _BIAS_COMMON
+{
+    public void FillInit(  JOB_BASE jOB_BASE , int init_num = 3  )
+    {
+        List<CSV_CharBaseStat> cSVs = GTF_CSV.GetCharStat_JobMake( jOB_BASE );
+        List<CSV_CharBaseStat> csv_sell = new();
+        for( int i = 0 ; i < init_num ; i++ )
+        {
+            CSV_CharBaseStat sk = rd_make.RandomList( cSVs , true );
+            if( sk != null )csv_sell.Add( sk );
+        }
+        foreach( var s in csv_sell )
+        {
+            AddObj( s );
+        }
+    }
+
+    public CSV_CharBaseStat RandomMagicDefine()
+    {
+        return Random() as CSV_CharBaseStat;
     }
 }
 

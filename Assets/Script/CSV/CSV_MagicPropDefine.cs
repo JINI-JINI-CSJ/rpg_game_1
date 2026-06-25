@@ -55,6 +55,9 @@ public class CSV_MagicPropDefine : SJ_CSV_BaseObj
             hs.Add(csv);
         }
     }
+
+    // 체크 상성 
+    // -1 , 0 , 1 값으로 반환
 }
 
 
