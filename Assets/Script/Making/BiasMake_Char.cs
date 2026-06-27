@@ -23,6 +23,12 @@ public class BiasMake_Char
 
     // 성장 등급
     // 높을 수록 최대 레벨 증가
+    // 확률 시트에서 가져온다.
+
+
+    // 고등급 , 유니크에 대한 혜택은?
+    // 성장 등급 + 최대 보너스 
+    // 
 
     public void Init( Mng_X128SS _rd_make , Mng_X128SS _rd_inGame )
     {
@@ -32,5 +38,9 @@ public class BiasMake_Char
         bias_char_stat.SetRandom_Init( _rd_make , _rd_inGame );
     }
 
-
+    public CharBase Making()
+    {
+        
+        return null;
+    }
 }

@@ -30,5 +30,8 @@ public class MakingMain : MonoBehaviour
         
     }
 
-    
+    static public void NextMake()
+    {
+        
+    }
 }

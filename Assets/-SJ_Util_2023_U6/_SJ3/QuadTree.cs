@@ -84,6 +84,14 @@ namespace QuadTreeSystem
         public AABB(float cx, float cy, float hw, float hh)
             : this(new Vector2(cx, cy), new Vector2(hw, hh)) { }
 
+
+        static public AABB CreateAABB_StartEnd( Vector2 s , Vector2 e )
+        {
+            Vector2 ct = Vector2.Lerp( s , e , 0.5f );
+            Vector2 hs = new Vector2( Mathf.Abs( (e.x - s.x) * 0.5f ) , Mathf.Abs( (e.y - s.y) * 0.5f ) );
+            return new AABB( ct , hs );
+        }
+
         // ── 유틸리티 ──────────────────────────────
         /// <summary>점이 경계 내부에 있는지 확인 (경계선 포함)</summary>
         public bool Contains(Vector2 point)
@@ -876,6 +884,14 @@ namespace QuadTreeSystem
         {
             _capacity    = capacity;
             _root        = new QuadTreeNode(boundary, capacity);
+            _bucketTable = null;
+        }
+
+        public QuadTree( Vector2 s , Vector2 e , int capacity = 4 )
+        {
+            AABB aABB = AABB.CreateAABB_StartEnd( s , e );
+            _capacity    = capacity;
+            _root        = new QuadTreeNode(aABB, capacity);
             _bucketTable = null;
         }
 

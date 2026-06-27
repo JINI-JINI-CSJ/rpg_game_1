@@ -190,6 +190,36 @@ public class Mng_X128SS
         return lt_step[ lt_step.Count - 1 ].obj;
     }
 
+    // 인덱스 스텝
+    // 퍼센트 목록 받아서 바로 결과 인덱스
+    public int Step_Random_Idx( List<float> floats_per )
+    {
+        if( floats_per == null || floats_per.Count < 1 ) return -1;
+        List<float> steps = new();
+        for( int i = 0 ; i < floats_per.Count ; i++ )
+        {
+            if( i == 0 )
+            {
+                steps.Add( floats_per[i] );
+            }
+            else
+            {
+                float pre = floats_per[i-1];
+                steps.Add( pre + floats_per[i] );
+            }
+        }
+
+        float last = steps[ steps.Count - 1 ] ;
+        float random = NextFloat();
+        random *= last;
+
+        for( int i = 0 ; i < steps.Count ; i++ )
+        {
+            if( random <= steps[i] )return i;
+        }
+        return steps.Count-1;
+    }
+
     // 심플 스텝
     public T RandomListParams<T>( params T[] args )
     {

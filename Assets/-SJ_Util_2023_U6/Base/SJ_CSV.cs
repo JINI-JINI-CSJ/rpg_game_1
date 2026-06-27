@@ -585,6 +585,29 @@ public	class SJ_CSV_BaseObj
 		}
 	}
 
+	public List<int>   	Remain_Data_Int()
+	{
+		List<string> lt = new();
+		Remain_Data( lt );
+		List<int> lt_int = new();
+		foreach( var s in lt )
+		{
+			lt_int.Add( SJ_CSV_Common.TryParseInt(s) );
+		}
+		return lt_int;
+	}
+
+	public List<float>   	Remain_Data_Float()
+	{
+		List<string> lt = new();
+		Remain_Data( lt );
+		List<float> lt_float = new();
+		foreach( var s in lt )
+		{
+			lt_float.Add( SJ_CSV_Common.TryParseFloat(s) );
+		}
+		return lt_float;
+	}
 
     static public void  To_Serialization_CSV_INT_ID<T>( List<T> lt , BinaryWriter bw )
     {

@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using QuadTreeSystem;
 using UnityEngine;
+using WorldForge;
 
 // 도시
 // 스타팅 도시 , 등급 , 레벨 차등
@@ -8,5 +11,20 @@ using UnityEngine;
 // 하지만 각종 스킬(은신,뇌물,협상등등) 로 갈수도 있다.
 public class Make_City : MakeBase
 {
+    public CityData cityData_Start;
 
+    // 저장 로드 할땐 위치값만 사용
+
+    public override void OnMake()
+    {
+        WorldForgeManager worldForge = Make_WorldMap.G.worldForge;
+        QuadTree quadTree = Make_WorldMap.G.quadTree;
+
+        List<QTPoint> qTs = quadTree.GetAllPoints( Make_WorldMap.TAG_HASH_CITY_Village() );
+
+        QTPoint qt_s = GTF_Random.rd_make_world.RandomList( qTs );
+        cityData_Start = (CityData)qt_s.Data;
+
+        MakingMain.NextMake();
+    }
 }
