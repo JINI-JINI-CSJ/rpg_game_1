@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class BiasMake_Char 
 {
-    // 전사 , 마법사 , 지원가
+    // 대분류 : 일반 , 전사 , 마법사 , 지원가
+    // 일반 확률은 낮게
     public _BIAS_JOB bias_job = new();
 
-    // 직업군별로 메인 무기 마스터리 스킬 
+    // 직업군 
     public _BIAS_SKILL_MAIN_JOB bias_skill_job = new();
 
     // 마법 속성 , 플레이어는 없음? , 적군만 있게?
@@ -38,8 +39,13 @@ public class BiasMake_Char
         bias_char_stat.SetRandom_Init( _rd_make , _rd_inGame );
     }
 
-    public CharBase Making()
+    public CharBase Making( int max_grade )
     {
+        // 1. 대 분류 직업
+        // 2. 세부 직업 ( 검사 , 광전사 , 마법사 , 성직자 등등 )
+        // 3. 추가 보너스 스킬 
+        //  - 추가 갯수
+        //  - 각 스킬마다 대분류 스킬 확률 (전,마,지)  , 본인 
         
         return null;
     }

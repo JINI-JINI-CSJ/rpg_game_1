@@ -102,6 +102,78 @@ namespace WorldForge
 
         public void RandomSeed() => Settings.Seed = Random.Range(1, 999999);
 
+        // ════════════════════════════════════════════════════════
+        // 저장 / 불러오기 (바이너리 .wfd)
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 현재 월드를 파일로 저장. 런타임 빌드에서는 보통
+        /// Application.persistentDataPath 하위 경로를 권장합니다.
+        /// </summary>
+        public bool SaveToFile(string path)
+        {
+            if (CurrentWorld == null)
+            {
+                SetStatus("저장할 월드가 없습니다. 먼저 Generate 하세요.");
+                return false;
+            }
+            try
+            {
+                WorldDataSerializer.SaveToFile(CurrentWorld, path);
+                SetStatus($"저장 완료 — {System.IO.Path.GetFileName(path)}");
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[WorldForge] 저장 실패: {ex.Message}");
+                SetStatus("저장 실패: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>파일에서 월드를 불러와 현재 월드로 교체하고 다시 그립니다.</summary>
+        public bool LoadFromFile(string path)
+        {
+            try
+            {
+                var loaded  = WorldDataSerializer.LoadFromFile(path);
+                CurrentWorld = loaded;
+                Settings     = loaded.Settings;
+                Redraw();
+                SetStatus($"불러오기 완료 — {CurrentWorld.Width}×{CurrentWorld.Height}, " +
+                          $"도시 {CurrentWorld.Cities.Count} / 스폿 {CurrentWorld.Spots.Count}");
+                OnWorldGenerated?.Invoke(CurrentWorld);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[WorldForge] 불러오기 실패: {ex.Message}");
+                SetStatus("불러오기 실패: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>persistentDataPath/WorldForge/ 하위에 자동 저장 (파일명만 지정)</summary>
+        public bool QuickSave(string fileName)
+        {
+            string dir = System.IO.Path.Combine(Application.persistentDataPath, "WorldForge");
+            System.IO.Directory.CreateDirectory(dir);
+            string path = System.IO.Path.Combine(dir, fileName.EndsWith(".wfd") ? fileName : fileName + ".wfd");
+            return SaveToFile(path);
+        }
+
+        public bool QuickLoad(string fileName)
+        {
+            string dir  = System.IO.Path.Combine(Application.persistentDataPath, "WorldForge");
+            string path = System.IO.Path.Combine(dir, fileName.EndsWith(".wfd") ? fileName : fileName + ".wfd");
+            if (!System.IO.File.Exists(path))
+            {
+                SetStatus($"파일을 찾을 수 없습니다: {path}");
+                return false;
+            }
+            return LoadFromFile(path);
+        }
+
         private void SetStatus(string msg)
         {
             if (StatusText) StatusText.text = msg;

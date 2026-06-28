@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using UnityEngine;
 using UnityEditor;
 
@@ -93,7 +94,7 @@ namespace WorldForge
 
             if (GUILayout.Button("🎲 Random Seed", EditorStyles.toolbarButton, GUILayout.Width(110)))
             {
-                _settings.Seed = Random.Range(1, 999999);
+                _settings.Seed = UnityEngine.Random.Range(1, 999999);
                 Repaint();
             }
 
@@ -104,8 +105,19 @@ namespace WorldForge
 
             GUILayout.FlexibleSpace();
 
+            // ── 데이터 저장/불러오기 (바이너리 .wfd) ──────────────
+            GUI.backgroundColor = new Color(0.7f, 0.9f, 1f);
+            if (GUILayout.Button("📂 Load", EditorStyles.toolbarButton, GUILayout.Width(60)))
+                LoadWorldData();
+            GUI.backgroundColor = Color.white;
+
             if (_world != null)
             {
+                GUI.backgroundColor = new Color(0.6f, 0.85f, 1f);
+                if (GUILayout.Button("💾 Save Data", EditorStyles.toolbarButton, GUILayout.Width(90)))
+                    SaveWorldData();
+                GUI.backgroundColor = Color.white;
+
                 GUI.backgroundColor = new Color(0.5f, 0.8f, 1f);
                 if (GUILayout.Button("Save PNG", EditorStyles.toolbarButton, GUILayout.Width(80)))
                     SavePng();
@@ -459,6 +471,63 @@ namespace WorldForge
             if (string.IsNullOrEmpty(path)) return;
             System.IO.File.WriteAllBytes(path, _compositeTex.EncodeToPNG());
             Debug.Log($"[WorldForge] 저장 완료: {path}");
+        }
+
+        // ── 월드 데이터 저장/불러오기 (바이너리 .wfd) ──────────────
+        private void SaveWorldData()
+        {
+            if (_world == null) return;
+
+            string path = EditorUtility.SaveFilePanel(
+                "월드 데이터 저장", "", $"world_seed{_settings.Seed}.wfd", "wfd");
+            if (string.IsNullOrEmpty(path)) return;
+
+            try
+            {
+                WorldDataSerializer.SaveToFile(_world, path);
+                long sizeKb = new System.IO.FileInfo(path).Length / 1024;
+                Debug.Log($"[WorldForge] 월드 데이터 저장 완료: {path} ({sizeKb:N0} KB)");
+                _progLabel = $"저장됨 — {System.IO.Path.GetFileName(path)} ({sizeKb:N0} KB)";
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[WorldForge] 저장 실패: {ex.Message}");
+                EditorUtility.DisplayDialog("저장 실패", ex.Message, "확인");
+            }
+        }
+
+        private void LoadWorldData()
+        {
+            string path = EditorUtility.OpenFilePanel("월드 데이터 불러오기", "", "wfd");
+            if (string.IsNullOrEmpty(path)) return;
+
+            try
+            {
+                _isGenerating = true;
+                Repaint();
+
+                var loaded = WorldDataSerializer.LoadFromFile(path);
+
+                _world    = loaded;
+                _settings = loaded.Settings;
+                _baseTex    = WorldMapRenderer.RenderToTexture(_world, _renderOpts);
+                _overlayTex = WorldMapRenderer.RenderOverlay(_world, _renderOpts);
+                BuildComposite();
+
+                _progLabel = $"불러옴 — {System.IO.Path.GetFileName(path)}";
+                Debug.Log($"[WorldForge] 불러오기 완료: {path} " +
+                          $"({_world.Width}x{_world.Height}, 도시 {_world.Cities.Count}, 스폿 {_world.Spots.Count})");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[WorldForge] 불러오기 실패: {ex.Message}");
+                EditorUtility.DisplayDialog("불러오기 실패", ex.Message, "확인");
+            }
+            finally
+            {
+                _isGenerating = false;
+                Repaint();
+            }
         }
 
         private void LoadPreset(WorldGenSettings p)

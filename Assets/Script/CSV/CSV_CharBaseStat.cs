@@ -9,7 +9,14 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
     public string res;
     public int grade;
     public JOB_BASE jOB_BASE;
+    public string Weapon_ID;
+    public string Armor_ID;
     public CharPrcValue charPrcValue = new();
+
+    // 아이템 정의 객체들
+    public CSV_EqItemDefine csv_EqItem_Weapon;
+    public CSV_EqItemDefine csv_EqItem_Armor;
+
 
     public override void OnRead(SJ_CSV_BasePage _par, string[] _strs)
     {
@@ -18,7 +25,9 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         desc = Next();
         res = Next();
         grade = Next_Int();
-        Enum.TryParse<JOB_BASE>( Next() , out jOB_BASE );
+        Enum.TryParse( Next() , out jOB_BASE );
+        Weapon_ID = Next();
+        Armor_ID = Next();
         charPrcValue.ReadCSV(this);
     }
 }

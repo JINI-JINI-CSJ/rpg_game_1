@@ -12,5 +12,6 @@ using UnityEngine;
 
 public class Rumor_Spot : RumorBase
 {
-    
+    public int cityTear_Range = 0; // 0 : 소도시 ----> 국가 범위 , 숫자가 낮을수록 정확도가 높다.
+    public Vector2Int spot_Coord; // 스폿 위치 , 도시 및 스팟
 }

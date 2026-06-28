@@ -141,6 +141,71 @@ WorldGenSettings.Mountainous()  // 산악 지형
 
 ---
 
+## 🗺 타일 분류 맵 & 빠른 조회
+
+`NationMap` 과 동일한 패턴으로 도시 등급도 타일 배열에서 직접 조회할 수 있습니다.
+
+```csharp
+// NationMap 처럼 사용
+int nationId      = world.NationMap[world.Idx(x, y)];     // -1 = 무국적
+CityTier? tier    = world.GetCityTierAt(x, y);             // null = 도시 없음
+bool hasCity      = world.HasCityAt(x, y);
+
+// 좌표로 도시/스폿 상세정보를 O(1)로 조회 (해시맵 기반)
+if (world.TryGetCityAt(x, y, out CityData city))
+    Debug.Log(city.Name);
+
+if (world.TryGetSpotAt(x, y, out SpotData spot))
+    Debug.Log(spot.Type);
+
+bool occupied = world.IsCityTile(x, y) || world.IsSpotTile(x, y);
+```
+
+내부적으로 `WorldData.BuildLookupMaps()` 가 `CityTierMap` / `CityIndexMap` 타일 배열과
+좌표 `Dictionary` 를 함께 채웁니다. `WorldGenerator.Generate()` 마지막 단계와
+`WorldDataSerializer` 로드 직후 자동으로 호출되므로 별도로 호출할 필요는 없습니다
+(직접 `WorldData` 를 조작했다면 다시 호출해 주세요).
+
+---
+
+## 💾 저장 / 불러오기 (바이너리 .wfd)
+
+`WorldDataSerializer` 가 `WorldData` 전체(지형/국가/도시/스폿/강/교역로 + 생성 설정)를
+순수 C# 바이너리 포맷(`.wfd`)으로 저장·복원합니다. Unity 의존성이 없어 서버나
+커맨드라인 툴에서도 그대로 재사용할 수 있습니다.
+
+**파일 포맷**: `WFRG` 매직 넘버 + 버전 + 생성 설정 + 타일 배열(HeightMap/TempMap/
+Biomes/NationMap을 RAW로, RiverMap은 1bit/타일로 패킹) + 국가/도시/스폿/강/교역로.
+
+### 에디터에서
+툴바의 **📂 Load** / **💾 Save Data** 버튼으로 `.wfd` 파일을 저장·불러오기.
+불러온 데이터는 즉시 미리보기에 반영되고, 사용된 생성 설정도 함께 복원됩니다.
+
+### 코드에서 직접 사용
+```csharp
+// 저장
+WorldDataSerializer.SaveToFile(world, "Assets/Maps/myworld.wfd");
+byte[] bytes = WorldDataSerializer.SaveToBytes(world); // 네트워크 전송 등에 사용
+
+// 불러오기
+WorldData world = WorldDataSerializer.LoadFromFile("Assets/Maps/myworld.wfd");
+WorldData world2 = WorldDataSerializer.LoadFromBytes(bytes);
+```
+
+### 런타임 (WorldForgeManager)
+```csharp
+manager.SaveToFile(path);          // 임의 경로
+manager.LoadFromFile(path);
+
+manager.QuickSave("myworld");      // persistentDataPath/WorldForge/myworld.wfd
+manager.QuickLoad("myworld");
+```
+
+`WorldForgePanel` 에 `BtnQuickSave` / `BtnQuickLoad` / `SaveLoadFileName`(InputField)을
+연결하면 런타임 UI에서도 동일하게 동작합니다.
+
+---
+
 ## 💡 확장 아이디어
 
 - `WorldGenerator.Generate()` 를 `Task.Run()`으로 감싸 비동기 처리

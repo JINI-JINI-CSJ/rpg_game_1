@@ -88,6 +88,11 @@ namespace WorldForge
         public Button BtnPresetPangaea;
         public Button BtnPresetMountain;
 
+        [Header("Save / Load (QuickSave: persistentDataPath/WorldForge/*.wfd)")]
+        public InputField SaveLoadFileName;   // 비우면 "world" 기본값
+        public Button     BtnQuickSave;
+        public Button     BtnQuickLoad;
+
         // ── 레이어 토글 ───────────────────────────────────────────
         [Header("Layer Toggles")]
         public Toggle TglNations;
@@ -188,6 +193,20 @@ namespace WorldForge
             // Buttons
             if (BtnGenerate) BtnGenerate.onClick.AddListener(() => Manager?.Generate());
             if (BtnClose)    BtnClose.onClick.AddListener(()    => gameObject.SetActive(false));
+
+            if (BtnQuickSave) BtnQuickSave.onClick.AddListener(() =>
+            {
+                string name = (SaveLoadFileName && !string.IsNullOrWhiteSpace(SaveLoadFileName.text))
+                    ? SaveLoadFileName.text : "world";
+                Manager?.QuickSave(name);
+            });
+            if (BtnQuickLoad) BtnQuickLoad.onClick.AddListener(() =>
+            {
+                string name = (SaveLoadFileName && !string.IsNullOrWhiteSpace(SaveLoadFileName.text))
+                    ? SaveLoadFileName.text : "world";
+                Manager?.QuickLoad(name);
+                InitSliders(); // 불러온 설정값으로 슬라이더 갱신
+            });
 
             // Presets
             if (BtnPresetArchipelago) BtnPresetArchipelago.onClick.AddListener(() => LoadPreset(WorldGenSettings.Archipelago()));

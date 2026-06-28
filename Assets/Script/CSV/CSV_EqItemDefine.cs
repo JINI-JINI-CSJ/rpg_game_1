@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
 
-// ``ID	이름	설명	큰 직업 카테(공통,전,마)	무기,방어구,악세	메인 태그	보조태그1	보조태그2	보조태그3																	
+// 문자열 아이디
+// ``ID	이름	설명	큰 직업 카테(공통,전,마,지)	무기,방어구,악세	메인 태그	보조태그1	보조태그2	보조태그3																	
 public class CSV_EqItemDefine : SJ_CSV_BaseObj
 {
     public string name;

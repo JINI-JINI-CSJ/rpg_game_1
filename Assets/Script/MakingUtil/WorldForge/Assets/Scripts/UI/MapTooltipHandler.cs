@@ -67,14 +67,10 @@ namespace WorldForge
             float t  = w.TempMap[idx];
             int   n  = w.NationMap[idx];
 
-            // 도시/스폿 확인 (2타일 반경)
-            CityData? city = null;
-            foreach (var c in w.Cities)
-                if (Mathf.Abs(c.X - tx) <= 1 && Mathf.Abs(c.Y - ty) <= 1) { city = c; break; }
-
-            SpotData? spot = null;
-            foreach (var s in w.Spots)
-                if (Mathf.Abs(s.X - tx) <= 1 && Mathf.Abs(s.Y - ty) <= 1) { spot = s; break; }
+            // 도시/스폿 확인 — 정확 좌표는 해시맵으로 O(1) 조회,
+            // 호버 오차를 위해 3x3 인근 타일만 추가로 확인 (전체 리스트 스캔 없음)
+            CityData? city = FindNearCity(w, tx, ty);
+            SpotData? spot = city.HasValue ? null : FindNearSpot(w, tx, ty);
 
             var sb = new System.Text.StringBuilder();
 
@@ -112,6 +108,37 @@ namespace WorldForge
             sb.Append($"좌표 ({tx}, {ty})");
 
             if (TooltipText) TooltipText.text = sb.ToString();
+        }
+
+        /// <summary>
+        /// 3x3 인근 타일만 WorldData 해시맵(O(1))으로 조회 — 도시 리스트 전체 스캔 없음.
+        /// 정확히 도시가 있는 좌표를 우선으로, 없으면 인접 타일까지 확인.
+        /// </summary>
+        private static CityData? FindNearCity(WorldData w, int tx, int ty)
+        {
+            if (w.TryGetCityAt(tx, ty, out var exact)) return exact;
+
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    if (dx == 0 && dy == 0) continue;
+                    if (w.TryGetCityAt(tx + dx, ty + dy, out var c)) return c;
+                }
+            return null;
+        }
+
+        /// <summary>3x3 인근 타일만 해시맵(O(1))으로 조회 — 스폿 리스트 전체 스캔 없음.</summary>
+        private static SpotData? FindNearSpot(WorldData w, int tx, int ty)
+        {
+            if (w.TryGetSpotAt(tx, ty, out var exact)) return exact;
+
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    if (dx == 0 && dy == 0) continue;
+                    if (w.TryGetSpotAt(tx + dx, ty + dy, out var s)) return s;
+                }
+            return null;
         }
 
         private static string SpotTypeName(SpotType t) => t switch

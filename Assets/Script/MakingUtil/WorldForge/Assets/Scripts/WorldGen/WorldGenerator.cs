@@ -122,6 +122,11 @@ namespace WorldForge
             // ── Step 9: 특수 스폿 ────────────────────────────────────
             GenerateSpots(world, s, rng);
 
+            // ── Step 10: 타일 등급맵 + 좌표 해시맵 구축 ──────────────
+            // NationMap 처럼 CityTierMap 도 여기서 채워지고,
+            // 도시/스폿 좌표 조회용 Dictionary 도 함께 생성됨
+            world.BuildLookupMaps();
+
             return world;
         }
 
