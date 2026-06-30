@@ -162,6 +162,8 @@ public class Mng_X128SS
     }
     public void Step_Add( float val , object obj )
     {
+        if( val < float.Epsilon ) return;
+
         _STEP_Val sv_pre = null;
         if( lt_step.Count > 0 )
         {
@@ -192,10 +194,23 @@ public class Mng_X128SS
 
     // 인덱스 스텝
     // 퍼센트 목록 받아서 바로 결과 인덱스
-    public int Step_Random_Idx( List<float> floats_per )
+    public int Step_Random_Idx( List<float> _floats_per )
     {
-        if( floats_per == null || floats_per.Count < 1 ) return -1;
+        if( _floats_per == null || _floats_per.Count < 1 ) return -1;
         List<float> steps = new();
+
+        List<float> floats_per = new();
+
+        foreach( var s in _floats_per )
+        {
+            if( s > float.Epsilon )
+            {
+                floats_per.Add(s);
+            }
+        }
+
+        if( floats_per.Count < 1 ) return -1;
+
         for( int i = 0 ; i < floats_per.Count ; i++ )
         {
             if( i == 0 )
