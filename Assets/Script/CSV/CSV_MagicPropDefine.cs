@@ -84,4 +84,10 @@ public class CSV_MagicPropDefinePage : SJ_CSV_BasePage
             s.LoadAfter( this );
         }
     }
+
+    public CSV_MagicPropDefine GetRandom( Mng_X128SS rd )
+    {
+        List<CSV_MagicPropDefine> cSVs = new List<CSV_MagicPropDefine>( dic_int.Values.Cast<CSV_MagicPropDefine>() );
+        return rd.RandomList( cSVs );
+    }
 }

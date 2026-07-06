@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// ``ID	이름	설명	리소스	등급	직업 대 분류	HP	행동속도	물공	물방	물공명중	물공회피	마공	마방
+// ``ID	이름	설명	리소스	등급	직업 대 분류	무기 정의	방어구 정의	HP	행동속도	물공	물방	물공명중	물공회피	마공	마방													
 public class CSV_CharBaseStat : SJ_CSV_BaseObj
 {
     public string name;
@@ -36,5 +36,15 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
 
 public class CSV_CharBaseStatPage : SJ_CSV_BasePage
 {
-    
+    public override SJ_CSV_BaseObj OnAlloc_Obj()
+    {
+        return new CSV_CharBaseStat();
+    }
+
+    // 로드 애프터 
+    // 아이템 디파인 연결
+    public override void LoadAfter()
+    {
+        
+    }
 }
