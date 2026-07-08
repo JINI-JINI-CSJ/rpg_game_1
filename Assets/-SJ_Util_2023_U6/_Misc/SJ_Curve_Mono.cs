@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Unity.Mathematics;
 
 [System.Serializable]
 public	class SJ_Curve
@@ -8,7 +9,7 @@ public	class SJ_Curve
 	{
 		None , 
 		Restart ,
-		Pingpong
+		PingPong
 	}
 
 	public	bool		realTime = false;
@@ -16,7 +17,7 @@ public	class SJ_Curve
 	public	bool	play;
 	public	bool	play_fwd = true;
 
-	public	AnimationCurve	Curve = new AnimationCurve();
+	public	AnimationCurve	Curve = AnimationCurve.Linear(0,0,1,1);
 
 	public	float	time = 1.0f;
 	float			time_cur = -1;
@@ -24,18 +25,31 @@ public	class SJ_Curve
 	public	float	val_end = 1;
 	public	float	val_cur = 0f;
 
+	public float 	curve_cur;
+
 	public	float	realTime_Start;
 
 	public  _SJ_GO_FUNC		end_recvMsg = new _SJ_GO_FUNC();
+
+	public	delegate	void	Func_Call();
+
+	public  Func_Call func_Update;
+	public  Func_Call func_End;
 
 	public	float	Val() {return val_cur; }
 	public	void	StartTime()
 	{
 		time_cur = 0;
+		curve_cur = 0;
 		realTime_Start = Time.realtimeSinceStartup;
 		play = true;
 	}
 
+	public	void	StartTime_PlayDir( bool _play_fwd )
+	{
+		play_fwd = _play_fwd;
+		StartTime();
+	}
 
 	public	void	InitCurve( float _val )
 	{
@@ -84,39 +98,154 @@ public	class SJ_Curve
 				case LOOP_TYPE.None:
 				{
 					r = 1;
-					
-					if( play_fwd )
-						val_cur = val_end;
-					else 
-						val_cur = val_start;
+
+					// if( play_fwd == false )r = 1.0f - r;
+					// curve_cur = Curve.Evaluate( r );
+					// val_cur = val_start + ((val_end - val_start) * curve_cur );
+					// OnUpdate();
+					UpdatePrc(r);
 
 					play = false;
 
 					end_recvMsg.Func();
+					func_End?.Invoke();
 					return val_cur;
 				}
 
 
 				case LOOP_TYPE.Restart:
-				case LOOP_TYPE.Pingpong:
+				case LOOP_TYPE.PingPong:
 				{
 					r = r - 1.0f;
 					time_cur -= time;
-					if( loop_type == LOOP_TYPE.Pingpong )play_fwd = !play_fwd;
+					if( loop_type == LOOP_TYPE.PingPong )play_fwd = !play_fwd;
 					if( realTime ) realTime_Start = Time.realtimeSinceStartup;
 				}
 				break;
 			}
 		}
-
-		if( play_fwd == false )r = 1.0f - r;
-		
-		float r_c = Curve.Evaluate( r );
-		val_cur = val_start + ((val_end - val_start) * r_c );
-
+		// if( play_fwd == false )r = 1.0f - r;
+		// curve_cur = Curve.Evaluate( r );
+		// val_cur = val_start + ((val_end - val_start) * curve_cur );
+		// OnUpdate();
+		UpdatePrc(r);
 		return	val_cur;
 	}
+
+	void UpdatePrc(float r)
+	{
+		if( play_fwd == false )r = 1.0f - r;
+		curve_cur = Curve.Evaluate( r );
+		val_cur = val_start + ((val_end - val_start) * curve_cur );
+		OnUpdate();
+	}
+
+	virtual public void OnUpdate()
+	{
+		func_Update?.Invoke();
+	}
 }
+
+
+public	class SJ_Curve_Vec3 : SJ_Curve
+{
+	public Vector3 pos_start;
+	public Vector3 pos_end;
+	public Vector3 pos_cur;
+    public override void OnUpdate()
+    {
+        pos_cur = Vector3.Lerp( pos_start , pos_end , curve_cur );
+		base.OnUpdate();
+    }
+}
+
+public	class SJ_Curve_Rot : SJ_Curve
+{
+	public Quaternion rot_start;
+	public Quaternion rot_end;
+	public Quaternion rot_cur;
+    public override void OnUpdate()
+    {
+        rot_cur = Quaternion.Lerp( rot_start , rot_end , curve_cur );
+		base.OnUpdate();
+    }
+}
+
+public	class SJ_Curve_Color : SJ_Curve
+{
+	public Color col_start;
+	public Color col_end;
+	public Color col_cur;
+    public override void OnUpdate()
+    {
+        col_cur = Color.Lerp( col_start , col_end , curve_cur );
+		base.OnUpdate();
+    }
+}
+
+// 객체 트랜스폼 토글 애니
+// 커브는 Ones 만 지원
+public class SJ_Curve_TransObjToggle : MonoBehaviour
+{
+	public SJ_Curve sJ_Curve = new();
+
+	public bool use_local_world; // local = false , world = true;
+
+	public bool use_pos;
+	public Vector3 pos_s = Vector3.zero;
+	public Vector3 pos_e = Vector3.zero;
+
+	public bool use_rot;
+	public Quaternion rot_s = Quaternion.identity;
+	public Quaternion rot_e = Quaternion.identity;
+
+	public bool use_scl;
+	public Vector3 scl_s = Vector3.one;
+	public Vector3 scl_e = Vector3.one;
+
+	// false : 초기  , true : 완료
+	// true 인 상태에서 플레이 시작하면 backward 플레이
+	public bool cur_toggle;
+
+	public delegate void OnEndToggle();
+	public OnEndToggle func_OnEndToggle;
+
+	public bool StartToggle()
+	{
+		if( sJ_Curve.play ) return false;
+		gameObject.SetActive(true);
+		sJ_Curve.func_Update = OnUpdateCurve;
+		sJ_Curve.func_End = OnEndCurve;
+		sJ_Curve.loop_type = SJ_Curve.LOOP_TYPE.None;
+		sJ_Curve.StartTime_PlayDir( !cur_toggle );
+		return true;
+	}
+
+	public void OnUpdateCurve()
+	{
+		if( use_local_world )
+		{
+			if( use_pos )transform.position = Vector3.Lerp( pos_s , pos_e , sJ_Curve.curve_cur );
+			if( use_rot )transform.rotation = Quaternion.Lerp( rot_s , rot_e , sJ_Curve.curve_cur );
+			if( use_scl )transform.localScale = Vector3.Lerp( scl_s , scl_e , sJ_Curve.curve_cur );
+		}
+		else
+		{
+			if( use_pos )transform.localPosition = Vector3.Lerp( pos_s , pos_e , sJ_Curve.curve_cur );
+			if( use_rot )transform.localRotation = Quaternion.Lerp( rot_s , rot_e , sJ_Curve.curve_cur );
+			if( use_scl )transform.localScale = Vector3.Lerp( scl_s , scl_e , sJ_Curve.curve_cur );
+		}
+	}
+
+	public void OnEndCurve()
+	{
+		cur_toggle = !cur_toggle;
+		func_OnEndToggle?.Invoke();
+	}
+
+}
+
+
 
 public class SJ_Curve_Mono : MonoBehaviour
 {

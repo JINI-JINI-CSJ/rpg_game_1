@@ -2,6 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 
+[System.Serializable]
+public class SJ_LANG_ID
+{
+	public string 	part;
+	public string 	word;
+	public int 		id;
+	public string 	DESC;
+
+	public string DEBUG_LOG()
+	{
+		return "[PART : " + part + "   WORD : " + word + "    ID : " + id + "    DESC : " + DESC + "]";
+	}
+}
+
 public class SJ_Language
 {
 	static	public	int		Total_Lang = 0;
@@ -124,6 +138,29 @@ public class SJ_Language
 		}
 		SJ_CSV_Read.CloseCSV();
 		return load_count;
+	}
+
+	static public List<string> Str( List<SJ_LANG_ID> sJ_LANG_IDs )
+	{
+		List<string> msgs = new();
+		foreach( var s in sJ_LANG_IDs )
+		{
+			msgs.Add( Str( s ) );
+		}
+		return msgs;
+	}
+
+	static public string Str( SJ_LANG_ID sJ_LANG_ID )
+	{
+		if( string.IsNullOrEmpty( sJ_LANG_ID.word ) == false )
+		{
+			return Str( sJ_LANG_ID.part , sJ_LANG_ID.word );
+		}
+		else if( sJ_LANG_ID.id > 0 )
+		{
+			return Str( sJ_LANG_ID.part , sJ_LANG_ID.id );
+		}
+		return sJ_LANG_ID.DEBUG_LOG();
 	}
 
 	static public	string	Str( string part  , int id ,  params string[] args_rp  )
