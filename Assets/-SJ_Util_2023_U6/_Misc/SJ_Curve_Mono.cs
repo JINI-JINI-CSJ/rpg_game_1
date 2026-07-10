@@ -13,7 +13,7 @@ public	class SJ_Curve
 	}
 
 	public	bool		realTime = false;
-	public	LOOP_TYPE	loop_type;
+	public	LOOP_TYPE	loop_type = LOOP_TYPE.None;
 	public	bool	play;
 	public	bool	play_fwd = true;
 
@@ -57,11 +57,12 @@ public	class SJ_Curve
 		val_start = val_end = val_cur = _val;
 	}
 
-	public	void	StarTimeCurve( float _start , float _end , bool _play_fwd = true )
+	public	void	StarTimeCurve( float _start , float _end , bool _play_fwd = true , float playTime = 1.0f )
 	{
 		play_fwd = _play_fwd;
 		val_start = val_cur = _start;
 		val_end = _end;
+		time = playTime;
 		StartTime();
 	}
 
@@ -146,7 +147,7 @@ public	class SJ_Curve
 	}
 }
 
-
+[System.Serializable]
 public	class SJ_Curve_Vec3 : SJ_Curve
 {
 	public Vector3 pos_start;
@@ -158,7 +159,7 @@ public	class SJ_Curve_Vec3 : SJ_Curve
 		base.OnUpdate();
     }
 }
-
+[System.Serializable]
 public	class SJ_Curve_Rot : SJ_Curve
 {
 	public Quaternion rot_start;
@@ -170,7 +171,7 @@ public	class SJ_Curve_Rot : SJ_Curve
 		base.OnUpdate();
     }
 }
-
+[System.Serializable]
 public	class SJ_Curve_Color : SJ_Curve
 {
 	public Color col_start;
@@ -208,17 +209,51 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	public bool cur_toggle;
 
 	public delegate void OnEndToggle();
-	public OnEndToggle func_OnEndToggle;
+	public OnEndToggle func_OnEndToggle_ON;
+	public OnEndToggle func_OnEndToggle_OFF;
 
-	public bool StartToggle()
+	public void Init()
 	{
-		if( sJ_Curve.play ) return false;
 		gameObject.SetActive(true);
 		sJ_Curve.func_Update = OnUpdateCurve;
 		sJ_Curve.func_End = OnEndCurve;
 		sJ_Curve.loop_type = SJ_Curve.LOOP_TYPE.None;
+	}
+
+	public bool StartToggle()
+	{
+		if( sJ_Curve.play ) return false;
+		Init();
 		sJ_Curve.StartTime_PlayDir( !cur_toggle );
 		return true;
+	}
+
+	// 정방향 플레이 
+	public void StartFunc_FWD( OnEndToggle func_end )
+	{
+		Init();
+		func_OnEndToggle_ON = func_end;
+		if( cur_toggle && sJ_Curve.play == false )
+		{
+			// 이미 열린 상태
+			func_OnEndToggle_ON?.Invoke();
+			return;
+		}
+		sJ_Curve.StartTime_PlayDir( true );//그외에는 그냥 오픈 애니
+	}
+
+	// 역방향 플레이
+	public void StartFunc_BACK( OnEndToggle func_end )
+	{
+		Init();
+		func_OnEndToggle_OFF = func_end;
+		if( cur_toggle == false && sJ_Curve.play == false )
+		{
+			// 이미 닫힌 상태
+			func_OnEndToggle_OFF?.Invoke();
+			return;
+		}
+		sJ_Curve.StartTime_PlayDir( false );
 	}
 
 	public void OnUpdateCurve()
@@ -240,7 +275,14 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	public void OnEndCurve()
 	{
 		cur_toggle = !cur_toggle;
-		func_OnEndToggle?.Invoke();
+		if( cur_toggle )
+		{
+			func_OnEndToggle_ON?.Invoke();
+		}
+		else
+		{
+			func_OnEndToggle_OFF?.Invoke();
+		}
 	}
 
 }

@@ -5,3 +5,11 @@ public class CSV_OfficeDepartment : SJ_CSV_BaseObj
 {
 
 }
+
+public class CSV_OfficeDepartmentPage : SJ_CSV_BasePage
+{
+    public override SJ_CSV_BaseObj OnAlloc_Obj()
+    {
+        return new CSV_OfficeDepartment();
+    }
+}

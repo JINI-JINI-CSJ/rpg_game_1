@@ -34,30 +34,19 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 
     public void PlayStep()
     {
+        SJ_Unity.SetUnityAction_OneFunc( dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
+
         // 아무 메시지 없는 거라면 닫기 애니
         if( use_msg == false && useID == false )
         {
-            viewTextBox.func_OnEndToggle = OnEnd_ViewBoxAni_OFF;
-            viewTextBox.StartToggle();
+            viewTextBox.StartFunc_BACK( OnEnd_ViewBoxAni_OFF );
             return;
         }
-
-        // 메세지 박스 안보이는 상태라면 보이기 애니
-        if( viewTextBox.cur_toggle == false )
-        {
-            viewTextBox.func_OnEndToggle = OnEnd_ViewBoxAni_ON;
-            viewTextBox.StartToggle();
-            go_parViewBox.SetActive(true);
-        }
-        else
-        {
-            StartText();
-        }
+        viewTextBox.StartFunc_FWD( OnEnd_ViewBoxAni_ON );
     }
 
     public void StartText()
     {
-
         if( use_msg )
         {
             if( msg_directly.Count < 1 )
@@ -81,6 +70,12 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
     public void OnEnd_ViewBoxAni_ON()
     {
         StartText();
+    }
+
+    // 모든 라인 출력이면 종료 시작
+    public void OnEndLine_TalkBox()
+    {
+        viewTextBox.StartFunc_BACK( OnEnd_ViewBoxAni_OFF );
     }
 
     public void OnEnd_ViewBoxAni_OFF()

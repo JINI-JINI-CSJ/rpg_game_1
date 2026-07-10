@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // 페이드 인 하고 , 호출 , 페이드 아웃
+// 블랙 UI 에 붙인다.
 public class SJ_UIFadeFunc : MonoBehaviour
 {
     static public SJ_UIFadeFunc G;
     public SJ_UITween_Color uITween_Color;
-    public Image img;
+    //public Image img;
     public delegate void FUNC_PRC( object arg );
 
     FUNC_PRC func_load;
@@ -66,8 +67,12 @@ public class SJ_UIFadeFunc : MonoBehaviour
 
     virtual public void OnStartFadeIn()
     {
-        img.enabled = true;
-        img.transform.SetAsLastSibling();
+        //img.enabled = true;
+        //img.transform.SetAsLastSibling();
+
+        gameObject.SetActive(true);
+        gameObject.transform.SetAsLastSibling();
+
         uITween_Color.PlayFwd();
         StartCoroutine( CO_OnStartFadeIn(uITween_Color.PlayTime) );
     }
@@ -100,8 +105,10 @@ public class SJ_UIFadeFunc : MonoBehaviour
 
     virtual public void OnStartFadeOut_End()
     {
+        gameObject.SetActive(false);
         func_Complete?.Invoke(arg_Complete);
-        img.enabled = false;
+        //img.enabled = false;
+
     }
 
 

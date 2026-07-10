@@ -32,6 +32,8 @@ using System.Linq;
 /// 
 /// // 구글 스프레드 시트 csv 다운로드 예제
 /// https://docs.google.com/spreadsheets/d/1vDdMtqOIus2KN-HeGqdSRYMhR1OfdtHBfvr1ucTFg2o/gviz/tq?tqx=out:csv&sheet=%EC%9C%A0%EB%8B%9B
+/// 주소 마지막 다음
+/// gviz/tq?tqx=out:csv&sheet=
 /// 
 /// 다운로드
 /// https://kutar37.tistory.com/entry/%EA%B5%AC%EA%B8%80-%EC%8A%A4%ED%94%84%EB%A0%88%EB%93%9C%EC%8B%9C%ED%8A%B8-API-%ED%99%9C%EC%9A%A9%ED%95%98%EA%B8%B0-SELECT

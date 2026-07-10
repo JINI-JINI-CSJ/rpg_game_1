@@ -4,10 +4,36 @@ using UnityEngine;
 
 public class GTF_CSV : SJ_CSV_Mng
 {
+    static public CSV_Config                csv_Config = new();
+    static public CSV_PercentInfPage        csv_PercentInfPage = new();
+    static public CSV_ConteStoryPage        csv_ConteStoryPage = new();
+    static public CSV_GODPage               csv_GODPage = new();
+    static public CSV_EqItemDefinePage      csv_EqItemDefinePage = new();
+    static public CSV_MagicPropDefinePage   csv_MagicPropDefinePage = new();
+    static public CSV_SkillPage             csv_SkillPage_NORMAL = new();
+    static public CSV_SkillPage             csv_SkillPage_ADD_EFF = new();
+    static public CSV_CharBaseStatPage      csv_CharBaseStatPage = new();
+    static public CSV_ItemPage              csv_ItemPage = new();
+    static public CSV_OfficeUpgradePage     csv_OfficeUpgradePage = new();
+    static public CSV_OfficeDepartmentPage  csv_OfficeDepartmentPage = new();
 
-    static public CSV_PercentInfPage csv_PercentInfPage = new();
+    public GTF_CSV()
+    {
+        url_Base        = "https://docs.google.com/spreadsheets/d/1rgsuacZzfhN3i95GJvW_8Wwy7QAzajXbk-FRrXjFEyE/gviz/tq?tqx=out:csv&sheet=";
+        url_Base_Lang   = "https://docs.google.com/spreadsheets/d/1JCiUQIezvUO4c3ycRROHDkYDeCi7JyzOO_JJYeI_4ls/gviz/tq?tqx=out:csv&sheet=";
+    }
 
-    static public CSV_MagicPropDefinePage csv_MagicPropDefinePage = new();
+    override	public void OnAdd_CSVUrlList()
+    {
+        Add_CSVName( csv_Config                 , "전역"    , false );
+        Add_CSVName( csv_PercentInfPage         , "확률표"  , false );
+        Add_CSVName( csv_ConteStoryPage         , "다중퀘스트성향"  , false );
+        Add_CSVName( csv_GODPage                , "후원자 신"  , false );
+        Add_CSVName( csv_EqItemDefinePage       , "장비아이템정의"  , false );
+        Add_CSVName( csv_MagicPropDefinePage    , "마법속성정의"  , false );
+        Add_CSVName( csv_SkillPage_NORMAL       , "스킬일반"  , false );
+        Add_CSVName( csv_SkillPage_ADD_EFF      , "스킬추가효과"  , false );    
+    }
 
     static public List<CSV_Skill> GetSkill_JobMake( JOB_BASE job )
     {

@@ -31,3 +31,11 @@ public class CSV_EqItemDefine : SJ_CSV_BaseObj
         TAG_SUB_3 = Next();
     }
 }
+
+public class CSV_EqItemDefinePage : SJ_CSV_BasePage
+{
+    public override SJ_CSV_BaseObj OnAlloc_Obj()
+    {
+        return new CSV_EqItemDefine();
+    }
+}

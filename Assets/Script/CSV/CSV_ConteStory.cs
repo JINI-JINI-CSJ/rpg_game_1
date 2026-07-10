@@ -1,16 +1,14 @@
 using UnityEngine;
 
-public class CSV_ConteStory : MonoBehaviour
+public class CSV_ConteStory : SJ_CSV_BaseObj
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+}
+
+public class CSV_ConteStoryPage : SJ_CSV_BasePage
+{
+    public override SJ_CSV_BaseObj OnAlloc_Obj()
     {
-        
+        return new CSV_ConteStory();
     }
 }

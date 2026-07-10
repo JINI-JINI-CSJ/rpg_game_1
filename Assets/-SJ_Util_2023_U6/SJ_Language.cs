@@ -5,10 +5,11 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SJ_LANG_ID
 {
+	public string 	DESC;	
+
 	public string 	part;
 	public string 	word;
 	public int 		id;
-	public string 	DESC;
 
 	public string DEBUG_LOG()
 	{

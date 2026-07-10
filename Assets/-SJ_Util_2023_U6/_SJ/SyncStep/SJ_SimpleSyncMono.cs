@@ -181,5 +181,40 @@ public class SJ_SimpleSyncMono : MonoBehaviour
         }
         return false;
     }
+}
 
+
+// 더 간단 함수 단계 실행
+// 들어오는대로 바로 실행
+// 등록된 함수들은 종료시 반드시 Next 실행
+public class SJ_SimpleSync
+{
+    public delegate void OnFunc();
+    public List<OnFunc> listFunc = new();
+
+    public OnFunc onFunc_end;
+
+    public void Add( OnFunc func )
+    {
+        listFunc.Add(func);
+    }
+
+    public bool Next()
+    {
+        if( listFunc.Count < 1 )
+        {
+            onFunc_end?.Invoke();
+            return false;
+        }
+        OnFunc cur = listFunc[0];
+        listFunc.RemoveAt(0);
+        cur.Invoke();
+        return true;
+    }
+
+    public void Add_Next( OnFunc func )
+    {
+        Add( func );
+        Next();
+    }
 }
