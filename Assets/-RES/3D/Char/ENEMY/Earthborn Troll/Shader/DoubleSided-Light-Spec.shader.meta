@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 7ab459c141b1a8c43ae9822ef2506d95
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13541
+  packageName: The Earthborn Troll
+  packageVersion: 1.0.3
+  assetPath: Assets/Earthborn Troll/Shader/DoubleSided-Light-Spec.shader
+  uploadId: 850

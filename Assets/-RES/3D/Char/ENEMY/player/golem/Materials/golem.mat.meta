@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: da0f6f2de5d93214a8f998dee15aa8c9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 3746
+  packageName: Maze element Ice Golem
+  packageVersion: 1.0
+  assetPath: Assets/player/golem/Materials/golem.mat
+  uploadId: 26586

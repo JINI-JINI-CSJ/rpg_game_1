@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 0f32f9f707268da40a09991a6ac4c3ea
+labels:
+- Critter
+- Insect
+- Spider
+- Alien
+- Pseudo
+- Creature
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 7290
+  packageName: Pseudo Spider
+  packageVersion: 1
+  assetPath: Assets/PseudoSpider/Prefabs/PseudoSpider.prefab
+  uploadId: 27776

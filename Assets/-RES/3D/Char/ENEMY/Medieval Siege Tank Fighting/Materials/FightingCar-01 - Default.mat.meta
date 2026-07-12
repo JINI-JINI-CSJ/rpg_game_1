@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 10623c8422de2de4888d31d8f21c326b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 3225
+  packageName: Medieval Siege Tank
+  packageVersion: 1.0
+  assetPath: Assets/Fighting/Materials/FightingCar-01 - Default.mat
+  uploadId: 26284

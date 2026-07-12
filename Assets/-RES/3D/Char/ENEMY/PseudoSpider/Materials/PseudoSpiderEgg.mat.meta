@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: eb192698606b47e43b80a46fc8bc8ccb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 7290
+  packageName: Pseudo Spider
+  packageVersion: 1
+  assetPath: Assets/PseudoSpider/Materials/PseudoSpiderEgg.mat
+  uploadId: 27776

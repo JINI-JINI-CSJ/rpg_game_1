@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace TileEditor.Core
 {
@@ -50,6 +51,55 @@ namespace TileEditor.Core
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             using var reader = new BinaryReader(stream, Encoding.UTF8);
 
+            // uint magic = reader.ReadUInt32();
+            // if (magic != Magic)
+            //     throw new InvalidDataException("유효하지 않은 타일맵 파일입니다 (매직넘버 불일치).");
+
+            // int version = reader.ReadInt32();
+            // if (version != Version)
+            //     throw new InvalidDataException($"지원하지 않는 버전입니다: {version}");
+
+            // int width = reader.ReadInt32();
+            // int height = reader.ReadInt32();
+            // int layerCount = reader.ReadInt32();
+
+            // var map = new TileMapData(width, height);
+
+            // for (int l = 0; l < layerCount; l++)
+            // {
+            //     string name = ReadString(reader);
+            //     bool visible = reader.ReadBoolean();
+            //     float opacity = reader.ReadSingle();
+
+            //     var layer = map.AddLayer(name);
+            //     layer.Visible = visible;
+            //     layer.Opacity = opacity;
+
+            //     int[] tiles = layer.RawTiles;
+            //     for (int i = 0; i < tiles.Length; i++)
+            //     {
+            //         tiles[i] = reader.ReadInt32();
+            //     }
+            // }
+
+            // return map;
+
+            return Load_BinaryReader( reader );
+        }
+
+        // csj
+
+        public static TileMapData Load( TextAsset binaryFile )
+        {
+            byte[] fileData = binaryFile.bytes;
+            using var       stream = new MemoryStream(fileData);
+            BinaryReader    reader = new BinaryReader( stream , Encoding.UTF8 );
+
+            return Load_BinaryReader(reader);
+        }
+
+        public static TileMapData Load_BinaryReader( BinaryReader  reader )
+        {
             uint magic = reader.ReadUInt32();
             if (magic != Magic)
                 throw new InvalidDataException("유효하지 않은 타일맵 파일입니다 (매직넘버 불일치).");
@@ -83,6 +133,7 @@ namespace TileEditor.Core
 
             return map;
         }
+
 
         private static void WriteString(BinaryWriter writer, string value)
         {

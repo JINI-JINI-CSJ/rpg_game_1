@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cfdaab7b013961945824b8fe58d44af4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 14607
+  packageName: Goblin Ranger
+  packageVersion: 1
+  assetPath: Assets/FC_GoblinRanger/Weapon/Arrow_01/Materials/MAT_Arrow_01.mat
+  uploadId: 2540

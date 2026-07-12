@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: df5bca006faed034faaaca8e93d35712
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13541
+  packageName: The Earthborn Troll
+  packageVersion: 1.0.3
+  assetPath: Assets/Earthborn Troll/Shader/Alpha_Texture.shader
+  uploadId: 850

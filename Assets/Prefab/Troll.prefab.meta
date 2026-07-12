@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ba76689f220e59a48845d4df03dcbffa
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13541
+  packageName: The Earthborn Troll
+  packageVersion: 1.0.3
+  assetPath: Assets/Prefab/Troll.prefab
+  uploadId: 850

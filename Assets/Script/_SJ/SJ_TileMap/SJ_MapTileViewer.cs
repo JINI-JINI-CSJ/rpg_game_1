@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ using UnityEngine;
 
 public class SJ_MapTileViewer : MonoBehaviour
 {
+    [System.Serializable]
     public class PREFAB_ARR
     {
         public List<GameObject> objects;
@@ -34,6 +36,8 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public int prefab_size = 1; // 프레팹 크기
 
+    public Transform tr_Inst;
+
     int width;
     int height;
     int[] mapTile;
@@ -43,7 +47,7 @@ public class SJ_MapTileViewer : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -54,9 +58,13 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public void CreateMap( int w , int h , int[] arr , Mng_X128SS rd = null )
     {
+        if( tr_Inst == null )tr_Inst = transform;
+        SJ_Unity.Delete_Child( tr_Inst );
+
         width = w;
         height = h;
-        mapTile = arr;
+        mapTile = new int[arr.Length];
+        Array.Copy( arr , mapTile , arr.Length );
         rd_main = rd;
 
         MakeTilePrefab();
@@ -66,12 +74,14 @@ public class SJ_MapTileViewer : MonoBehaviour
     public int GetTileVal( int x , int y )
     {
         if( x < 0 || x >= width || y < 0 || y >= height ) return -1;
-        return mapTile[ y * height + x ];
+        return mapTile[ y * width + x ];
     }
 
     public GameObject InstPrfTile( int idx , int x , int y )
     {
-        if( idx < 0 || idx >= prfList.Count )
+        if( idx < 0 ) return null;
+
+        if( idx >= prfList.Count )
         {
             Debug.LogError( "에러 프리펩 : " + prfList.Count + "      idx : " + idx );
             return null;
@@ -84,8 +94,9 @@ public class SJ_MapTileViewer : MonoBehaviour
         Vector3 pos = new Vector3( x * prefab_size , 0 , y * prefab_size );
 
         GameObject inst = GameObject.Instantiate( prf );
-        inst.transform.SetParent( transform );
+        inst.transform.SetParent( tr_Inst );
         inst.transform.localPosition = pos;
+        inst.SetActive(true);
         return inst;
     }
 
@@ -119,12 +130,47 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     void WallTileInst( int x , int y , int off_x , int off_y , float rot )
     {
+        int self_tile = GetTileVal( x , y );
+        if( self_tile < 0 )  return;
+
         int off_tile = GetTileVal( x + off_x , y + off_y );
-        if( off_tile < 1 ) // 0 , -1 이면 벽
+        if( off_tile < 0 ) //  -1 이면 벽
         {
             GameObject prf = prf_Wall.GetRandom(rd_main);
             GameObject inst = InstPrfPos( prf , x , y );
             inst.transform.localRotation = Quaternion.Euler( 0 , rot , 0 );
         }
+    }
+
+    // 타일에디트 클로드 버전용 
+    public TextAsset binaryFile_TileMap;
+
+    TileEditor.Core.TileMapData tileMapData;
+
+    [ContextMenu("생성 등록 파일")]
+    public void Load_TileEditClaude_RD()
+    {
+        if( binaryFile_TileMap == null )
+        {
+            Debug.LogError( "파일 세팅 없음" );
+            return;
+        }
+        tileMapData = TileEditor.Core.TileMapBinaryIO.Load( binaryFile_TileMap );
+
+        // 0번째 레이어로만 지형타일 구성
+        if( tileMapData == null || tileMapData.Layers.Count < 1 )
+        {
+            Debug.LogError( "파일 클로드 " );
+            return;
+        }
+        TileEditor.Core.TileLayer tileLayer_0 = tileMapData.Layers[0];
+        CreateMap( tileLayer_0.Width , tileLayer_0.Height , tileLayer_0.RawTiles );
+    }
+
+    [ContextMenu("지우기")]
+    public void ClearTileInst()
+    {
+        if( tr_Inst == null )tr_Inst = transform;
+        SJ_Unity.Delete_Child( tr_Inst );
     }
 }

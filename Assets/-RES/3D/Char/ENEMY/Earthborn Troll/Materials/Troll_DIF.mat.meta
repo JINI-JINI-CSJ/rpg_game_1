@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: aee7b59560db30047bd8f9e5c2a03dc9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13541
+  packageName: The Earthborn Troll
+  packageVersion: 1.0.3
+  assetPath: Assets/Earthborn Troll/Materials/Troll_DIF.mat
+  uploadId: 850
