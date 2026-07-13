@@ -38,11 +38,16 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public Transform tr_Inst;
 
+
+    public bool NO_WALL;
+
     int width;
     int height;
     int[] mapTile;
 
     Mng_X128SS rd_main;
+
+    List<Vector2Int> moveAblePos = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -56,25 +61,40 @@ public class SJ_MapTileViewer : MonoBehaviour
         
     }
 
-    public void CreateMap( int w , int h , int[] arr , Mng_X128SS rd = null )
+    public void CopyTileMap(int w , int h , int[] arr , bool force_copy = false)
     {
-        if( tr_Inst == null )tr_Inst = transform;
-        SJ_Unity.Delete_Child( tr_Inst );
+        if( mapTile != null && force_copy == false ) return;
 
         width = w;
         height = h;
         mapTile = new int[arr.Length];
         Array.Copy( arr , mapTile , arr.Length );
-        rd_main = rd;
+    }
 
+    public void CreateMap( Mng_X128SS rd = null )
+    {
+        if( tr_Inst == null )tr_Inst = transform;
+        SJ_Unity.Delete_Child( tr_Inst );
+        rd_main = rd;
         MakeTilePrefab();
-        MakeWallPrefab();
+        if( NO_WALL == false ) MakeWallPrefab();
     }
 
     public int GetTileVal( int x , int y )
     {
         if( x < 0 || x >= width || y < 0 || y >= height ) return -1;
         return mapTile[ y * width + x ];
+    }
+
+    public bool CheckGetTileVal( int x , int y )
+    {
+        if( GetTileVal( x , y ) < 0 ) return false;
+        return true;
+    }
+
+    public bool CheckGetTileVal( Vector2Int pos )
+    {
+        return CheckGetTileVal( pos.x , pos.y );
     }
 
     public GameObject InstPrfTile( int idx , int x , int y )
@@ -89,9 +109,19 @@ public class SJ_MapTileViewer : MonoBehaviour
         return InstPrfPos( prfList[idx].GetRandom(rd_main) , x, y );
     }
 
+    public Vector3 GetPos( Vector2Int pos)
+    {
+        return new Vector3( pos.x * prefab_size , 0 , pos.y * prefab_size );
+    }
+
+    public Vector3 GetPos( int x , int y )
+    {
+        return new Vector3( x * prefab_size , 0 , y * prefab_size );
+    }
+
     public GameObject InstPrfPos( GameObject prf , int x , int y )
     {
-        Vector3 pos = new Vector3( x * prefab_size , 0 , y * prefab_size );
+        Vector3 pos = GetPos( x , y );
 
         GameObject inst = GameObject.Instantiate( prf );
         inst.transform.SetParent( tr_Inst );
@@ -104,11 +134,16 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     void MakeTilePrefab()
     {
+        moveAblePos.Clear();
         for( int y = 0 ; y < height ; y++ )
         {
             for( int x = 0 ; x < width ; x++ )
             {
                 int idx_p = GetTileVal(x,y);
+                if( idx_p > -1 )
+                {
+                    moveAblePos.Add( new Vector2Int( x , y ) );
+                }
                 InstPrfTile( idx_p , x , y );
             }
         }
@@ -146,14 +181,41 @@ public class SJ_MapTileViewer : MonoBehaviour
     public TextAsset binaryFile_TileMap;
 
     TileEditor.Core.TileMapData tileMapData;
+    TileEditor.Core.TileLayer tileLayer_0_cur;
 
     [ContextMenu("생성 등록 파일")]
-    public void Load_TileEditClaude_RD()
+    public void Load_TileEditClaude_CreateMap()
     {
+        // if( binaryFile_TileMap == null )
+        // {
+        //     Debug.LogError( "파일 세팅 없음" );
+        //     return;
+        // }
+        // tileMapData = TileEditor.Core.TileMapBinaryIO.Load( binaryFile_TileMap );
+
+        // // 0번째 레이어로만 지형타일 구성
+        // if( tileMapData == null || tileMapData.Layers.Count < 1 )
+        // {
+        //     Debug.LogError( "파일 클로드 " );
+        //     return;
+        // }
+        // tileLayer_0_cur = tileMapData.Layers[0];
+        Load_TileEditClaude();
+        CopyTileMap( tileLayer_0_cur.Width , tileLayer_0_cur.Height , tileLayer_0_cur.RawTiles );
+        CreateMap();
+    }
+
+    public bool Load_TileEditClaude()
+    {
+        if( tileMapData != null && tileLayer_0_cur != null )
+        {
+            return true;
+        }
+
         if( binaryFile_TileMap == null )
         {
             Debug.LogError( "파일 세팅 없음" );
-            return;
+            return false;
         }
         tileMapData = TileEditor.Core.TileMapBinaryIO.Load( binaryFile_TileMap );
 
@@ -161,10 +223,11 @@ public class SJ_MapTileViewer : MonoBehaviour
         if( tileMapData == null || tileMapData.Layers.Count < 1 )
         {
             Debug.LogError( "파일 클로드 " );
-            return;
+            return false;
         }
-        TileEditor.Core.TileLayer tileLayer_0 = tileMapData.Layers[0];
-        CreateMap( tileLayer_0.Width , tileLayer_0.Height , tileLayer_0.RawTiles );
+        tileLayer_0_cur = tileMapData.Layers[0];
+
+        return true;
     }
 
     [ContextMenu("지우기")]
@@ -172,5 +235,27 @@ public class SJ_MapTileViewer : MonoBehaviour
     {
         if( tr_Inst == null )tr_Inst = transform;
         SJ_Unity.Delete_Child( tr_Inst );
+    }
+
+    public Vector2Int RandomAblePos()
+    {
+        Load_TileEditClaude();
+
+        CopyTileMap( tileLayer_0_cur.Width , tileLayer_0_cur.Height , tileLayer_0_cur.RawTiles );
+
+        if( moveAblePos.Count < 1 )
+        {
+            for( int y = 0 ; y < height ; y++ )
+            {
+                for( int x = 0 ; x < width ; x++ )
+                {
+                    int idx_p = GetTileVal(x,y);
+                    if( idx_p > -1 )moveAblePos.Add( new Vector2Int( x , y ) );
+                }
+            }
+        }
+
+        // 이동 가능 위치중 랜덤
+        return (Vector2Int)SJ_Unity.GetRandomItem( moveAblePos );
     }
 }
