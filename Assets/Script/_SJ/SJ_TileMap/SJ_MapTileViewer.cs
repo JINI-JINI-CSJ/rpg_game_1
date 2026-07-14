@@ -2,6 +2,39 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Vec2 기준으로 데이터
+public class SJ_Coord2D_INT
+{
+    public int width;
+    public int height;
+    public int[] mapTile;
+
+    public bool CheckAlloc()
+    {
+        if( mapTile == null ) return false;
+        return true;
+    }
+
+    public void CopyData( int w , int h , int[] arr )
+    {
+        width = w;
+        height = h;
+        mapTile = new int[arr.Length];
+        Array.Copy( arr , mapTile , arr.Length );
+    }
+
+    public int GetTileVal( int x , int y )
+    {
+        if( x < 0 || x >= width || y < 0 || y >= height ) return -1;
+        return mapTile[ y * width + x ];
+    }
+
+    public int GetTileVal( Vector2Int pos )
+    {
+        return GetTileVal( pos.x , pos.y );
+    }
+}
+
 // 배열의 값을 각각 대응하는 프리펩으로 생성
 // 벽은 4방향 벽 등록
 // 1. 배열대로 프리펩 생성
@@ -41,13 +74,17 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public bool NO_WALL;
 
-    int width;
-    int height;
-    int[] mapTile;
+    // int width;
+    // int height;
+    // int[] mapTile;
+
+    public SJ_Coord2D_INT tileData = new();
 
     Mng_X128SS rd_main;
 
     List<Vector2Int> moveAblePos = new();
+
+    public Dictionary<Vector2Int,TileResBottom> dic_tileResBottoms = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -63,12 +100,8 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public void CopyTileMap(int w , int h , int[] arr , bool force_copy = false)
     {
-        if( mapTile != null && force_copy == false ) return;
-
-        width = w;
-        height = h;
-        mapTile = new int[arr.Length];
-        Array.Copy( arr , mapTile , arr.Length );
+        if( tileData.mapTile != null && force_copy == false ) return;
+        tileData.CopyData( w , h , arr );
     }
 
     public void CreateMap( Mng_X128SS rd = null )
@@ -78,12 +111,14 @@ public class SJ_MapTileViewer : MonoBehaviour
         rd_main = rd;
         MakeTilePrefab();
         if( NO_WALL == false ) MakeWallPrefab();
+
     }
 
     public int GetTileVal( int x , int y )
     {
-        if( x < 0 || x >= width || y < 0 || y >= height ) return -1;
-        return mapTile[ y * width + x ];
+        // if( x < 0 || x >= width || y < 0 || y >= height ) return -1;
+        // return mapTile[ y * width + x ];
+        return tileData.GetTileVal( x , y );
     }
 
     public bool CheckGetTileVal( int x , int y )
@@ -135,25 +170,33 @@ public class SJ_MapTileViewer : MonoBehaviour
     void MakeTilePrefab()
     {
         moveAblePos.Clear();
-        for( int y = 0 ; y < height ; y++ )
+        for( int y = 0 ; y < tileData.height ; y++ )
         {
-            for( int x = 0 ; x < width ; x++ )
+            for( int x = 0 ; x < tileData.width ; x++ )
             {
                 int idx_p = GetTileVal(x,y);
                 if( idx_p > -1 )
                 {
                     moveAblePos.Add( new Vector2Int( x , y ) );
                 }
-                InstPrfTile( idx_p , x , y );
+                GameObject inst = InstPrfTile( idx_p , x , y );
+                if( inst != null )
+                {
+                    TileResBottom bottom = inst.GetComponent<TileResBottom>();
+                    if( bottom != null )
+                    {
+                        bottom.SetPos( x , y );
+                    }
+                }
             }
         }
     }
 
     void MakeWallPrefab()
     {
-        for( int y = 0 ; y < height ; y++ )
+        for( int y = 0 ; y < tileData.height ; y++ )
         {
-            for( int x = 0 ; x < width ; x++ )
+            for( int x = 0 ; x < tileData.width ; x++ )
             {
                 WallTileInst( x , y , 0,  1 , 0 );
                 WallTileInst( x , y , 0, -1 , 180 );
@@ -186,23 +229,10 @@ public class SJ_MapTileViewer : MonoBehaviour
     [ContextMenu("생성 등록 파일")]
     public void Load_TileEditClaude_CreateMap()
     {
-        // if( binaryFile_TileMap == null )
-        // {
-        //     Debug.LogError( "파일 세팅 없음" );
-        //     return;
-        // }
-        // tileMapData = TileEditor.Core.TileMapBinaryIO.Load( binaryFile_TileMap );
-
-        // // 0번째 레이어로만 지형타일 구성
-        // if( tileMapData == null || tileMapData.Layers.Count < 1 )
-        // {
-        //     Debug.LogError( "파일 클로드 " );
-        //     return;
-        // }
-        // tileLayer_0_cur = tileMapData.Layers[0];
         Load_TileEditClaude();
         CopyTileMap( tileLayer_0_cur.Width , tileLayer_0_cur.Height , tileLayer_0_cur.RawTiles );
         CreateMap();
+        AlignData();
     }
 
     public bool Load_TileEditClaude()
@@ -239,15 +269,22 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public Vector2Int RandomAblePos()
     {
+        AlignData();
+
+        // 이동 가능 위치중 랜덤
+        return (Vector2Int)SJ_Unity.GetRandomItem( moveAblePos );
+    }
+
+    // 데이터 정리
+    public void AlignData()
+    {
         Load_TileEditClaude();
-
         CopyTileMap( tileLayer_0_cur.Width , tileLayer_0_cur.Height , tileLayer_0_cur.RawTiles );
-
         if( moveAblePos.Count < 1 )
         {
-            for( int y = 0 ; y < height ; y++ )
+            for( int y = 0 ; y < tileData.height ; y++ )
             {
-                for( int x = 0 ; x < width ; x++ )
+                for( int x = 0 ; x < tileData.width ; x++ )
                 {
                     int idx_p = GetTileVal(x,y);
                     if( idx_p > -1 )moveAblePos.Add( new Vector2Int( x , y ) );
@@ -255,7 +292,34 @@ public class SJ_MapTileViewer : MonoBehaviour
             }
         }
 
-        // 이동 가능 위치중 랜덤
-        return (Vector2Int)SJ_Unity.GetRandomItem( moveAblePos );
+        if( dic_tileResBottoms.Count < 1 )
+        {
+            TileResBottom[] bottoms = transform.GetComponentsInChildren<TileResBottom>();
+            foreach( var s in bottoms )
+            {
+                dic_tileResBottoms[ s.cur_pos ] = s;
+            }
+        }
     }
+
+    public bool CopyLayer_TileEditClaude( SJ_Coord2D_INT mapData , int layer , bool force_copy = false )
+    {
+        if( force_copy == false && mapData.CheckAlloc() ) return false;
+
+        Load_TileEditClaude();
+        if( tileMapData == null || tileMapData.Layers.Count <= layer ) return false;
+
+        TileEditor.Core.TileLayer tileLayer = tileMapData.Layers[layer];
+        mapData.CopyData( tileLayer.Width , tileLayer.Height , tileLayer.RawTiles );
+        return true;
+    }
+
+    public TileResBottom GetBottomInst( Vector2Int pos )
+    {
+        AlignData();
+        TileResBottom bottom = null;
+        dic_tileResBottoms.TryGetValue( pos , out bottom );
+        return bottom;
+    }
+
 }
