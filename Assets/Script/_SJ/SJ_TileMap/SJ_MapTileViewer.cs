@@ -60,24 +60,14 @@ public class SJ_MapTileViewer : MonoBehaviour
             return rd.RandomList( objects );
         }
     }
-
     // 프리펩
     public List<PREFAB_ARR> prfList;
-
     // 벽, 북쪽 방향이 막힌 기준
     public PREFAB_ARR prf_Wall;
-
     public int prefab_size = 1; // 프레팹 크기
-
     public Transform tr_Inst;
-
-
     public bool NO_WALL;
-
-    // int width;
-    // int height;
-    // int[] mapTile;
-
+    public int  noWall_TileID = 1;      // 1번 타일은 벽생성 안함
     public SJ_Coord2D_INT tileData = new();
 
     Mng_X128SS rd_main;
@@ -116,8 +106,6 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public int GetTileVal( int x , int y )
     {
-        // if( x < 0 || x >= width || y < 0 || y >= height ) return -1;
-        // return mapTile[ y * width + x ];
         return tileData.GetTileVal( x , y );
     }
 
@@ -209,7 +197,9 @@ public class SJ_MapTileViewer : MonoBehaviour
     void WallTileInst( int x , int y , int off_x , int off_y , float rot )
     {
         int self_tile = GetTileVal( x , y );
+        
         if( self_tile < 0 )  return;
+        if( noWall_TileID == self_tile ) return;
 
         int off_tile = GetTileVal( x + off_x , y + off_y );
         if( off_tile < 0 ) //  -1 이면 벽
