@@ -38,7 +38,6 @@ public class Panel_Title : MonoBehaviour
     public void OnFadeOut_End()
     {
         gameObject.SetActive(false);
-        introMain.PlayIntro();
     }
 
     public void OnMenu_Load()

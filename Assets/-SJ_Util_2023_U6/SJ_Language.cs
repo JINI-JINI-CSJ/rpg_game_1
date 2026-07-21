@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 [System.Serializable]
 public class SJ_LANG_ID
@@ -57,88 +58,95 @@ public class SJ_Language
 
 	static	public	int	Load_StringData_OpenedCSV( bool debug = false )
 	{
-		int load_count = 0;
-
-		int base_col = 5; // 기본 데이터(아이디 , 메타 데이터 등등)
-
-		read_Recent_Tag = "";
-		while(true)
+		try
 		{
-			if( read_CSV_Line < 1 )
+
+			int load_count = 0;
+			int base_col = 5; // 기본 데이터(아이디 , 메타 데이터 등등)
+			read_Recent_Tag = "";
+			while(true)
 			{
-				// 5 + lang 
-				// 기본 데이터(아이디 , 메타 데이터 등등) + 언어 갯수
-				read_CSV_Line = base_col + Total_Lang;
+				if( read_CSV_Line < 1 )
+				{
+					// 5 + lang 
+					// 기본 데이터(아이디 , 메타 데이터 등등) + 언어 갯수
+					read_CSV_Line = base_col + Total_Lang;
+				}
+
+				// `` 분류,	ID_Num,	ID_Str,	주석 ,언어들..		
+				List<string> strs = SJ_CSV_Read.Read_Line(read_CSV_Line );
+
+				if( strs == null || strs.Count < 5 ) break;
+
+
+				string tag = strs[0];
+				string str_id = strs[1];
+				string str_word = strs[2];
+				string str_meta = strs[4];
+
+				if( string.IsNullOrEmpty(tag) )continue;
+
+				List<string> list_word = new List<string>();
+				for( int i = base_col ; i < strs.Count ; i++ )list_word.Add( strs[i] );
+
+				// id 
+				int id_n = -1;
+				if( int.TryParse( str_id , out id_n ) )
+				{
+					Dictionary<int , List<string> > dic_sub = null;
+					if( dic_Data_int.TryGetValue( tag , out dic_sub ) == false )
+					{
+						dic_sub = new Dictionary<int, List<string>>();
+						dic_Data_int[tag] = dic_sub;
+					}
+					dic_sub[id_n] = list_word;
+
+
+					Dictionary<int,string> dic_sub_meta = null;
+					if( dic_Data_int_meta.TryGetValue( tag , out dic_sub_meta ) == false )
+					{
+						dic_sub_meta = new Dictionary<int,string>();
+						dic_Data_int_meta[tag] = dic_sub_meta;
+					}
+					dic_sub_meta[id_n] = str_meta;
+
+				}else{
+					
+					if( string.IsNullOrEmpty( str_word ) )
+					{
+						str_word = list_word[0];
+					}
+
+
+					Dictionary<string , List<string> > dic_sub = null;
+					if( dic_Data_str.TryGetValue( tag , out dic_sub ) == false )
+					{
+						dic_sub = new Dictionary<string, List<string>>();
+						dic_Data_str[tag] = dic_sub;
+					}
+					dic_sub[str_word] = list_word;				
+
+
+					Dictionary<string,string> dic_sub_meta = null;
+					if( dic_Data_str_meta.TryGetValue( tag , out dic_sub_meta ) == false )
+					{
+						dic_sub_meta = new Dictionary<string,string>();
+						dic_Data_str_meta[tag] = dic_sub_meta;
+					}
+					dic_sub_meta[str_word] = str_meta;
+				}
+
+				load_count++;
 			}
-
-			// `` 분류,	ID_Num,	ID_Str,	주석 ,언어들..		
-			List<string> strs = SJ_CSV_Read.Read_Line(read_CSV_Line );
-
-			if( strs == null || strs.Count < 1 ) break;
-
-
-			string tag = strs[0];
-			string str_id = strs[1];
-			string str_word = strs[2];
-			string str_meta = strs[4];
-
-			List<string> list_word = new List<string>();
-			for( int i = base_col ; i < strs.Count ; i++ )list_word.Add( strs[i] );
-
-			// id 
-			int id_n = -1;
-			if( int.TryParse( str_id , out id_n ) )
-			{
-				Dictionary<int , List<string> > dic_sub = null;
-				if( dic_Data_int.TryGetValue( tag , out dic_sub ) == false )
-				{
-					dic_sub = new Dictionary<int, List<string>>();
-					dic_Data_int[tag] = dic_sub;
-				}
-				dic_sub[id_n] = list_word;
-
-
-				Dictionary<int,string> dic_sub_meta = null;
-				if( dic_Data_int_meta.TryGetValue( tag , out dic_sub_meta ) == false )
-				{
-					dic_sub_meta = new Dictionary<int,string>();
-					dic_Data_int_meta[tag] = dic_sub_meta;
-				}
-				dic_sub_meta[id_n] = str_meta;
-
-			}else{
-				
-				if( string.IsNullOrEmpty( str_word ) )
-				{
-					str_word = list_word[0];
-				}
-
-
-				Dictionary<string , List<string> > dic_sub = null;
-				if( dic_Data_str.TryGetValue( tag , out dic_sub ) == false )
-				{
-					dic_sub = new Dictionary<string, List<string>>();
-					dic_Data_str[tag] = dic_sub;
-				}
-				dic_sub[str_word] = list_word;				
-
-
-				Dictionary<string,string> dic_sub_meta = null;
-				if( dic_Data_str_meta.TryGetValue( tag , out dic_sub_meta ) == false )
-				{
-					dic_sub_meta = new Dictionary<string,string>();
-					dic_Data_str_meta[tag] = dic_sub_meta;
-				}
-				dic_sub_meta[str_word] = str_meta;
-
-
-
-			}
-
-			load_count++;
+			SJ_CSV_Read.CloseCSV();
+			return load_count;			
 		}
-		SJ_CSV_Read.CloseCSV();
-		return load_count;
+		catch (System.Exception e)
+		{
+			Debug.LogError( e.Message );
+			throw;
+		}
+
 	}
 
 	static public List<string> Str( List<SJ_LANG_ID> sJ_LANG_IDs )
@@ -242,6 +250,17 @@ public class SJ_Language
             msg = msg.Replace( mark_rp , args_rp[i] );
         }
 		return msg;
+	}
+
+	static public List<string> STR_RangID( string part , int start_id , int end_id )
+	{
+		List<string> msgs = new();
+		for( int i = start_id ; i <= end_id ; i++ )
+		{
+			string msg = Str( part , i );
+			if( string.IsNullOrEmpty(msg) == false ) msgs.Add(msg);
+		}
+		return msgs;
 	}
 
 	static public string MetaData( string part  , int id  )

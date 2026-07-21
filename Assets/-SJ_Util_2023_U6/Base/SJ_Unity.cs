@@ -10,6 +10,35 @@ using System.Reflection;
 using UnityEditor;
 #endif
 
+public class SJ_COMMON
+{
+	public delegate void Func_VOID();
+
+	public delegate void Func_Arg( object obj );
+
+	// 시계 방향
+	public enum SJ_NEWS_DIR
+	{
+		None = -1,
+		N = 0 ,
+		E , 
+		S , 
+		W 
+	}
+
+	static public float AngleNEWS( SJ_NEWS_DIR dir )
+	{
+		switch( dir )
+		{
+			case SJ_NEWS_DIR.N: return 0; 
+			case SJ_NEWS_DIR.E: return 90; 
+			case SJ_NEWS_DIR.S: return 180; 
+			case SJ_NEWS_DIR.W: return 270; 
+		}
+		return 0;
+	}
+}
+
 public	class _SJ_GO_FUNC
 {
 	public	bool	debug;

@@ -1,16 +1,28 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SJ_GameSync_UIImage : SJ_GameSyncStepBase
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public Image    image;
+    public Text     text;
+    public Color    color;
+    public bool     show;
 
-    // Update is called once per frame
-    void Update()
+
+    public void PlayStep()
     {
-        
+        if( image != null )
+        {
+            image.color = color;            
+            image.gameObject.SetActive(show);
+        }
+
+        if( text != null )
+        {
+            text.color = color;
+            text.gameObject.SetActive(show);
+        } 
+
+        SJ_SimpleSyncMono.NextPlaySelf();
     }
 }

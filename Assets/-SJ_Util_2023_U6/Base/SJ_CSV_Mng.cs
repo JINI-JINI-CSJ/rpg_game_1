@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
-//using UnityEngine;
-// using UnityEngine.Networking;
-
 
 // CSV 전역 관리자 베이스 클래스
 public class SJ_CSV_Mng
@@ -227,7 +224,7 @@ public class SJ_CSV_Mng
     }
 
 
-    static public void Load( System.Type class_self, object obj = null, string func = "" )
+    static public void Load( System.Type class_self, object obj = null, string func = "" , bool log = false )
     {
         if( LOAD_FILE_OR_URL == 0 )
         {
@@ -235,11 +232,14 @@ public class SJ_CSV_Mng
         }
         else
         {
-            LoadURL( class_self, obj , func );
+            LoadURL( class_self, obj , func , log );
         }
     }
 
     virtual public   void   OnLoadAfter(){}
 
-    virtual public      void  OnLog( string str ){}
+    virtual public      void  OnLog( string str )
+    {
+        Debug.Log( str );
+    }
 }

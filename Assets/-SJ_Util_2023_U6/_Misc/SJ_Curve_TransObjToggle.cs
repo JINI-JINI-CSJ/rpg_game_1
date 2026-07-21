@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 
 // 객체 트랜스폼 토글 애니
@@ -8,6 +9,10 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	public SJ_Curve sJ_Curve = new();
 
 	public bool use_local_world; // local = false , world = true;
+
+	public bool backward_Hide = true;
+
+	public GameObject main_obj;
 
 	public bool use_pos;
 	public Vector3 pos_s = Vector3.zero;
@@ -21,19 +26,26 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	public Vector3 scl_s = Vector3.one;
 	public Vector3 scl_e = Vector3.one;
 
+	public bool use_color;
+
+	public Color color_s;
+	public Color color_e;
+	public Image image_Color;
+
 	// false : 초기  , true : 완료
 	// true 인 상태에서 플레이 시작하면 backward 플레이
 	public bool cur_toggle;
 
-	public delegate void OnEndToggle();
-	public OnEndToggle func_OnEndToggle_ON;
-	public OnEndToggle func_OnEndToggle_OFF;
+	
+	public SJ_COMMON.Func_VOID func_OnEndToggle_ON;
+	public SJ_COMMON.Func_VOID func_OnEndToggle_OFF;
 
-	public OnEndToggle func_OnEnd;
+	public SJ_COMMON.Func_VOID func_OnEnd;
 
 	public void Init()
 	{
-		gameObject.SetActive(true);
+		//gameObject.SetActive(true);
+		ActiveObj( true );
 		sJ_Curve.func_Update = OnUpdateCurve;
 		sJ_Curve.func_End = OnEndCurve;
 		sJ_Curve.loop_type = SJ_Curve.LOOP_TYPE.None;
@@ -53,7 +65,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	}
 
 	// 정방향 플레이 
-	public void StartFunc_FWD( OnEndToggle func_end , bool force_start = false )
+	public void StartFunc_FWD( SJ_COMMON.Func_VOID func_end = null , bool force_start = false )
 	{
 		Init();
 		func_OnEndToggle_ON = func_end;
@@ -67,7 +79,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	}
 
 	// 역방향 플레이
-	public void StartFunc_BACK( OnEndToggle func_end , bool force_start = false )
+	public void StartFunc_BACK( SJ_COMMON.Func_VOID func_end = null , bool force_start = false )
 	{
 		Init();
 		func_OnEndToggle_OFF = func_end;
@@ -94,6 +106,10 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 			if( use_rot )transform.localRotation = Quaternion.Slerp( rot_s , rot_e , sJ_Curve.curve_cur );
 			if( use_scl )transform.localScale = Vector3.Lerp( scl_s , scl_e , sJ_Curve.curve_cur );
 		}
+		if( use_color )
+		{
+			image_Color.color = Color.Lerp( color_s , color_e , sJ_Curve.curve_cur );
+		}
 	}
 
 	public void OnEndCurve()
@@ -106,9 +122,18 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		else
 		{
 			func_OnEndToggle_OFF?.Invoke();
+			if( backward_Hide )
+			{
+				ActiveObj( false );
+			}
 		}
-
 		func_OnEnd?.Invoke();
+	}
+
+	public void ActiveObj( bool b )
+	{
+		if( main_obj != null )	main_obj.SetActive(b);
+		else 					gameObject.SetActive(b);
 	}
 
     void Update()

@@ -2811,10 +2811,9 @@ MonoBehaviour:
   DESC: "\uCD08\uAE30 \uB300\uD654\n\uB05D\uB098\uBA74 \uD6C4\uC6D0\uC790 \uC120\uD0DD"
   dialogueTyper: {fileID: 0}
   go_parViewBox: {fileID: 0}
-  viewTextBox: {fileID: 0}
   use_msg: 0
   msg_directly: []
-  useID: 1
+  use_ListID: 0
   sJ_LANG_IDs:
   - DESC: "\uC778\uD2B8\uB85C 1"
     part: INTRO
@@ -2844,6 +2843,10 @@ MonoBehaviour:
     part: INTRO
     word: 
     id: 7
+  use_RangeID: 0
+  ID_PART_Range: 
+  start_id_Range: 0
+  end_id_Range: 0
 --- !u!1 &880572835
 GameObject:
   m_ObjectHideFlags: 0
@@ -6668,6 +6671,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SJ_UnityUIMng
   go_Black: {fileID: 0}
+  curve_Black: {fileID: 0}
+  curve_default_time: 0.3
   go_Top: {fileID: 0}
   go_no_Close: {fileID: 0}
   go_wait: {fileID: 0}

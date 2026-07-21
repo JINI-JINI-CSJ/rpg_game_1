@@ -5,21 +5,18 @@ using UnityEngine;
 public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 {
     public DialogueTyper dialogueTyper;
-
     // 뷰박스 상위 객체
     public GameObject go_parViewBox;
-
-    // 뷰박스 본인
-    public SJ_Curve_TransObjToggle viewTextBox;
-
     public bool use_msg;
     // 직접 메세지
     public List<string> msg_directly;
-
-    public bool useID;
+    public bool use_ListID;
     // 번역
     public List<SJ_LANG_ID> sJ_LANG_IDs;
-
+    public bool     use_RangeID;
+    public string   ID_PART_Range;
+    public int      start_id_Range;
+    public int      end_id_Range;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,15 +31,17 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 
     public void PlayStep()
     {
-        SJ_Unity.SetUnityAction_OneFunc( dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
+        //SJ_Unity.SetUnityAction_OneFunc( dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
+
+        dialogueTyper.OnDialogueFinished += OnEndLine_TalkBox;
 
         // 아무 메시지 없는 거라면 닫기 애니
-        if( use_msg == false && useID == false )
+        if( use_msg == false && use_ListID == false && use_RangeID == false )
         {
-            viewTextBox.StartFunc_BACK( OnEnd_ViewBoxAni_OFF );
+            SJ_UnityUIMng_Curve.CloseOne( OnEnd_ViewBoxAni_OFF );
             return;
         }
-        viewTextBox.StartFunc_FWD( OnEnd_ViewBoxAni_ON );
+        SJ_UnityUIMng_Curve.Open( go_parViewBox.name , OnEnd_ViewBoxAni_ON );
     }
 
     public void StartText()
@@ -56,7 +55,7 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
             }
             dialogueTyper.StartDialogue( msg_directly );
         }
-        else if( useID )
+        else if( use_ListID )
         {
             if( sJ_LANG_IDs.Count < 1 )
             {
@@ -64,7 +63,15 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
                 return;
             }
             dialogueTyper.StartDialogue( SJ_Language.Str( sJ_LANG_IDs ) );
-        }     
+        }
+        else if( use_RangeID )
+        {
+            dialogueTyper.StartDialogue( SJ_Language.STR_RangID( ID_PART_Range , start_id_Range , end_id_Range ) );
+        }
+        else
+        {
+            Debug.LogError( "사용 설정 없음" );
+        }
     }
 
     public void OnEnd_ViewBoxAni_ON()
@@ -75,14 +82,12 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
     // 모든 라인 출력이면 종료 시작
     public void OnEndLine_TalkBox()
     {
-        viewTextBox.StartFunc_BACK( OnEnd_ViewBoxAni_OFF );
+        Debug.Log( "OnEndLine_TalkBox" );
+        SJ_UnityUIMng_Curve.CloseOne( OnEnd_ViewBoxAni_OFF );
     }
 
     public void OnEnd_ViewBoxAni_OFF()
     {
-        go_parViewBox.SetActive(false);
         SJ_SimpleSyncMono.NextPlay();
     }
-
-
 }

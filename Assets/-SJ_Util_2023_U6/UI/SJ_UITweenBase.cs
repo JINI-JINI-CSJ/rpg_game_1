@@ -72,6 +72,14 @@ public class SJ_UITweenBase : MonoBehaviour
         OnFrameMove();
     }
 
+    // 
+    public void     ForceMove( float ratio )
+    {
+        time_cur = ratio * PlayTime;
+        ratio_cur = curve.Evaluate(ratio);
+        OnFrameMove();
+    }
+
     public  void    FrameMove( float t )
     {
         if(play == false) return;
@@ -106,15 +114,4 @@ public class SJ_UITweenBase : MonoBehaviour
     virtual public  void    OnEndOnce(){}
 
 
-    // public void START_PLAY()
-    // {
-    //     enabled = true;
-    //     Play();
-    // }
-
-    // public void STOP_PLAY()
-    // {
-    //     enabled = false;
-    //     Stop();
-    // }
 }

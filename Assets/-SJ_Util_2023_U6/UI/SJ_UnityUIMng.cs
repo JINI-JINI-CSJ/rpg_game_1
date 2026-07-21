@@ -7,7 +7,9 @@ using UnityEngine.UI;
 public class SJ_UnityUIMng : MonoBehaviour
 {
     static  public  SJ_UnityUIMng g;
-    public  GameObject          go_Black;
+    public GameObject          go_Black;
+    // public SJ_Curve_TransObjToggle  curve_Black;
+    // public float                curve_default_time = 0.3f;
     public GameObject           go_Top;    
     public GameObject           go_no_Close;
     public GameObject           go_wait;
@@ -19,6 +21,9 @@ public class SJ_UnityUIMng : MonoBehaviour
     public bool                 close_ESC_BACK_KEY = false;
     public GameObject           prf_Popup_Ani;
     public List<GameObject>     lt_no_Ani_Popup;
+
+
+
 
 
     public bool useSJ_PlayerInputMng = true;
@@ -41,8 +46,6 @@ public class SJ_UnityUIMng : MonoBehaviour
         public bool no_open_func;
         public GameObject go_popup;
     }
-
-    //SJ_SyncStepMng sync_aniMode = new SJ_SyncStepMng();
 
     Queue<_QUEUE_INF> queue = new Queue<_QUEUE_INF>();
 
@@ -598,5 +601,60 @@ public class SJ_UnityUIMng : MonoBehaviour
         }
         return viewportPos;
     }
+
+    
+    // static public SJ_Curve_TransObjToggle curvePanel_cur;
+    // static public GameObject Open_CurvePanel( string panel_name , SJ_COMMON.Func_VOID func_openEnd = null )
+    // {
+    //     if( curvePanel_cur != null ) return null;
+
+    //     if( g.curve_Black == null ) return null;
+
+    //     Transform tr = FindPage(panel_name);
+    //     if( tr == null ) return null;
+
+    //     SJ_Curve_TransObjToggle transObjToggle_Panel = tr.GetComponent<SJ_Curve_TransObjToggle>();
+
+    //     g.curve_Black.sJ_Curve.time = g.curve_default_time;
+    //     transObjToggle_Panel.sJ_Curve.time = g.curve_default_time;
+
+    //     g.curve_Black.transform.SetAsLastSibling();
+    //     transObjToggle_Panel.transform.SetAsLastSibling();
+
+    //     if( g.curve_Black.cur_toggle == false )
+    //         g.curve_Black.StartFunc_FWD();
+
+    //     transObjToggle_Panel.StartFunc_FWD( func_openEnd );
+
+    //     _POPUP_STOCK_INFO inf_stock = new _POPUP_STOCK_INFO();
+    //     inf_stock.go = transObjToggle_Panel.gameObject;
+    //     g.lt_Popup.Add(inf_stock);
+
+    //     SJ_Unity.SendMsg( transObjToggle_Panel.gameObject , "OpenPopup_StartAni" );
+
+    //     return transObjToggle_Panel.gameObject;
+    // }
+
+    // static public void Close_CurvePanel(  SJ_COMMON.Func_VOID func_openEnd = null )
+    // {
+    //     if( g.lt_Popup.Count < 1 ) return;
+    //     _POPUP_STOCK_INFO inf_stock = g.lt_Popup[g.lt_Popup.Count-1];
+    //     SJ_Curve_TransObjToggle transObjToggle_Panel  = inf_stock.go.GetComponent<SJ_Curve_TransObjToggle>();
+    //     if( transObjToggle_Panel == null ) return;
+
+    //     g.lt_Popup.RemoveAt(g.lt_Popup.Count - 1);
+    //     if( g.lt_Popup.Count < 1 )
+    //     {
+    //         g.curve_Black.StartFunc_BACK();
+    //     }
+    //     else
+    //     {
+    //         inf_stock = g.lt_Popup[g.lt_Popup.Count-1];
+    //         inf_stock.go.transform.SetAsLastSibling();
+    //     }
+
+    //     transObjToggle_Panel.StartFunc_BACK( func_openEnd );
+    //     return;
+    // }
 
 }

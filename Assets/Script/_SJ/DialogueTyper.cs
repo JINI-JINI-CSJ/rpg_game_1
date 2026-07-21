@@ -156,6 +156,7 @@ public class DialogueTyper : MonoBehaviour
 
     private void EndDialogue()
     {
+        Debug.Log( "다이얼로그 EndDialogue " );
         IsDialogueActive = false;
         isTyping = false;
         isLineFinished = false;

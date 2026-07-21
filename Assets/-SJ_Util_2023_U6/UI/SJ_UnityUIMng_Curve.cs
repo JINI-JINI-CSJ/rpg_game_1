@@ -1,0 +1,163 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SJ_UnityUIMng_Curve : MonoBehaviour
+{
+    static public SJ_UnityUIMng_Curve inst;
+
+    public SJ_Curve_TransObjToggle  curve_Black;
+    public float                    curve_default_time = 0.3f;
+    public SJ_DlgFuncSync funcSync = new();
+
+    public class _STOCK_INF
+    {
+        public string panel_name;
+        public SJ_COMMON.Func_VOID func;
+
+        public GameObject go_cur;
+    }
+
+    public List<GameObject> list_popup = new();
+
+    void Awake()
+    {
+        inst = this;
+    }
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    static public GameObject  Open( string panel_name , SJ_COMMON.Func_VOID func_end = null )
+    {
+        if( inst == null ) return null;
+        Transform tr = inst.transform.Find( panel_name );
+        if( tr == null )
+        {
+            Debug.LogError( "에러 : " + panel_name );
+            return null;
+        }
+
+        _STOCK_INF s = new();
+        s.panel_name = panel_name;
+        s.func = func_end;
+        s.go_cur = tr.gameObject;
+        inst.funcSync.Add( inst.OpenPrc , s );
+        return tr.gameObject;
+    }
+
+
+
+    _STOCK_INF cur_stock = null;
+    public void OpenPrc( object arg )
+    {
+        cur_stock = arg as _STOCK_INF;
+
+        Transform tr = inst.transform.Find( cur_stock.panel_name );
+        if( tr == null )
+        {
+            Debug.LogError( "에러 : " + cur_stock.panel_name );
+            return;
+        }
+
+        tr.gameObject.SetActive(true);
+
+        SJ_Curve_TransObjToggle transObjToggle_Panel = tr.GetComponentInChildren<SJ_Curve_TransObjToggle>();
+
+        if( transObjToggle_Panel == null )
+        {
+            Debug.LogError( "에러 : transObjToggle_Panel == null : " + cur_stock.panel_name );
+            return;
+        }
+
+        list_popup.Add( transObjToggle_Panel.gameObject );
+
+        AlignBackBlack();
+
+        transObjToggle_Panel.sJ_Curve.time = inst.curve_default_time;
+        tr.SetAsLastSibling();
+
+        transObjToggle_Panel.StartFunc_FWD( inst.EndAni_PanelOpen );
+
+        SJ_Unity.SendMsg( transObjToggle_Panel.gameObject , "OpenPopup_StartAni" );
+    }
+
+    public void AlignBackBlack()
+    {
+        if( curve_Black == null ) return;
+
+        if( list_popup.Count == 1 )
+        {
+            inst.curve_Black.sJ_Curve.time = inst.curve_default_time;
+             
+            inst.curve_Black.StartFunc_FWD();
+        }
+        else if( list_popup.Count == 0 )
+        {
+            inst.curve_Black.StartFunc_BACK();
+        }
+        inst.curve_Black.transform.SetAsLastSibling(); 
+        
+    }
+
+    public void EndAni_PanelOpen()
+    {
+        cur_stock.func?.Invoke();
+        SJ_Unity.SendMsg( cur_stock.go_cur , "OpenPopup_StartAni_End" );
+        inst.funcSync._Next();
+    }
+
+    static public void CloseOne( SJ_COMMON.Func_VOID func_end = null  )
+    {
+        if( inst.list_popup.Count < 1 )
+        {
+            Debug.Log( "위험!! 열린 창 없다!!!!!!!! inst.list_popup.Count < 1" );
+            return;            
+        }
+
+        _STOCK_INF s = new();
+        s.func = func_end;
+        inst.funcSync.Add( inst.ClosePrc , s );
+    }
+    public void ClosePrc( object arg )
+    {
+        _STOCK_INF s = arg as _STOCK_INF;
+        if( list_popup.Count < 1 )
+        {
+            inst.funcSync._Next();
+            return;
+        }
+
+        cur_stock = s;
+
+        GameObject go = list_popup[list_popup.Count-1];
+        SJ_Curve_TransObjToggle transObjToggle_Panel = go.GetComponentInChildren<SJ_Curve_TransObjToggle>();
+
+        list_popup.RemoveAt( list_popup.Count-1 );
+
+        transObjToggle_Panel.StartFunc_BACK( inst.EndAni_PanelClose );
+    }
+
+    public void EndAni_PanelClose()
+    {
+        if( list_popup.Count > 0 )
+        {
+            AlignBackBlack();
+            GameObject go = list_popup[list_popup.Count-1];
+            go.transform.SetAsLastSibling();
+        }
+
+        cur_stock.func?.Invoke();
+        inst.funcSync._Next();
+    }
+
+}

@@ -1,16 +1,25 @@
 using UnityEngine;
+using UnityEngine.Video;
 
-public class Player : MonoBehaviour
+public class Player
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    static public PlayerSaveFile saveFile = new();
+
+    static public bool loaded;
+
+    static public void LoadUserFile()
     {
-        
+        if( loaded )return;
+        saveFile.Load();
     }
 
-    // Update is called once per frame
-    void Update()
+    static public void SaveUserFile()
     {
-        
+        saveFile.Save();
+    }
+
+    static public bool FirstPlay()
+    {
+        return true;
     }
 }

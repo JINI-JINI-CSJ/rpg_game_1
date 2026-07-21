@@ -33,6 +33,9 @@ public class GTF_CSV : SJ_CSV_Mng
         Add_CSVName( csv_MagicPropDefinePage    , "마법속성정의"  , false );
         Add_CSVName( csv_SkillPage_NORMAL       , "스킬일반"  , false );
         Add_CSVName( csv_SkillPage_ADD_EFF      , "스킬추가효과"  , false );    
+
+        Add_CSVName( null      , "기본"  , false , true );   
+        Add_CSVName( null      , "대화컷신"  , false , true );   
     }
 
     static public List<CSV_Skill> GetSkill_JobMake( JOB_BASE job )

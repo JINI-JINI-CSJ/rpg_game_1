@@ -679,7 +679,7 @@ public	class SJ_CSV_BasePage
 
 			if( obj == null )
 			{
-				SJ_CSV_Mng.g_base.OnLog( "에러=====>>>> OnAlloc_Obj : " + this.ToString() );
+				SJ_CSV_Mng.g_base.OnLog( "!!! 에러=====>>>> OnAlloc_Obj : " + this.ToString() );
 				return;
 			}
 

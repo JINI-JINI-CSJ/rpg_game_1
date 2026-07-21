@@ -138,6 +138,8 @@ public class SJ_UnityUI_CommonPopup : MonoBehaviour
             SJ_UnityUI_Util.Toggle_Interactable(toggle_OK, true);
     }
 
+    static public bool open_curve = false;
+
     static public SJ_UnityUI_CommonPopup OpenCommonMsg(
         string _text_msg, MonoBehaviour mono = null, object obj_call = null ,
         string func_ok = "", bool show_cancel = false, string func_cancel = "",
@@ -145,8 +147,40 @@ public class SJ_UnityUI_CommonPopup : MonoBehaviour
         string _text_ok = "", string _text_cancel = "",
         float _wait_ko_active = -1, string _text_title = "")
     {
+        open_curve = false;
         GameObject go_SJ_UnityUI_CommonPopup = SJ_UnityUIMng.OpenPopup("SJ_UnityUI_CommonPopup");
 
+        return SettingOpen( go_SJ_UnityUI_CommonPopup , _text_msg, mono , obj_call  ,
+            func_ok ,  show_cancel ,  func_cancel ,
+            arg_ok ,  arg_cancel  ,
+            _text_ok ,  _text_cancel ,
+            _wait_ko_active ,  _text_title );
+    }
+
+    static public SJ_UnityUI_CommonPopup OpenCommonMsg_Curve(
+        string _text_msg, MonoBehaviour mono = null, object obj_call = null ,
+        string func_ok = "", bool show_cancel = false, string func_cancel = "",
+        object arg_ok = null , object arg_cancel = null ,
+        string _text_ok = "", string _text_cancel = "",
+        float _wait_ko_active = -1, string _text_title = "")
+    {
+        open_curve = true;
+        GameObject go_SJ_UnityUI_CommonPopup = SJ_UnityUIMng_Curve.Open("SJ_UnityUI_CommonPopup");
+
+        return SettingOpen( go_SJ_UnityUI_CommonPopup , _text_msg, mono , obj_call  ,
+            func_ok ,  show_cancel ,  func_cancel ,
+            arg_ok ,  arg_cancel  ,
+            _text_ok ,  _text_cancel ,
+            _wait_ko_active ,  _text_title );
+    }
+
+    static public SJ_UnityUI_CommonPopup SettingOpen( GameObject go_SJ_UnityUI_CommonPopup , string _text_msg, 
+        MonoBehaviour mono = null, object obj_call = null ,
+        string func_ok = "", bool show_cancel = false, string func_cancel = "",
+        object arg_ok = null , object arg_cancel = null ,
+        string _text_ok = "", string _text_cancel = "",
+        float _wait_ko_active = -1, string _text_title = "" )
+    {
         if (go_SJ_UnityUI_CommonPopup == null)
         {
             Debug.LogError("go_SJ_UnityUI_CommonPopup == null");
@@ -177,21 +211,52 @@ public class SJ_UnityUI_CommonPopup : MonoBehaviour
     public void OnOK()
     {
         Debug.Log( "------->>>> common popup ~~~~~ OnOK" );
-        SJ_UnityUIMng.ClosePopup();
-        func_OK.Func();
-        callFunc_OK.Func();
+
         SJSound.PlaySound( snd_OK );
-        uniTask?.TrySetResult(true);
+        if( open_curve == false )
+        {
+            SJ_UnityUIMng.ClosePopup();        
+            uniTask?.TrySetResult(true);
+            func_OK.Func();
+            callFunc_OK.Func();            
+        }
+        else
+        {
+            SJ_UnityUIMng_Curve.CloseOne( OnCurveCloseEnd_OK );
+        }
+
     }
 
     public void OnCancel()
     {
         Debug.Log( "------->>>> common popup ~~~~~ OnCancel" );
-        SJ_UnityUIMng.ClosePopup();
-        func_Cancel.Func();
-        callFunc_Cancel.Func();
+
         SJSound.PlaySound( snd_Cancel );
-        uniTask?.TrySetResult(false);
+        if( open_curve == false )
+        {
+            SJ_UnityUIMng.ClosePopup();
+            uniTask?.TrySetResult(false);
+            func_Cancel.Func();
+            callFunc_Cancel.Func();            
+        }
+        else
+        {
+            SJ_UnityUIMng_Curve.CloseOne( OnCurveCloseEnd_Cancel );
+        }
+    }
+
+    public void OnCurveCloseEnd_OK()
+    {
+        uniTask?.TrySetResult(true);
+        func_OK.Func();
+        callFunc_OK.Func();    
+    }
+
+    public void OnCurveCloseEnd_Cancel()
+    {
+        uniTask?.TrySetResult(true);
+        func_Cancel.Func();
+        callFunc_Cancel.Func();      
     }
 
     public void OnOK_Toggle( bool b )

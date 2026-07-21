@@ -31,10 +31,9 @@ public	class SJ_Curve
 
 	public  _SJ_GO_FUNC		end_recvMsg = new _SJ_GO_FUNC();
 
-	public	delegate	void	Func_Call();
 
-	public  Func_Call func_Update;
-	public  Func_Call func_End;
+	public  SJ_COMMON.Func_VOID func_Update;
+	public  SJ_COMMON.Func_VOID func_End;
 
 	public	float	Val() {return val_cur; }
 	public	void	StartTime()
@@ -99,11 +98,6 @@ public	class SJ_Curve
 				case LOOP_TYPE.None:
 				{
 					r = 1;
-
-					// if( play_fwd == false )r = 1.0f - r;
-					// curve_cur = Curve.Evaluate( r );
-					// val_cur = val_start + ((val_end - val_start) * curve_cur );
-					// OnUpdate();
 					UpdatePrc(r);
 
 					play = false;
@@ -125,10 +119,6 @@ public	class SJ_Curve
 				break;
 			}
 		}
-		// if( play_fwd == false )r = 1.0f - r;
-		// curve_cur = Curve.Evaluate( r );
-		// val_cur = val_start + ((val_end - val_start) * curve_cur );
-		// OnUpdate();
 		UpdatePrc(r);
 		return	val_cur;
 	}
@@ -137,6 +127,7 @@ public	class SJ_Curve
 	{
 		if( play_fwd == false )r = 1.0f - r;
 		curve_cur = Curve.Evaluate( r );
+//Debug.Log( "curve_cur : " + curve_cur );
 		val_cur = val_start + ((val_end - val_start) * curve_cur );
 		OnUpdate();
 	}
@@ -180,6 +171,9 @@ public	class SJ_Curve_Color : SJ_Curve
     public override void OnUpdate()
     {
         col_cur = Color.Lerp( col_start , col_end , curve_cur );
+
+		//Debug.Log( "col_start : " + col_start + "    col_end : " + col_end + "        curve_cur : " + curve_cur +  "       col_cur : " + col_cur );
+
 		base.OnUpdate();
     }
 }
