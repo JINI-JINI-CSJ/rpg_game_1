@@ -61,6 +61,12 @@ namespace TilemapTool
         public int userValue;
 
         /// <summary>
+        /// 이 배치가 커스텀 데이터를 갖고 있을 때 맵 그리드 뷰어에서 표시할 강조 색.
+        /// customData가 비어있으면 렌더러에서 이 색을 사용하지 않는다.
+        /// </summary>
+        public Color highlightColor = new Color(1f, 0.25f, 0.9f, 0.55f);
+
+        /// <summary>
         /// 게임마다 자유롭게 붙이는 범용 커스텀 데이터. [string key, object value] 형태.
         /// 지원 값 타입: string, int, float, bool, long, double
         /// (그 외 타입은 저장 시 ToString()으로 문자열화됨 - TilemapBinaryIO 참고)

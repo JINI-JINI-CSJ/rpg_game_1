@@ -124,14 +124,16 @@ public class SJ_MapTileMover : MonoBehaviour
         return true;
     }
 
-    public bool StartMove( Vector2Int pos_tar , SJ_COMMON.Func_VOID func_end = null )
+    virtual public void OnMoveEnd(){}
+
+    public bool StartMove( Vector2Int pos_tar )
     {
         if( CheckMapTile() == false ) return false;
         if( pos_tar == cur_pos ) return false;
 
         Vector3 pos_move_target = sJ_MapTile.GetPos( pos_tar );
 
-        curve_trans.func_OnEnd = func_end;
+        curve_trans.func_OnEnd = OnMoveEnd;
         curve_trans.use_pos = true;
         curve_trans.use_rot = false;
         curve_trans.use_scl = false;
@@ -144,12 +146,12 @@ public class SJ_MapTileMover : MonoBehaviour
         return true;
     }
 
-    public bool StartRot( _DIR_NEWS dir_target , SJ_COMMON.Func_VOID func_end = null )
+    public bool StartRot( _DIR_NEWS dir_target )
     {
         if( CheckMapTile() == false ) return false;
         if( cur_dir == dir_target )
 
-        curve_trans.func_OnEnd = func_end;
+        curve_trans.func_OnEnd = OnMoveEnd;
         curve_trans.use_pos = false;
         curve_trans.use_rot = true;
         curve_trans.use_scl = false;
@@ -164,21 +166,21 @@ public class SJ_MapTileMover : MonoBehaviour
 
     // 이동 앞뒤
     // true : 전진 , false : 후진
-    public bool StartMove_FB( bool front_back , SJ_COMMON.Func_VOID func_end = null  )
+    public bool StartMove_FB( bool front_back  )
     {
         Vector2Int pos = cur_pos;
         Vector2Int pos_next_off = MovePosCurDir( front_back );
         pos += pos_next_off;
         if( CheckMoveAblePos( pos ) == false ) return false;
-        return StartMove( pos , func_end );
+        return StartMove( pos );
     }
 
     // 회전 
     // 왼쪽 : -1 , 오른쪽 : 1
-    public bool StartRot_LR( int left_right , SJ_COMMON.Func_VOID func_end = null  )
+    public bool StartRot_LR( int left_right  )
     {
         _DIR_NEWS dir_target = Offset_DIR_NEWS( cur_dir , left_right );
-        return StartRot( dir_target , func_end );
+        return StartRot( dir_target );
     }
 
     // 테스트 메뉴
@@ -252,4 +254,5 @@ public class SJ_MapTileMover : MonoBehaviour
         
     }
 
+    //public 
 }

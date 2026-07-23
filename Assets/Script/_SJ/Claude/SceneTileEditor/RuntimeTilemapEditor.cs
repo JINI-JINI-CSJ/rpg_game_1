@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace TilemapTool
 {
@@ -9,15 +12,15 @@ namespace TilemapTool
     /// - XZ 평면 기준 그리드
     /// - 레이어 0 = 베이스 바닥 레이어(기본 제공), 그 외 유저 오브젝트 레이어 자유 추가
     /// - 유저 오브젝트는 배치 시 4방향(0/90/180/270) 지정 가능
-    /// - 팔레트: [string id, prefab, int userValue]
+    /// - 팔레트: [string id, prefab, int userValue], 레이어 순서와 1:1로 매칭 (palettes[i] ↔ layer i)
     /// - 바이너리 저장/불러오기 지원
     ///
     /// 조작법 (기본값)
-    ///   좌클릭       : 현재 레이어 + 현재 팔레트 선택 항목으로 배치 (드래그 페인트 가능)
+    ///   좌클릭       : 현재 레이어 + 현재 레이어의 팔레트 선택 항목으로 배치 (드래그 페인트 가능)
     ///   우클릭       : 현재 레이어에서 삭제 (드래그 삭제 가능)
     ///   R            : 배치 방향 90도 회전 (베이스 레이어는 방향 미적용)
     ///   Tab          : 활성 레이어 다음으로 전환
-    ///   왼쪽 상단 GUI: 팔레트 선택 / 레이어 관리 / 저장·불러오기
+    ///   왼쪽 상단 GUI: 팔레트 선택 / 레이어 관리 / 커스텀 데이터 / 저장·불러오기
     /// </summary>
     public class RuntimeTilemapEditor : MonoBehaviour
     {
@@ -25,7 +28,9 @@ namespace TilemapTool
         public TileMapSettings settings = new TileMapSettings();
 
         [Header("참조")]
-        public TilePalette palette;
+        [Tooltip("레이어 순서와 1:1로 매칭됩니다. palettes[0]은 베이스(바닥) 레이어용, palettes[1]은 두 번째 레이어용... " +
+                 "런타임에 레이어를 추가로 만들 경우, 그만큼의 팔레트를 미리 등록해 두어야 합니다.")]
+        public List<TilePalette> palettes = new List<TilePalette>();
         public Camera targetCamera;
         public Transform mapRoot;
 
@@ -34,7 +39,7 @@ namespace TilemapTool
         public float baseLayerYOffset = 0f;
         public float layerYStep = 0.01f; // 레이어마다 살짝 띄워 z-fighting 방지
 
-        [Header("저장 파일명 (persistentDataPath 기준)")]
+        [Header("저장 파일 (기본 위치: 에디터=Assets/TilemapSaves, 빌드=persistentDataPath)")]
         public string saveFileName = "tilemap_save.bin";
 
         [Header("그리드 표시 (Scene / Game 뷰 공통)")]
@@ -44,6 +49,11 @@ namespace TilemapTool
         public Color gridBorderColor = new Color(0.2f, 0.85f, 1f, 0.9f);
         public Color cursorFillColor = new Color(1f, 1f, 0f, 0.22f);
         public Color cursorOutlineColor = new Color(1f, 0.9f, 0f, 1f);
+
+        [Header("커스텀 데이터 보유 셀 표시")]
+        public bool highlightCustomData = true;
+        public Color defaultHighlightColor = new Color(1f, 0.25f, 0.9f, 0.55f);
+        public float customDataBlinkSpeed = 2.5f; // 0이면 점멸 없이 고정 색상
 
         private static Material lineMaterial;
 
@@ -62,13 +72,16 @@ namespace TilemapTool
         private Vector2 paletteScroll;
         private Vector2 layerScroll;
         private string newLayerNameInput = "NewLayer";
-        private Rect panelRect = new Rect(10, 10, 260, 700);
+        private Rect panelRect = new Rect(10, 10, 280, 860);
 
         // 다음 배치에 적용할 커스텀 데이터 (툴 편집용, 값은 문자열로 입력받음)
         private readonly Dictionary<string, string> pendingCustomData = new Dictionary<string, string>();
         private string newCustomKeyInput = "";
         private string newCustomValueInput = "";
         private Vector2 customDataScroll;
+        private Color pendingHighlightColor;
+        private Texture2D swatchTex;
+        private string saveDirectory;
 
         private void Awake()
         {
@@ -80,7 +93,22 @@ namespace TilemapTool
                 mapRoot.SetParent(transform);
             }
 
+            pendingHighlightColor = defaultHighlightColor;
+
+#if UNITY_EDITOR
+            // Play 모드로 Editor 안에서 실행 중일 때는 Assets 폴더 하위에 기본 저장
+            saveDirectory = Path.Combine(Application.dataPath, "TilemapSaves");
+#else
+            // 실제 빌드에서는 Assets 폴더가 존재하지 않으므로 persistentDataPath 사용
+            saveDirectory = Application.persistentDataPath;
+#endif
             EnsureBaseLayerExists();
+        }
+
+        /// <summary>레이어 인덱스에 1:1로 매칭되는 팔레트를 반환. 없으면 null.</summary>
+        private TilePalette GetPaletteForLayer(int layerIndex)
+        {
+            return (layerIndex >= 0 && layerIndex < palettes.Count) ? palettes[layerIndex] : null;
         }
 
         private void EnsureBaseLayerExists()
@@ -133,7 +161,10 @@ namespace TilemapTool
                 currentDirection = (TileDirection)(((int)currentDirection + 1) % 4);
 
             if (Input.GetKeyDown(KeyCode.Tab))
+            {
                 activeLayerIndex = (activeLayerIndex + 1) % layers.Count;
+                activePaletteIndex = 0;
+            }
         }
 
         private bool TryGetCellUnderMouse(out int x, out int z)
@@ -164,7 +195,8 @@ namespace TilemapTool
         private void PlaceAtCell(int x, int z)
         {
             var layer = layers[activeLayerIndex];
-            var entry = palette != null ? palette.GetByIndex(activePaletteIndex) : null;
+            var layerPalette = GetPaletteForLayer(activeLayerIndex);
+            var entry = layerPalette != null ? layerPalette.GetByIndex(activePaletteIndex) : null;
             if (entry == null || entry.prefab == null) return;
 
             var existing = layer.Get(x, z);
@@ -194,6 +226,12 @@ namespace TilemapTool
             }
             foreach (var kv in pendingCustomData)
                 placement.customData[kv.Key] = kv.Value;
+
+            // 강조색: 이번에 새 커스텀 데이터를 적용하는 중이면 pending 색상을 사용,
+            // 아니면 기존 배치의 색을 유지(없으면 기본값).
+            placement.highlightColor = pendingCustomData.Count > 0
+                ? pendingHighlightColor
+                : (existing?.highlightColor ?? defaultHighlightColor);
 
             layer.Set(placement);
 
@@ -239,9 +277,12 @@ namespace TilemapTool
 
             for (int li = 0; li < layers.Count; li++)
             {
+                var layerPalette = GetPaletteForLayer(li);
+                if (layerPalette == null) continue;
+
                 foreach (var placement in layers[li].placements.Values)
                 {
-                    var entry = palette != null ? palette.GetById(placement.paletteId) : null;
+                    var entry = layerPalette.GetById(placement.paletteId);
                     if (entry != null && entry.prefab != null)
                         SpawnVisual(li, placement, entry);
                 }
@@ -292,7 +333,7 @@ namespace TilemapTool
 
         // ---------------- 저장 / 불러오기 ----------------
 
-        private string GetSavePath() => Path.Combine(Application.persistentDataPath, saveFileName);
+        private string GetSavePath() => Path.Combine(saveDirectory, saveFileName);
 
         private void SaveMap()
         {
@@ -310,6 +351,46 @@ namespace TilemapTool
                 RebuildAllVisuals();
             }
         }
+
+#if UNITY_EDITOR
+        // Editor에서 Play 모드로 실행 중일 때만 사용 가능한 네이티브 폴더/파일 선택창.
+        // (빌드에는 포함되지 않음 - UnityEditor 어셈블리는 런타임 빌드에 존재하지 않음)
+
+        private void BrowseSaveFolder()
+        {
+            string picked = EditorUtility.OpenFolderPanel("저장 폴더 선택", saveDirectory, "");
+            if (!string.IsNullOrEmpty(picked))
+                saveDirectory = picked;
+        }
+
+        private void SaveMapAs()
+        {
+            string picked = EditorUtility.SaveFilePanel("타일맵 저장", saveDirectory, saveFileName, "bin");
+            if (string.IsNullOrEmpty(picked)) return;
+
+            saveDirectory = Path.GetDirectoryName(picked);
+            saveFileName = Path.GetFileName(picked);
+            TilemapBinaryIO.Save(picked, settings, layers);
+        }
+
+        private void LoadMapFrom()
+        {
+            string picked = EditorUtility.OpenFilePanel("타일맵 불러오기", saveDirectory, "bin");
+            if (string.IsNullOrEmpty(picked)) return;
+
+            saveDirectory = Path.GetDirectoryName(picked);
+            saveFileName = Path.GetFileName(picked);
+
+            if (TilemapBinaryIO.Load(picked, settings, out var loadedLayers))
+            {
+                layers.Clear();
+                layers.AddRange(loadedLayers);
+                if (layers.Count == 0) EnsureBaseLayerExists();
+                activeLayerIndex = 0;
+                RebuildAllVisuals();
+            }
+        }
+#endif
 
         // ---------------- 그리드 시각화 ----------------
 
@@ -359,7 +440,7 @@ namespace TilemapTool
         private void OnRenderObject()
         {
             if (!Application.isPlaying) return;
-            if (!showGrid && !hasHover) return;
+            if (!showGrid && !hasHover && !highlightCustomData) return;
 
             CreateLineMaterial();
             lineMaterial.SetPass(0);
@@ -368,6 +449,7 @@ namespace TilemapTool
             GL.MultMatrix(mapRoot != null ? mapRoot.localToWorldMatrix : Matrix4x4.identity);
 
             if (showGrid) DrawGridGL();
+            if (highlightCustomData) DrawCustomDataHighlightsGL();
             if (hasHover) DrawCursorHighlightGL();
 
             GL.PopMatrix();
@@ -427,11 +509,52 @@ namespace TilemapTool
             GL.End();
         }
 
+        /// <summary>
+        /// customData를 가진 배치가 있는 셀만 골라 placement.highlightColor로 채운 사각형을 그린다.
+        /// customData가 없는 셀은 대상에서 제외되므로 별도 표시가 없다.
+        /// </summary>
+        private void DrawCustomDataHighlightsGL()
+        {
+            float blink = customDataBlinkSpeed > 0f
+                ? (Mathf.Sin(Time.time * customDataBlinkSpeed) * 0.5f + 0.5f)
+                : 1f;
+
+            GL.Begin(GL.QUADS);
+            foreach (var layer in layers)
+            {
+                foreach (var placement in layer.placements.Values)
+                {
+                    if (placement.customData == null || placement.customData.Count == 0) continue;
+
+                    Vector3 c = settings.CellToWorld(placement.x, placement.z, layer.yOffset + 0.0015f);
+                    float half = settings.tileSize * 0.5f;
+
+                    Color col = placement.highlightColor;
+                    col.a *= blink;
+                    GL.Color(col);
+                    GL.Vertex3(c.x - half, c.y, c.z - half);
+                    GL.Vertex3(c.x - half, c.y, c.z + half);
+                    GL.Vertex3(c.x + half, c.y, c.z + half);
+                    GL.Vertex3(c.x + half, c.y, c.z - half);
+                }
+            }
+            GL.End();
+        }
+
         // ---------------- GUI ----------------
 
         private void OnGUI()
         {
             panelRect = GUILayout.Window(GetInstanceID(), panelRect, DrawPanel, "Tilemap Tool");
+        }
+
+        private void DrawColorSwatch(Color c, float w, float h)
+        {
+            if (swatchTex == null)
+                swatchTex = new Texture2D(1, 1);
+            swatchTex.SetPixel(0, 0, c);
+            swatchTex.Apply();
+            GUILayout.Label(swatchTex, GUILayout.Width(w), GUILayout.Height(h));
         }
 
         private void DrawPanel(int id)
@@ -442,13 +565,14 @@ namespace TilemapTool
             showGrid = GUILayout.Toggle(showGrid, "Show Grid");
 
             GUILayout.Space(6);
-            GUILayout.Label("Palette", GUI.skin.box);
+            var activePalette = GetPaletteForLayer(activeLayerIndex);
+            GUILayout.Label($"Palette (Layer {activeLayerIndex} 전용)", GUI.skin.box);
             paletteScroll = GUILayout.BeginScrollView(paletteScroll, GUILayout.Height(120));
-            if (palette != null)
+            if (activePalette != null)
             {
-                for (int i = 0; i < palette.entries.Count; i++)
+                for (int i = 0; i < activePalette.entries.Count; i++)
                 {
-                    var e = palette.entries[i];
+                    var e = activePalette.entries[i];
                     bool selected = i == activePaletteIndex;
                     string label = $"{(selected ? "▶ " : "")}{e.id}  (v={e.userValue})";
                     if (GUILayout.Toggle(selected, label, "Button"))
@@ -457,7 +581,7 @@ namespace TilemapTool
             }
             else
             {
-                GUILayout.Label("palette가 연결되지 않았습니다.");
+                GUILayout.Label($"palettes[{activeLayerIndex}]가 비어있습니다.\nInspector에서 레이어 순서에 맞게 등록하세요.");
             }
             GUILayout.EndScrollView();
 
@@ -469,8 +593,11 @@ namespace TilemapTool
                 var l = layers[i];
                 bool selected = i == activeLayerIndex;
                 string tag = l.isBaseLayer ? "[Base] " : "";
-                if (GUILayout.Toggle(selected, $"{(selected ? "▶ " : "")}{tag}{l.layerName}", "Button"))
+                if (GUILayout.Toggle(selected, $"{(selected ? "▶ " : "")}{tag}{l.layerName}", "Button") && !selected)
+                {
                     activeLayerIndex = i;
+                    activePaletteIndex = 0;
+                }
             }
             GUILayout.EndScrollView();
 
@@ -515,6 +642,18 @@ namespace TilemapTool
             if (pendingCustomData.Count > 0 && GUILayout.Button("Clear Pending Data"))
                 pendingCustomData.Clear();
 
+            GUILayout.Space(4);
+            GUILayout.Label("Highlight Color (customData 있는 셀만 표시)");
+            GUILayout.BeginHorizontal();
+            DrawColorSwatch(pendingHighlightColor, 28, 18);
+            GUILayout.BeginVertical();
+            pendingHighlightColor.r = GUILayout.HorizontalSlider(pendingHighlightColor.r, 0f, 1f);
+            pendingHighlightColor.g = GUILayout.HorizontalSlider(pendingHighlightColor.g, 0f, 1f);
+            pendingHighlightColor.b = GUILayout.HorizontalSlider(pendingHighlightColor.b, 0f, 1f);
+            pendingHighlightColor.a = GUILayout.HorizontalSlider(pendingHighlightColor.a, 0.05f, 1f);
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+
             if (hasHover)
             {
                 var hoverLayer = layers[activeLayerIndex];
@@ -531,6 +670,11 @@ namespace TilemapTool
 
             GUILayout.Space(6);
             GUILayout.Label("Save / Load", GUI.skin.box);
+            GUILayout.Label("폴더: " + saveDirectory, GUI.skin.label);
+#if UNITY_EDITOR
+            if (GUILayout.Button("Browse Folder..."))
+                BrowseSaveFolder();
+#endif
             saveFileName = GUILayout.TextField(saveFileName);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Save"))
@@ -538,6 +682,16 @@ namespace TilemapTool
             if (GUILayout.Button("Load"))
                 LoadMap();
             GUILayout.EndHorizontal();
+#if UNITY_EDITOR
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Save As..."))
+                SaveMapAs();
+            if (GUILayout.Button("Load From..."))
+                LoadMapFrom();
+            GUILayout.EndHorizontal();
+#else
+            GUILayout.Label("(빌드에서는 폴더/파일 선택창 대신 위 경로를 사용합니다)");
+#endif
 
             GUILayout.Space(4);
             GUILayout.Label("좌클릭:배치 / 우클릭:삭제 / R:방향회전 / Tab:레이어전환\nWASD/화살표:이동 / 휠:줌 / 휠클릭 드래그:패닝", GUI.skin.box);

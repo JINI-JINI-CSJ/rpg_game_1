@@ -12,7 +12,7 @@ namespace TilemapTool
     public static class TilemapBinaryIO
     {
         private const int MagicNumber = 0x544D4544; // "TMED"
-        private const int Version = 2; // v2: ObjectPlacement.customData 추가
+        private const int Version = 3; // v2: customData 추가 / v3: highlightColor 추가
 
         private enum CustomValueType : byte
         {
@@ -56,6 +56,7 @@ namespace TilemapTool
                     bw.Write((byte)placement.direction);
                     bw.Write( placement.userValue );
                     WriteCustomData(bw, placement.customData);
+                    WriteColor(bw, placement.highlightColor);
                 }
             }
 
@@ -131,6 +132,10 @@ namespace TilemapTool
                     // v2 미만 파일에는 customData 섹션이 없으므로 버전으로 분기
                     if (version >= 2)
                         placement.customData = ReadCustomData(br);
+
+                    // v3 미만 파일에는 highlightColor 섹션이 없으므로 기본값 유지
+                    if (version >= 3)
+                        placement.highlightColor = ReadColor(br);
 
                     layer.Set(placement);
                 }
@@ -214,6 +219,25 @@ namespace TilemapTool
                 case CustomValueType.Double: return br.ReadDouble();
                 default: return br.ReadString();
             }
+        }
+
+        // ---------------- Color 직렬화 ----------------
+
+        private static void WriteColor(BinaryWriter bw, Color c)
+        {
+            bw.Write(c.r);
+            bw.Write(c.g);
+            bw.Write(c.b);
+            bw.Write(c.a);
+        }
+
+        private static Color ReadColor(BinaryReader br)
+        {
+            float r = br.ReadSingle();
+            float g = br.ReadSingle();
+            float b = br.ReadSingle();
+            float a = br.ReadSingle();
+            return new Color(r, g, b, a);
         }
     }
 }

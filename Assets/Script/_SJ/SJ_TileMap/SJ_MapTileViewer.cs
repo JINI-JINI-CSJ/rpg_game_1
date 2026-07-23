@@ -14,13 +14,11 @@ public class SJ_RawTileVal
 // Vec2 기준으로 데이터
 public class SJ_RawMap2D
 {
+    public string layerName;
+
     public int width;
     public int height;
-    //public int[] mapTile;
-
     public Dictionary<Vector2Int,SJ_RawTileVal> dic_Tile = new();
-
-
     public bool CheckAlloc()
     {
         return true;
@@ -53,6 +51,20 @@ public class SJ_RawMap2D
     }
 }
 
+// 타일 객체 아이디
+// 타일 레이어 번호 
+// 위치
+public class SJ_MAP_LAYER_TILE_COORD : IEquatable<SJ_MAP_LAYER_TILE_COORD>
+{
+    public int layer;
+    public Vector2Int pos;
+
+    public bool Equals(SJ_MAP_LAYER_TILE_COORD other)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 // 배열의 값을 각각 대응하는 프리펩으로 생성
 // 벽은 4방향 벽 등록
 // 1. 배열대로 프리펩 생성
@@ -65,7 +77,7 @@ public class SJ_MapTileViewer : MonoBehaviour
     [System.Serializable]
     public class PREFAB_TILE
     {
-        public List<GameObject> objects;
+        public List<GameObject> objects = new();
         public GameObject GetRandom( Mng_X128SS rd = null )
         {
             if( objects.Count < 1 ) return null;
@@ -82,8 +94,29 @@ public class SJ_MapTileViewer : MonoBehaviour
             objects.Add(go);
         }
     }
-    // 프리펩
-    public List<PREFAB_TILE> prfList;
+
+    [System.Serializable]
+    public class Palette_PREFAB_TILE
+    {
+        public List<PREFAB_TILE> prfList = new();
+
+        public void Add_Prefab( GameObject prf )
+        {
+            PREFAB_TILE prf_tile = new();
+            prf_tile.RegPrefab(prf);
+            prfList.Add(prf_tile);
+        }
+
+        public GameObject GetRandom( int idx , Mng_X128SS rd = null )
+        {
+            if( idx < 0 || idx >= prfList.Count ) return null;
+            return prfList[idx].GetRandom(rd);
+        }
+    }
+    public List<Palette_PREFAB_TILE> palette_s;
+
+
+
     // 벽, 북쪽 방향이 막힌 기준
     public PREFAB_TILE prf_Wall;
     public int prefab_size = 1; // 프레팹 크기
@@ -92,7 +125,11 @@ public class SJ_MapTileViewer : MonoBehaviour
     public int  noWall_TileID = 1;      // 1번 타일은 벽생성 안함
     public List<SJ_RawMap2D> mapData = new();
     Mng_X128SS rd_main;
-    public Dictionary<Vector2Int,TileResBottom> dic_tileResBottoms = new();
+    public Dictionary<SJ_MAP_LAYER_TILE_COORD,SJ_TileCoordBase> dic_tileObj = new();
+
+    // 타일 객체 생성 안하는 레이어
+    // 예) 이벤트 트리거 레이어
+    public List<string> noInstTileLayerName;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -115,18 +152,22 @@ public class SJ_MapTileViewer : MonoBehaviour
         rd_main = rd;
         MakeTilePrefab();
         if( NO_WALL == false ) MakeWallPrefab();
+
+        AlignTileCoord();
     }
 
     public void Clear_PrefabPalette()
     {
-        prfList.Clear();
+        //prfList.Clear();
+
+        palette_s.Clear();
     }
 
-    public void Add_PrefabPalette( GameObject prf )
+    public Palette_PREFAB_TILE Add_Palette()
     {
-        PREFAB_TILE prf_tile = new();
-        prf_tile.RegPrefab(prf);
-        prfList.Add(prf_tile);
+        Palette_PREFAB_TILE palette = new();
+        palette_s.Add( palette );
+        return palette;
     }
 
     public void Clear_MapLayer()
@@ -178,15 +219,15 @@ public class SJ_MapTileViewer : MonoBehaviour
         return CheckGetTileVal(pos);
     }
 
-    public GameObject InstPrfTile( int idx , int x , int y )
+    public GameObject InstPrfTile( int idx , int x , int y , int palette_idx )
     {
-        if( idx < 0 ) return null;
-        if( idx >= prfList.Count )
-        {
-            Debug.LogError( "에러 프리펩 : " + prfList.Count + "      idx : " + idx );
+        if( palette_idx < 0 || palette_idx >= palette_s.Count )
             return null;
-        }
-        return InstPrfPos( prfList[idx].GetRandom(rd_main) , x, y );
+
+        GameObject prf = palette_s[palette_idx].GetRandom( idx , rd_main);
+        if( prf == null ) return null;
+
+        return InstPrfPos( prf , x, y );
     }
 
     public Vector3 GetPos( Vector2Int pos)
@@ -212,23 +253,39 @@ public class SJ_MapTileViewer : MonoBehaviour
 
     public void MakeTilePrefab()
     {
-        foreach( var map_layer in mapData )
+        // 팔레트 갯수 체크
+        if( mapData.Count > palette_s.Count )
         {
+            Debug.LogError( "팔레트 갯수 모자람 : " + mapData.Count + "  : " + palette_s.Count );
+            return;
+        }
+
+        for( int i = 0 ; i < mapData.Count ; i++ )
+        {
+            var map_layer = mapData[i];
+
+            // 인스턴스 생성 안함 레이어 이름
+            if( noInstTileLayerName.Contains( map_layer.layerName ) )
+            {
+                Debug.Log( "생성 안함 레이어 ---->>> " + map_layer.layerName );
+                continue;
+            }
+
             foreach( var s in map_layer.dic_Tile )
             {
                 Vector2Int pos = s.Key;
                 SJ_RawTileVal rawTileVal = s.Value;
 
-                GameObject inst = InstPrfTile( rawTileVal.tile_val , pos.x , pos.y );
+                GameObject inst = InstPrfTile( rawTileVal.tile_val , pos.x , pos.y , i );
                 if( inst != null )
                 {
-                    TileResBottom bottom = inst.GetComponent<TileResBottom>();
-                    if( bottom != null )
+                    SJ_TileCoordBase tileCoordBase = inst.GetComponent<SJ_TileCoordBase>();
+                    if( tileCoordBase != null )
                     {
-                        bottom.SetPos( pos.x , pos.y );
+                        tileCoordBase.SetPosLayer( pos , i );
                     }
                 }
-            }            
+            }              
         }
     }
 
@@ -264,9 +321,6 @@ public class SJ_MapTileViewer : MonoBehaviour
         }
     }
 
-    // 타일에디트 클로드 버전용 
-    public TextAsset binaryFile_TileMap;
-
     [ContextMenu("지우기")]
     public void ClearTileInst()
     {
@@ -288,10 +342,23 @@ public class SJ_MapTileViewer : MonoBehaviour
         return pos_random;
     }
 
-    public TileResBottom GetBottomInst( Vector2Int pos )
+    public SJ_TileCoordBase GetTileCoordInst( Vector2Int pos , int layer )
     {
-        TileResBottom bottom = null;
-        dic_tileResBottoms.TryGetValue( pos , out bottom );
-        return bottom;
+        SJ_MAP_LAYER_TILE_COORD key = new();
+        key.pos = pos;
+        key.layer = layer;
+
+        SJ_TileCoordBase tile = null;
+        dic_tileObj.TryGetValue( key , out tile );
+        return tile;
+    }
+
+    public void AlignTileCoord()
+    {
+        SJ_TileCoordBase[] coordBases = tr_Inst.GetComponentsInChildren<SJ_TileCoordBase>();
+        foreach( var s in coordBases )
+        {
+            dic_tileObj[ s.pos_layer ]  = s;
+        }
     }
 }

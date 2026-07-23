@@ -473,9 +473,9 @@ RectTransform:
   - {fileID: 368870224}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1745, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &169857826
@@ -1117,9 +1117,9 @@ RectTransform:
   - {fileID: 1496471444}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1205, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &274790002
@@ -1329,6 +1329,7 @@ MonoBehaviour:
     realTime_Start: 0
   use_local_world: 0
   backward_Hide: 0
+  main_obj: {fileID: 0}
   use_pos: 0
   pos_s: {x: 0, y: 0, z: 0}
   pos_e: {x: 0, y: 0, z: 0}
@@ -1623,8 +1624,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SJ_UnityUIMng
   go_Black: {fileID: 0}
-  curve_Black: {fileID: 0}
-  curve_default_time: 0.3
   go_Top: {fileID: 0}
   go_no_Close: {fileID: 0}
   go_wait: {fileID: 0}
@@ -1808,9 +1807,9 @@ RectTransform:
   - {fileID: 1083253522}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 395, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &520970101
@@ -2234,9 +2233,9 @@ RectTransform:
   - {fileID: 602472040}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 125, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &661148388
@@ -2388,9 +2387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 386dbd6be5bf73a4cadcc195f8f24f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SJ_MapTileViewer
-  prfList:
-  - objects:
-    - {fileID: 820483247}
+  palette_s: []
   prf_Wall:
     objects:
     - {fileID: 1802402303}
@@ -2398,7 +2395,7 @@ MonoBehaviour:
   tr_Inst: {fileID: 1598345936}
   NO_WALL: 0
   noWall_TileID: 1
-  binaryFile_TileMap: {fileID: 4900000, guid: 31197db78a81c6547b032f21c510d4fc, type: 3}
+  noInstTileLayerName: []
 --- !u!4 &750402229
 Transform:
   m_ObjectHideFlags: 0
@@ -2451,9 +2448,9 @@ RectTransform:
   - {fileID: 1628433830}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1475, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &767563738
@@ -2555,7 +2552,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &770610007
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2649,9 +2646,9 @@ RectTransform:
   - {fileID: 1368554270}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 665, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &805407504
@@ -3294,9 +3291,9 @@ RectTransform:
   - {fileID: 1035160948}
   m_Father: {fileID: 1391163324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 935, y: -50}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1188484803
@@ -3574,6 +3571,7 @@ MonoBehaviour:
     realTime_Start: 0
   use_local_world: 0
   backward_Hide: 0
+  main_obj: {fileID: 0}
   use_pos: 0
   pos_s: {x: 0, y: 0, z: 0}
   pos_e: {x: 0, y: 0, z: 0}
@@ -4035,7 +4033,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -441}
-  m_SizeDelta: {x: 0, y: 100}
+  m_SizeDelta: {x: 1870, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1391163325
 MonoBehaviour:

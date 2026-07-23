@@ -8,7 +8,7 @@ using UnityEngine;
 // 레이어 2 : 이벤트 11~20
 
 
-public class GTF_TileMap : SJ_MapTileViewer
+public class GTF_TileMap : SJ_MapTileViewer_claude
 {
 
 
