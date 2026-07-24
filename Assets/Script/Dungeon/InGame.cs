@@ -1,7 +1,14 @@
 using UnityEngine;
 
+// 필드 던전
 public class InGame : MonoBehaviour
 {
+    void Awake()
+    {
+        SJPool.InitMng();
+        SJSound.Init();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -13,18 +20,22 @@ public class InGame : MonoBehaviour
     {
         Player.LoadUserFile();
 
-        // 인트로 끝나고 후원자 선택후
-        if( Player.saveFile.GetFirstPlay_Step() == 1 )
+        // 인트로 씬 끝나고 후원자 선택후
+        //if( Player.saveFile.GetFirstPlay_Step() == 1 )
         {
             IntroFirst();
         }
+
+        MapEventPlayer.StartEventPlay();
     }
 
     public void IntroFirst()
     {
         GameObject inst_Intro = SJ_ResPoolSys.Inst_Obj( "Intro/IntroFirst" );
-        SJ_SimpleSyncMono sJ_SimpleSyncMono = inst_Intro.GetComponentInChildren<SJ_SimpleSyncMono>();
-        sJ_SimpleSyncMono.StartPlay();
+
+
+        // SJ_SimpleSyncMono sJ_SimpleSyncMono = inst_Intro.GetComponentInChildren<SJ_SimpleSyncMono>();
+        // sJ_SimpleSyncMono.StartPlay();
     }
 
     // Update is called once per frame

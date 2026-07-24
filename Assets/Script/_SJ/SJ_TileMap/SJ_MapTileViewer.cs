@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -62,6 +63,20 @@ public class SJ_MAP_LAYER_TILE_COORD : IEquatable<SJ_MAP_LAYER_TILE_COORD>
     public bool Equals(SJ_MAP_LAYER_TILE_COORD other)
     {
         throw new NotImplementedException();
+    }
+
+    public void Save( BinaryWriter bw )
+    {
+        bw.Write( layer );
+        bw.Write( pos.x );
+        bw.Write( pos.y );
+    }
+
+     public void Load( BinaryReader br )
+    {
+        layer = br.ReadInt32();
+        pos.x = br.ReadInt32();
+        pos.y = br.ReadInt32();
     }
 }
 

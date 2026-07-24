@@ -42,7 +42,7 @@ public class PanelMENU_FieldObjInter : MonoBehaviour
         foreach( var s in G._BUTTONs )s.go_BT.SetActive(false);
     }
 
-    static public void ADD_MENU( SJ_TileCoordBase _fieldObj , string lang_part , string lang_word , int ID )
+    static public void ADD_MENU( SJ_TileCoordBase _fieldObj , string lang_part , string lang_word , int CommonID  )
     {
         G.fieldObj = _fieldObj;
         int idx_cur = G.mENUs.Count;
@@ -50,7 +50,7 @@ public class PanelMENU_FieldObjInter : MonoBehaviour
         sJ_LANG_ID.part = lang_part;
         sJ_LANG_ID.word = lang_word;
         _MENU menu = new();
-        menu.ID = ID;
+        menu.ID = CommonID;
         menu.sJ_LANG_ID = sJ_LANG_ID;
 
         _BUTTON_OBJ bt = G._BUTTONs[idx_cur];

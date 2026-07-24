@@ -7,8 +7,10 @@ using UnityEngine.UI;
 public class SJ_UIDefaultShortMsg : MonoBehaviour
 {
     static public SJ_UIDefaultShortMsg G;
-    public float        show_time;
+    public float        show_time = 3;
     public AudioClip    snd;
+
+    // 커브는 반드시 열리고 -> 유지하고 -> 닫는 커브   뭉특한 산 모양
     public SJ_Curve     sJ_Curve = new SJ_Curve();
     public Transform    tr_shortMsg;
     public Text         text_msg;

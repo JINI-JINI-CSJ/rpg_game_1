@@ -2,7 +2,7 @@ using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
+
 
 // 4 방향 , 값은 시계방향 
 public enum _DIR_NEWS
@@ -99,17 +99,26 @@ public class SJ_MapTileMover : MonoBehaviour
         return next_off;
     }
 
-    // 좌 : 마이너스 값 , 우 : 플러스 값
-    static public _DIR_NEWS Offset_DIR_NEWS( _DIR_NEWS dir , int rot )
+    // 값1 -> 좌 : 마이너스 값 , 우 : 플러스 값
+    // 값2 -> 앞뒤 전환
+    static public _DIR_NEWS Offset_DIR_NEWS( _DIR_NEWS dir , int offset )
     {
+        // 절대값 4 초과 에러
+
         int dir_int = (int)dir;
-        int dir_next_int = dir_int + rot;
+        int dir_next_int = dir_int + offset;
         dir_next_int = dir_next_int % 4; // 4방향 값 4 로 나머지
         if( dir_next_int < 0 )
         {
             dir_next_int = 4 + dir_next_int;
         }
         return ( _DIR_NEWS ) dir_next_int;
+    }
+
+    // 현재 앞의 위치
+    public Vector2Int GetPos_Front()
+    {
+        return cur_pos + PosByDir( cur_dir );
     }
 
     public bool CheckMoveAblePos( Vector2Int pos )
@@ -123,6 +132,8 @@ public class SJ_MapTileMover : MonoBehaviour
     {
         return true;
     }
+
+    virtual public void OnMoveStart(){}
 
     virtual public void OnMoveEnd(){}
 
@@ -140,8 +151,9 @@ public class SJ_MapTileMover : MonoBehaviour
         curve_trans.pos_s = transform.localPosition;
         curve_trans.pos_e = pos_move_target;
         curve_trans.StartFunc_FWD( null , true );
-
         cur_pos = pos_tar;
+
+        OnMoveStart();
 
         return true;
     }
@@ -158,8 +170,9 @@ public class SJ_MapTileMover : MonoBehaviour
         curve_trans.rot_s = transform.localRotation;
         curve_trans.rot_e = Rot_DIR_NEWS( dir_target );
         curve_trans.StartFunc_FWD( null , true );
-
         cur_dir = dir_target;
+
+        OnMoveStart();
 
         return true;
     }

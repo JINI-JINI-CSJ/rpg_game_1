@@ -94,4 +94,11 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
             rawMap2D.AddRawTile( placement.x , placement.z , placement.userValue , news_dir );
         }
     }
+
+    public TilemapTool.ObjectPlacement GetObjectPlacement( int layer , Vector2Int pos )
+    {
+        if( layers.Count <= layer ) return null;
+        TilemapTool.TileLayer tileLayer = layers[layer];
+        return tileLayer.Get( pos.x , pos.y );
+    }
 }
