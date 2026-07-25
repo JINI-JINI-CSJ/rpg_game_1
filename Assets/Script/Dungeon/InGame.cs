@@ -26,16 +26,16 @@ public class InGame : MonoBehaviour
             IntroFirst();
         }
 
-        MapEventPlayer.StartEventPlay();
+        //MapEventPlayer.StartEventPlay();
     }
 
     public void IntroFirst()
     {
-        GameObject inst_Intro = SJ_ResPoolSys.Inst_Obj( "Intro/IntroFirst" );
-
-
-        // SJ_SimpleSyncMono sJ_SimpleSyncMono = inst_Intro.GetComponentInChildren<SJ_SimpleSyncMono>();
-        // sJ_SimpleSyncMono.StartPlay();
+        GameObject inst_Intro = GameObject.Find( "MapIntro" );
+        if( inst_Intro == null )
+        {
+            SJ_ResPoolSys.Inst_Obj( "Intro/MapIntro" );            
+        }
     }
 
     // Update is called once per frame

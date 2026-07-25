@@ -4,9 +4,11 @@ using UnityEngine;
 // 닫을때는  use_msg == false && useID == false
 public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 {
+    public string name_Popup;
+
     public DialogueTyper dialogueTyper;
     // 뷰박스 상위 객체
-    public GameObject go_parViewBox;
+    //public GameObject go_parViewBox;
     public bool use_msg;
     // 직접 메세지
     public List<string> msg_directly;
@@ -31,17 +33,15 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 
     public void PlayStep()
     {
-        //SJ_Unity.SetUnityAction_OneFunc( dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
-
-        dialogueTyper.OnDialogueFinished += OnEndLine_TalkBox;
-
         // 아무 메시지 없는 거라면 닫기 애니
         if( use_msg == false && use_ListID == false && use_RangeID == false )
         {
             SJ_UnityUIMng_Curve.CloseOne( OnEnd_ViewBoxAni_OFF );
             return;
         }
-        SJ_UnityUIMng_Curve.Open( go_parViewBox.name , OnEnd_ViewBoxAni_ON );
+        GameObject go_popup = SJ_UnityUIMng_Curve.Open( name_Popup , OnEnd_ViewBoxAni_ON );
+        dialogueTyper = go_popup.GetComponentInChildren<DialogueTyper>();
+        dialogueTyper.OnDialogueFinished += OnEndLine_TalkBox;
     }
 
     public void StartText()

@@ -7,9 +7,10 @@ public class TileObj_ChestBox : SJ_TileCoordBase
     public float    time_openAni = 0.5f;
 
     // 저장된 아이템 정보
+    
 
     // 아이템 저장된 상태 
-    public bool fillItem;
+    public bool fillItem = true;
 
     override public void OnLoadAfter()
     {

@@ -1,8 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// 1. 컬러만 지정하기
+// 2. 페이드 인 아웃 하기
 public class SJ_GameSync_UIFade : SJ_GameSyncStepBase
 {
+    public bool PlayColor;
+    public Color color;
+    public bool  colorObjShow;
+
+
+    public bool PlayFadeAni;
     // true 페이드 인 , false 아웃
     public bool FadeIn;
     public SJ_Curve_Color curve_Color;
@@ -11,10 +19,27 @@ public class SJ_GameSync_UIFade : SJ_GameSyncStepBase
 
     public void PlayStep()
     {
-        image.gameObject.SetActive( true );
-        curve_Color.func_Update = OnUpdateCurve;
-        curve_Color.func_End = OnEndCurve;
-        curve_Color.StartTime_PlayDir(FadeIn);
+        if( image == null)
+        {
+            image = SJ_UnityUIMng_Curve.G.curve_Black.image_Color;
+        }
+
+        if( PlayColor )
+        {
+            image.color = color;
+            image.gameObject.SetActive( colorObjShow );
+            SJ_SimpleSyncMono.NextPlaySelf();
+            return;
+        }
+
+        if( PlayFadeAni )
+        {
+            image.gameObject.SetActive( true );
+            curve_Color.func_Update = OnUpdateCurve;
+            curve_Color.func_End = OnEndCurve;
+            curve_Color.StartTime_PlayDir(FadeIn);            
+            return;
+        }
     }
 
     void Update()

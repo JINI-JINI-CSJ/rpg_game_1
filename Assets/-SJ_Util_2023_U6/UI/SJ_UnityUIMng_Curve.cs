@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SJ_UnityUIMng_Curve : MonoBehaviour
 {
-    static public SJ_UnityUIMng_Curve inst;
+    static public SJ_UnityUIMng_Curve G;
 
     public SJ_Curve_TransObjToggle  curve_Black;
     public float                    curve_default_time = 0.3f;
@@ -22,7 +22,7 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
     void Awake()
     {
-        inst = this;
+        G = this;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -39,8 +39,8 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
     static public GameObject  Open( string panel_name , SJ_COMMON.Func_VOID func_end = null )
     {
-        if( inst == null ) return null;
-        Transform tr = inst.transform.Find( panel_name );
+        if( G == null ) return null;
+        Transform tr = G.transform.Find( panel_name );
         if( tr == null )
         {
             Debug.LogError( "에러 : " + panel_name );
@@ -51,7 +51,7 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
         s.panel_name = panel_name;
         s.func = func_end;
         s.go_cur = tr.gameObject;
-        inst.funcSync.Add( inst.OpenPrc , s );
+        G.funcSync.Add( G.OpenPrc , s );
         return tr.gameObject;
     }
 
@@ -62,7 +62,7 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
     {
         cur_stock = arg as _STOCK_INF;
 
-        Transform tr = inst.transform.Find( cur_stock.panel_name );
+        Transform tr = G.transform.Find( cur_stock.panel_name );
         if( tr == null )
         {
             Debug.LogError( "에러 : " + cur_stock.panel_name );
@@ -83,10 +83,10 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
         AlignBackBlack();
 
-        transObjToggle_Panel.sJ_Curve.time = inst.curve_default_time;
+        transObjToggle_Panel.sJ_Curve.time = G.curve_default_time;
         tr.SetAsLastSibling();
 
-        transObjToggle_Panel.StartFunc_FWD( inst.EndAni_PanelOpen );
+        transObjToggle_Panel.StartFunc_FWD( G.EndAni_PanelOpen );
 
         SJ_Unity.SendMsg( transObjToggle_Panel.gameObject , "OpenPopup_StartAni" );
     }
@@ -97,15 +97,15 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
         if( list_popup.Count == 1 )
         {
-            inst.curve_Black.sJ_Curve.time = inst.curve_default_time;
+            G.curve_Black.sJ_Curve.time = G.curve_default_time;
              
-            inst.curve_Black.StartFunc_FWD();
+            G.curve_Black.StartFunc_FWD();
         }
         else if( list_popup.Count == 0 )
         {
-            inst.curve_Black.StartFunc_BACK();
+            G.curve_Black.StartFunc_BACK();
         }
-        inst.curve_Black.transform.SetAsLastSibling(); 
+        G.curve_Black.transform.SetAsLastSibling(); 
         
     }
 
@@ -113,12 +113,12 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
     {
         cur_stock.func?.Invoke();
         SJ_Unity.SendMsg( cur_stock.go_cur , "OpenPopup_StartAni_End" );
-        inst.funcSync._Next();
+        G.funcSync._Next();
     }
 
     static public void CloseOne( SJ_COMMON.Func_VOID func_end = null  )
     {
-        if( inst.list_popup.Count < 1 )
+        if( G.list_popup.Count < 1 )
         {
             Debug.Log( "위험!! 열린 창 없다!!!!!!!! inst.list_popup.Count < 1" );
             return;            
@@ -126,14 +126,14 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
         _STOCK_INF s = new();
         s.func = func_end;
-        inst.funcSync.Add( inst.ClosePrc , s );
+        G.funcSync.Add( G.ClosePrc , s );
     }
     public void ClosePrc( object arg )
     {
         _STOCK_INF s = arg as _STOCK_INF;
         if( list_popup.Count < 1 )
         {
-            inst.funcSync._Next();
+            G.funcSync._Next();
             return;
         }
 
@@ -144,7 +144,7 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
         list_popup.RemoveAt( list_popup.Count-1 );
 
-        transObjToggle_Panel.StartFunc_BACK( inst.EndAni_PanelClose );
+        transObjToggle_Panel.StartFunc_BACK( G.EndAni_PanelClose );
     }
 
     public void EndAni_PanelClose()
@@ -157,7 +157,7 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
         }
 
         cur_stock.func?.Invoke();
-        inst.funcSync._Next();
+        G.funcSync._Next();
     }
 
 }

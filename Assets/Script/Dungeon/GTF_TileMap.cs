@@ -10,7 +10,14 @@ using UnityEngine;
 
 public class GTF_TileMap : SJ_MapTileViewer_claude
 {
+    static public GTF_TileMap G;
 
+    public MapEventPlayer mapEvent;
+
+    void Awake()
+    {
+        G = this;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -20,6 +27,30 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
 
     // Update is called once per frame
     void Update()
+    {
+        
+    }
+
+    static public void StartMap()
+    {
+        if( G == null )
+        {
+            Debug.LogError( "주 타일맵 없음" );
+            return;
+        }
+        G._StartMap();
+    }
+
+    public void _StartMap()
+    {
+        // 1. 타일맵 로드 및 생성
+        // 2. 시작점 배치
+        // 3. 트리거 이벤트 있으면 실행
+        MENU_Load();
+        PlayerStartPos();
+    }
+
+    public void PlayerStartPos()
     {
         
     }
