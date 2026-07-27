@@ -52,6 +52,6 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
 
     public void PlayerStartPos()
     {
-        
+        // 인스턴스 밑에서 
     }
 }

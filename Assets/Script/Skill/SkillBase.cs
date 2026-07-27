@@ -6,5 +6,13 @@ using UnityEngine;
 
 public class SkillBase 
 {
+    public CSV_Skill csv;
+
     public int LEVEL;
+
+
+    public void Action(  )
+    {
+        
+    }
 }

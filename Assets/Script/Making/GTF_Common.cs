@@ -12,6 +12,7 @@ public enum CHAR_STAT
 {
     None = 0 ,
     HP ,
+    MP , 
     ACTION_SPEED ,      // 행동속도   
     ATK_P ,
     DEF_P ,

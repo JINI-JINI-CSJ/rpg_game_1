@@ -189,17 +189,63 @@ public class SJ_SimpleSyncMono : MonoBehaviour
 // 등록된 함수들은 종료시 반드시 Next 실행
 public class SJ_SimpleSync
 {
+    static public SJ_SimpleSync G;
+
+    static public Dictionary<string,SJ_SimpleSync> dic_global = new();
+
     public delegate void OnFunc();
     public List<OnFunc> listFunc = new();
-
     public OnFunc onFunc_end;
 
-    public void Add( OnFunc func )
+    public void SetDefault()
+    {
+        G = this;
+    }
+
+    public void SetGlobalInstName( string str )
+    {
+        dic_global[str] = this;
+    }
+
+    static public SJ_SimpleSync GetInst( string str = null )
+    {
+        SJ_SimpleSync inst = G;
+        if( string.IsNullOrEmpty(str) == false )
+        {
+            dic_global.TryGetValue( str , out inst );
+        }
+        return inst;
+    }
+
+    static public bool ADD( OnFunc func , string str = null  )
+    {
+        SJ_SimpleSync inst = GetInst( str );
+        if( inst == null ) return false;
+        inst._Add( func );
+        return true;
+    }
+
+    static public bool Next( string str = null  )
+    {
+        SJ_SimpleSync inst = GetInst( str );
+        if( inst == null ) return false;
+        inst._Next();
+        return true;
+    }
+
+
+    public void _Add( OnFunc func )
     {
         listFunc.Add(func);
     }
 
-    public bool Next()
+    public void _Add_Next( OnFunc func )
+    {
+        _Add( func );
+        _Next();
+    }   
+
+    public bool _Next()
     {
         if( listFunc.Count < 1 )
         {
@@ -212,9 +258,5 @@ public class SJ_SimpleSync
         return true;
     }
 
-    public void Add_Next( OnFunc func )
-    {
-        Add( func );
-        Next();
-    }
+
 }
