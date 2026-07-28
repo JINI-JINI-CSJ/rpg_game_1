@@ -7,6 +7,8 @@ public class Player
 
     static public bool loaded;
 
+    static public BattleParty battleParty = new();
+
     static public void LoadUserFile()
     {
         if( loaded )return;

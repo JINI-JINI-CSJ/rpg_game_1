@@ -70,6 +70,7 @@
     "dotnet.defaultSolution": "rpg_game_1.slnx",
     "dotnet.enableWorkspaceBasedDevelopment": false,
     "cSpell.words": [
+        "anit",
         "Behaviour",
         "Cinemachine",
         "Typer",

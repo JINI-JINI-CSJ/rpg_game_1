@@ -7,6 +7,7 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
     public string name;
     public string desc;
     public string res;
+    public string res3D;
     public int grade;
     public JOB_BASE jOB_BASE;
     public string Weapon_ID;
@@ -24,6 +25,7 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         name = Next();
         desc = Next();
         res = Next();
+        res3D = Next();
         grade = Next_Int();
         Enum.TryParse( Next() , out jOB_BASE );
         Weapon_ID = Next();

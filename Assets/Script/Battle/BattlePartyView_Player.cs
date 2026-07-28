@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // 배틀 파티 플레이어 뷰어
@@ -6,9 +7,9 @@ using UnityEngine;
 
 public class BattlePartyView_Player : MonoBehaviour
 {
-    public BattleParty battleParty;
+    public List<UIItem_BattleChr> ui_chr_front;
+    public List<UIItem_BattleChr> ui_chr_back;
 
-    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,4 +22,6 @@ public class BattlePartyView_Player : MonoBehaviour
     {
         
     }
+
+
 }
