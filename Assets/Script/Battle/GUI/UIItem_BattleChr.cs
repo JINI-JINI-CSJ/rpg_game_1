@@ -48,9 +48,15 @@ public class UIItem_BattleChr : MonoBehaviour
     }
 
     // 행동 애니 
-    public void ANI_Action()
+    public void ANI_ATK()
     {
+        curve_ani_ATK.func_OnEnd = ANI_ATK_End;
         curve_ani_ATK.StartFunc_FWD();
+    }
+
+    public void ANI_ATK_End()
+    {
+        SJ_SimpleSync.Next( BattleTurn.BATTLE_SYNC_ACTION );
     }
 
     // 피격 애니

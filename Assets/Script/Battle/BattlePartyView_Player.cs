@@ -7,9 +7,15 @@ using UnityEngine;
 
 public class BattlePartyView_Player : MonoBehaviour
 {
+    static public BattlePartyView_Player G;
+
     public List<UIItem_BattleChr> ui_chr_front;
     public List<UIItem_BattleChr> ui_chr_back;
 
+    void Awake()
+    {
+        G = this;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,6 +27,17 @@ public class BattlePartyView_Player : MonoBehaviour
     void Update()
     {
         
+    }
+
+    static public void All_HideInputAni()
+    {
+        G._All_HideInputAni();
+    }
+
+    public void _All_HideInputAni()
+    {
+        foreach( var s in ui_chr_front )s.Active_CommandInput(false);
+        foreach( var s in ui_chr_back )s.Active_CommandInput(false);
     }
 
 

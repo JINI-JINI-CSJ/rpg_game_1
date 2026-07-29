@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,9 +11,7 @@ public class SkillBase
 
     public int LEVEL;
 
+    
 
-    public void Action(  )
-    {
-        
-    }
+    virtual public void Action( List<CharBase> targets ){}
 }

@@ -32,6 +32,25 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         Armor_ID = Next();
         charPrcValue.ReadCSV(this);
     }
+
+    public CSV_CharBaseStat Copy()
+    {
+        CSV_CharBaseStat s = new();
+        s.name = name;
+        s.desc = desc;
+        s.res = res;
+        s.res3D = res3D;
+        s.grade = grade;
+        s.jOB_BASE = jOB_BASE;
+        s.Weapon_ID = Weapon_ID;
+        s.Armor_ID = Armor_ID;
+        s.csv_EqItem_Weapon = csv_EqItem_Weapon;
+        s.csv_EqItem_Armor = csv_EqItem_Armor;
+
+        s.charPrcValue.Copy( charPrcValue );
+        
+        return s;
+    }
 }
 
 

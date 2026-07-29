@@ -15,6 +15,10 @@ public class SJ_COMMON
 	public delegate void Func_VOID();
 
 	public delegate void Func_Arg( object obj );
+	public delegate void Func_Arg_BOOL( bool arg );
+	public delegate void Func_Arg_INT( int arg );
+	public delegate void Func_Arg_STR( string arg );
+
 
 	// 시계 방향
 	public enum SJ_NEWS_DIR
