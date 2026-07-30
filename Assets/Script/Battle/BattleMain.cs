@@ -11,6 +11,9 @@ public class BattleMain : MonoBehaviour
     public BattleParty              battleParty_Enemy;
 
 
+    //public BattleTargetSelector     battleTargetSelector;
+
+
     public int TURN;
 
     void Awake()

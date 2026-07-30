@@ -11,19 +11,24 @@ public enum _ARMY_FORCE
 // 캐릭터 객체 기본 , 플레이어 파티 , 적군 등등
 public class CharBase 
 {
-
     public _ARMY_FORCE armyForce;
-
+    public int front_back; // 1 : 전열 , 2 : 후열
     public CSV_CharBaseStat csv;
-
     public int cur_HP;
     public int cur_MP;
 
     public SJ_COMMON.Func_Arg_BOOL func_BattleCommandInputWait;
+    public SJ_COMMON.Func_Arg_BOOL func_SelectTarget;           // 스킬 및 아이템 대상 선택
     public SJ_COMMON.Func_VOID func_ANI_ATK;
     public SJ_COMMON.Func_VOID func_ANI_Damage;
-
     public BattleCommand command;
+
+    public SkillBase skillBase_Default;
+
+    public SkillBase GetDefaultSkill()
+    {
+        return skillBase_Default;
+    }
 
     public void SetCSV( CSV_CharBaseStat _csv )
     {
@@ -40,6 +45,11 @@ public class CharBase
     public void Call_BattleCommandInputWait( bool b )
     {
         func_BattleCommandInputWait?.Invoke(b);
+    }
+
+    public void Call_SelectTarget( bool b )
+    {
+        func_SelectTarget?.Invoke( b );
     }
     
     public void Call_ANI_ATK()

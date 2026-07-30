@@ -15,6 +15,9 @@ public class CSV_Skill : SJ_CSV_BaseObj
     public string TAG_ITEM;
     public string TAG_MAGIC_PROP;
     public string class_name;
+
+    public BATTLE_ACTION_TARGET act_target;
+
     public List<string> args;
     public override void OnRead(SJ_CSV_BasePage _par, string[] _strs)
     {
@@ -28,6 +31,7 @@ public class CSV_Skill : SJ_CSV_BaseObj
         TAG_ITEM = Next();
         TAG_MAGIC_PROP = Next();
         class_name = Next();
+        Enum.TryParse( Next() , out act_target );
         Remain_Data( args );
     }
 }

@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using Unity.AppUI.Navigation;
 using Unity.AppUI.UI;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Panel_BattleMain : MonoBehaviour
 {
+    public PlayerInput playerInput;
+
+    public CursorDirectionInput cursorDirectionInput;
+
     public GameObject go_MENU;
 
     public List<Button> buttons_ChrCmd;
@@ -14,6 +19,12 @@ public class Panel_BattleMain : MonoBehaviour
     List<CharBase> charBases_inputWait = new();
 
     bool auto_mode;
+
+    void Awake()
+    {
+        cursorDirectionInput.RegisterMoveX_One( InputCursor_X );
+        cursorDirectionInput.RegisterMoveY_One( InputCursor_Y );
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -84,13 +95,23 @@ public class Panel_BattleMain : MonoBehaviour
 
     }
 
+
+    // 현재 선택한 스킬 및 일반 공격
+    SkillBase skillBase_cur_sel;
+
     public void OnBT_Attack()
     {
-        BattleCommand command = new();
-        command.cmd_cate = BATTLE_COMMAND_CATE.Attack;
-        cur_input_wait.command = command;
-        NextInputCommand();
+        // BattleCommand command = new();
+        // command.cmd_cate = BATTLE_COMMAND_CATE.Attack;
+        // cur_input_wait.command = command;
+        // NextInputCommand();
+
+        skillBase_cur_sel = cur_input_wait.GetDefaultSkill();
+
+        skillBase_cur_sel.SelectTarget();
     }
+
+    
 
     public void OnBT_Skill()
     {
@@ -170,4 +191,15 @@ public class Panel_BattleMain : MonoBehaviour
             if( s.AbleBattleCommand() ) s.Auto_Command();
         }
     }
+
+    public void InputCursor_X( int off )
+    {
+        //MoveCursor( off , 0 );
+    }
+
+    public void InputCursor_Y( int off )
+    {
+        //MoveCursor( 0 , off );
+    }
+
 }

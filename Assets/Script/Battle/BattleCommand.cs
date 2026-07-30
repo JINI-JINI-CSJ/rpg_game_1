@@ -16,11 +16,28 @@ public enum BATTLE_COMMAND_CATE
 public enum BATTLE_ACTION_TARGET
 {
     None  = 0 ,
-    One , 
-    Line_Front ,
-    Line_Back , 
-    ALL ,
+
+    // 상대편
+    One_Opp_Front , // 상대 전열라인중 1 인
+    One_Opp_Back , // 상대 후열라인중 1인 
+    One_Opp_ALL , // 상대전체중 1인
+    Line_Opp_Front , // 상대 전열 라인 
+    Line_Opp_Back ,  // 상대 후열 라인
+    Line_Opp_ALL ,  // 상대 전후열중 1개 라인
+    ALL_Opp     ,   // 상대 전체
+
+
+    // 아군
+    One_Self_Front , // 
+    One_Self_Back , // 
+    One_Self_ALL , // 
+    Line_Self_Front , // 
+    Line_Self_Back ,  // 
+    Line_Self_ALL ,  // 
+    ALL_Self     ,   // 
 }
+
+
 
 
 public class BattleCommand
@@ -30,7 +47,7 @@ public class BattleCommand
     public SkillBase    skill; // 스킬 선택 했을때
     public ItemBase     item;
 
-    public List<CharBase> targetChars = new();
+    public List<BATTLE_SEL_GROUP> sel_group = new();
 
     
 }

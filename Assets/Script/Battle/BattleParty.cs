@@ -16,11 +16,25 @@ public class BattleParty
         return chars;
     }
 
-    public List<CharBase> GetBattleLive()
+    public List<CharBase> GetBattleLive( bool front = true , bool back = true , bool live = true )
     {
         List<CharBase> chars = new();
-        foreach( var s in chars_Front ) if( s.IsLive() ) chars.Add(s);
-        foreach( var s in chars_Back ) if( s.IsLive() ) chars.Add(s);
+        if( front )
+        {
+            foreach( var s in chars_Front )
+            {
+                if( s.IsLive() || live == false ) chars.Add(s);
+            }            
+        }
+
+        if( back )
+        {
+            foreach( var s in chars_Back )
+            {
+                if( s.IsLive() || live == false  ) chars.Add(s);
+            }
+            
+        }
         return chars;
     }
 
