@@ -43,8 +43,10 @@ public class BattleTargetSelector : MonoBehaviour
 
     SJ_GridObjDir gridObjDir = new();
 
-    public SJ_COMMON.Func_VOID func_SelectOK;
-    public SJ_COMMON.Func_VOID func_SelectCancel;
+    BATTLE_SEL_GROUP bs_cur_select;
+
+    public SJ_COMMON.Func_Arg func_SelectOK;
+    public SJ_COMMON.Func_Arg func_SelectCancel;
 
     // public BattleTargetSelector()
     // {
@@ -285,6 +287,12 @@ public class BattleTargetSelector : MonoBehaviour
         ActiveGroup();
     }
 
+    static public void Show( bool b )
+    {
+        G.enabled = b;
+        G.playerInput.enabled = b;
+    }
+
     static public void ActiveGroup()
     {
         foreach( var s in G.sel_group )
@@ -292,8 +300,8 @@ public class BattleTargetSelector : MonoBehaviour
             s.ActiveTarget(false);
         }
 
-        BATTLE_SEL_GROUP bs_cur = G.gridObjDir.GetCursor() as BATTLE_SEL_GROUP;
-        bs_cur.ActiveTarget(true);
+        G.bs_cur_select = G.gridObjDir.GetCursor() as BATTLE_SEL_GROUP;
+        G.bs_cur_select.ActiveTarget(true);
     }
 
     static public BATTLE_SEL_GROUP MoveCursor( int x , int y )
@@ -319,14 +327,16 @@ public class BattleTargetSelector : MonoBehaviour
         cursorDirectionInput.SetInput( v.x , v.y );
     }
 
-    public void SelectOK()
+    public void OnSelectOK()
     {
-        func_SelectOK?.Invoke();
+        playerInput.enabled = false;
+        func_SelectOK?.Invoke(bs_cur_select);
     }
 
-    public void SelectCancel()
+    public void OnSelectCancel()
     {
-        func_SelectCancel?.Invoke();
+        playerInput.enabled = false;
+        func_SelectCancel?.Invoke(bs_cur_select);
     }
 
 }

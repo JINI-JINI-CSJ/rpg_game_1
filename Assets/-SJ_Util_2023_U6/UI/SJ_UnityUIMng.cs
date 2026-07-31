@@ -532,6 +532,10 @@ public class SJ_UnityUIMng : MonoBehaviour
     // 간단하게 아래로 사용
     //transform.position = Camera.main.WorldToScreenPoint(target.position);
 
+    static public void WorldToUI( Transform tr_ui , Transform tr_ref_w )
+    {
+        tr_ui.position = Camera.main.WorldToScreenPoint(tr_ref_w.position);
+    }
 
 
     public void OpenPopup_Event( string str )

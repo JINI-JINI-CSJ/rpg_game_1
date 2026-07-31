@@ -47,7 +47,7 @@ public class BattleCommand
     public SkillBase    skill; // 스킬 선택 했을때
     public ItemBase     item;
 
-    public List<BATTLE_SEL_GROUP> sel_group = new();
+    public BATTLE_SEL_GROUP sel_group;
 
     
 }

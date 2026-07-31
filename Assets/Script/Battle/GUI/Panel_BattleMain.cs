@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using Unity.AppUI.Navigation;
-using Unity.AppUI.UI;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 public class Panel_BattleMain : MonoBehaviour
 {
+    static public Panel_BattleMain G;
+
     public PlayerInput playerInput;
 
     public CursorDirectionInput cursorDirectionInput;
@@ -15,6 +16,11 @@ public class Panel_BattleMain : MonoBehaviour
 
     public List<Button> buttons_ChrCmd;
 
+    // 적군 타겟 마크
+    public List<Image> enemy_target_marks;
+
+    
+
     // 커맨드 입력
     List<CharBase> charBases_inputWait = new();
 
@@ -22,6 +28,7 @@ public class Panel_BattleMain : MonoBehaviour
 
     void Awake()
     {
+        G = this;
         cursorDirectionInput.RegisterMoveX_One( InputCursor_X );
         cursorDirectionInput.RegisterMoveY_One( InputCursor_Y );
     }
@@ -44,6 +51,11 @@ public class Panel_BattleMain : MonoBehaviour
         TurnStart_InputCommand();
     }
 
+    public void EndBattle()
+    {
+        gameObject.SetActive(false);
+    }
+
 
     public void TurnStart_InputCommand()
     {
@@ -62,6 +74,7 @@ public class Panel_BattleMain : MonoBehaviour
     CharBase cur_input_wait = null;
     public void NextInputCommand()
     {
+        go_MENU.SetActive(true);
         BattlePartyView_Player.All_HideInputAni();
         cur_input_wait = null;
         foreach( var s in charBases_inputWait )
@@ -101,17 +114,30 @@ public class Panel_BattleMain : MonoBehaviour
 
     public void OnBT_Attack()
     {
-        // BattleCommand command = new();
-        // command.cmd_cate = BATTLE_COMMAND_CATE.Attack;
-        // cur_input_wait.command = command;
-        // NextInputCommand();
-
+        playerInput.enabled = false;
+        go_MENU.SetActive(false);
         skillBase_cur_sel = cur_input_wait.GetDefaultSkill();
-
         skillBase_cur_sel.SelectTarget();
     }
 
+    // 셀렉터에서 타겟을 선택했다.
+    public void OnOK_TargetSelect( object arg )
+    {
+        playerInput.enabled = true;
+        BattleCommand command = new();
+        command.sel_group = arg as BATTLE_SEL_GROUP;
+        command.skill = skillBase_cur_sel;
+        cur_input_wait.command = command;
+        NextInputCommand();
+    }
     
+    // 셀렉터에서 취소했다.
+    public void OnCancel_TargetSelect( object arg )
+    {
+        playerInput.enabled = true;
+        skillBase_cur_sel = null;
+        NextInputCommand(); 
+    }
 
     public void OnBT_Skill()
     {

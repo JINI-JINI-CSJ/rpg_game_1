@@ -4,7 +4,10 @@ using UnityEngine;
 public class BattleMain : MonoBehaviour
 {
     static public BattleMain G;
-    public GameObject               go_CameraBattle; // 배틀 카메라
+
+    
+    public GameObject               go_Cam_InputCommand; 
+    public GameObject               go_Cam_BattleTurn; 
     public BattlePartyView_Enemy    view_Enemy;
     public Panel_BattleMain         panel_BattleMain;    
 
@@ -39,8 +42,9 @@ public class BattleMain : MonoBehaviour
         TURN = 1;
         battleParty_Enemy = bp_enemy;
         view_Enemy.Init();
-        go_CameraBattle.SetActive(true);
         panel_BattleMain.StartBattle();
+        go_Cam_InputCommand.SetActive(true);
+
     }
 
     // 파티 가져오기 , 아군 ,적군
@@ -58,4 +62,5 @@ public class BattleMain : MonoBehaviour
         }
         return null;
     }
+
 }

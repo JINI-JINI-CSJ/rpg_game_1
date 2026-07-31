@@ -22,6 +22,8 @@ public class SkillBase
     {
         List<BATTLE_SEL_GROUP> lt = BattleTargetSelector.MakeSelectGroup( charBase.armyForce , GetTargetType() );
         OnSelectTargetDefault( lt );
+
+        BattleTargetSelector.Show( true );
     }
 
     virtual public void OnSelectTargetDefault( List<BATTLE_SEL_GROUP> lt )
