@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,14 @@ public class BattleEnemyObjView : MonoBehaviour
     // 2디 이미지 일경우
     // 3디 캐릭이면 스프라이트 감춘다.
     public SpriteRenderer spriteRenderer;
+
+    public SJ_Curve_Color_Mono  spr_curve_atk;
+    public SJ_Curve_Color_Mono  spr_curve_damage;
+    public SJ_Curve_Color_Mono  spr_curve_ko;
+    public Cld_ShakeEffect      shakeEffect_damage;
+    
+
+    public float Time_ATK = 0.5f;
 
     Image       image_targetMark;
 
@@ -33,8 +42,10 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public void Clear()
     {
+        spriteRenderer.color = Color.white;
         charBase = null;
         if( enemyMono != null )GameObject.DestroyImmediate(enemyMono.gameObject);
+        anit = null;
         gameObject.SetActive(false);
     }
 
@@ -47,19 +58,75 @@ public class BattleEnemyObjView : MonoBehaviour
         }
 
         charBase = chr;
+        charBase.func_ANI_ATK = ANI_ATK;
+        charBase.func_ANI_Damage = ANI_GetDamage;
+
+
         // 2D , 3D 
         if( string.IsNullOrEmpty( chr.csv.res ) == false )
         {
+            spriteRenderer.enabled = true;
             spriteRenderer.sprite = SJ_ResPoolSys.GetResObjs_PathName_Sprite( chr.csv.res );
         } 
         else if( string.IsNullOrEmpty( chr.csv.res3D ) == false )
         {
+            spriteRenderer.enabled = false;
             GameObject load_3D = SJ_ResPoolSys.Inst_Obj( chr.csv.res3D );
             SJ_Unity.SetEqTrans( load_3D.transform , null , transform );
             anit = load_3D.GetComponentInChildren<Animator>();
             enemyMono = load_3D.GetComponent<EnemyMono>();
         }
         gameObject.SetActive(true);
+    }
+
+    public void ANI_ATK()
+    {
+        if( anit != null )
+        {
+            anit.Play( "Attack" );
+        }
+        else
+        {
+            spr_curve_atk.StartPlay();
+        }
+
+        StartCoroutine( CO_WaitATK() );
+    }
+
+    IEnumerator CO_WaitATK()
+    {
+        yield return new WaitForSeconds(Time_ATK);
+        ANI_ATK_End();
+    }
+
+    public void ANI_ATK_End()
+    {
+        charBase.OnEnd_TurnAction();
+    }
+
+    public void ANI_GetDamage()
+    {
+        if( anit != null )
+        {
+            anit.Play( "Damage" );
+        }
+        else
+        {
+            spr_curve_damage.StartPlay();
+            shakeEffect_damage.Shake();            
+        }
+    }
+
+    public void ANI_KO()
+    {
+        if( anit != null )
+        {
+            anit.Play( "KO" );
+        }
+        else
+        {
+            spr_curve_ko.StartPlay();
+        }
     }
 
 }

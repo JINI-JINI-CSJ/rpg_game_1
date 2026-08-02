@@ -17,6 +17,8 @@ public class PlayerMover : SJ_MapTileMover
 
     // 3. 상호작용 : 주인공 앞 객체 ( 보물 상자 ) , 1번 레이어
 
+    // 4. 일반 전투 등등
+
     // 동시에 한다면  싱크 스택으로 하면 된다.
 
     void Awake()
@@ -62,6 +64,9 @@ public class PlayerMover : SJ_MapTileMover
             tile_obj_front.OnPre_Interact();
             return;
         }
+
+        // 일반 전투 체크
+
     }
 
 }

@@ -45,7 +45,7 @@ public class Panel_BattleMain : MonoBehaviour
         
     }
 
-    public void StartBattle()
+    public void InitBattle()
     {
         gameObject.SetActive(true);
         TurnStart_InputCommand();
@@ -99,7 +99,7 @@ public class Panel_BattleMain : MonoBehaviour
         // 전투 시작
         go_MENU.SetActive(false);
         // 배틀 턴 시작        
-        
+        BattleMain.Phase_StartTurn();
     }
 
     public void OnTurnEnd()

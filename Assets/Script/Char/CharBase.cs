@@ -21,6 +21,7 @@ public class CharBase
     public SJ_COMMON.Func_Arg_BOOL func_SelectTarget;           // 스킬 및 아이템 대상 선택
     public SJ_COMMON.Func_VOID func_ANI_ATK;
     public SJ_COMMON.Func_VOID func_ANI_Damage;
+    public SJ_COMMON.Func_VOID func_ANI_KO;
     public BattleCommand command;
 
     public SkillBase skillBase_Default;
@@ -97,9 +98,14 @@ public class CharBase
     }
 
 
-    public void ANI_ATK_Start()
+    public void TurnAction_Start()
     {
         Call_ANI_ATK();
     }
 
+    // 객체 뷰어에서 호출한다.
+    public void OnEnd_TurnAction()
+    {
+        BattleMain.NextCharAction();
+    }
 }

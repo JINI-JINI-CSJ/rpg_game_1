@@ -33,6 +33,8 @@ public class BattleTurn : MonoBehaviour
     static public void TurnStart()
     {
         // 
+        G._TurnStart();
+        G._NextCharAction();
     }
 
     public void _TurnStart()
@@ -51,10 +53,24 @@ public class BattleTurn : MonoBehaviour
                 return 0;
             }
         );
-
-        
     }
 
+    static public void NextCharAction()
+    {
+        G._NextCharAction();
+    }
+
+    public void _NextCharAction()
+    {
+        if( char_turn.Count < 1 )
+        {
+            // 턴 종료
+            BattleMain.Phase_EndTurn();
+            return;
+        }
+        CharBase charBase = char_turn[0];
+        charBase.TurnAction_Start();
+    }
 
 
 

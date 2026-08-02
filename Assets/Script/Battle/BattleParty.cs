@@ -47,5 +47,14 @@ public class BattleParty
         foreach( var s in chars_Back ) if( s.AbleBattleCommand() ) chars.Add(s);
         return chars;
     }
+
+    public bool CheckLiveALL()
+    {
+        foreach( var s in GetALL() )
+        {
+            if( s.IsLive() == false ) return false;
+        }
+        return true;
+    }
     
 }

@@ -22,6 +22,9 @@ public class CSV_Item : SJ_CSV_BaseObj
         class_name = Next();
         Remain_Data( args );
     }
+
+    public string GetName(){return name;}
+    public string GetDesc(){return desc;}
 }
 
 public class CSV_ItemPage : SJ_CSV_BasePage

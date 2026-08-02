@@ -29,6 +29,10 @@ public class UIItem_BattleChr : MonoBehaviour
     {
         gameObject.SetActive(true);
         charBase = _chr;
+        
+        charBase.func_ANI_ATK = ANI_ATK;
+        charBase.func_ANI_Damage = ANI_GetDamage;
+
         SJ_UnityUI_Util.Image_Load( image , "2D/PLAYER/FACE/" + charBase.csv.res );
         SJ_UnityUI_Util.TextString( text_name , charBase.csv.name );
         UpdateUI();
@@ -56,7 +60,7 @@ public class UIItem_BattleChr : MonoBehaviour
 
     public void ANI_ATK_End()
     {
-        SJ_SimpleSync.Next( BattleTurn.BATTLE_SYNC_ACTION );
+        charBase.OnEnd_TurnAction();
     }
 
     // 피격 애니
