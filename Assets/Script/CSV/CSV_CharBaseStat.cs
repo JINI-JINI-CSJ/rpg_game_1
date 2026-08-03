@@ -9,6 +9,7 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
     public string res;
     public string res3D;
     public int grade;
+    public float pow_ratio; // 적군 전용 , 강함 가중치 , 경험치 계산등에 사용한다. 예) 하급고블린 -> 1 , 오우거 -> 2
     public JOB_BASE jOB_BASE;
     public string Weapon_ID;
     public string Armor_ID;
@@ -27,6 +28,7 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         res = Next();
         res3D = Next();
         grade = Next_Int();
+        pow_ratio = Next_Float();
         Enum.TryParse( Next() , out jOB_BASE );
         Weapon_ID = Next();
         Armor_ID = Next();

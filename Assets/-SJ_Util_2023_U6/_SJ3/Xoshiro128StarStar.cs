@@ -254,3 +254,63 @@ public class Mng_X128SS
         return r_obj;
     }
 }
+
+// 랜덤 스텝기능만 간단 구현
+// 랜덤값은 외부에서 가져오기
+public class SJ_RANDOM_STEP_DATA
+{
+    public List<Mng_X128SS._STEP_Val> inf_input = new();
+
+    public List<Mng_X128SS._STEP_Val> inf_calc = new();
+
+    public void Clear()
+    {
+        inf_input.Clear();
+        inf_calc.Clear();
+    }
+
+    public void Add( float per , object obj )
+    {
+        Mng_X128SS._STEP_Val sv = new();
+        sv.val = per;
+        sv.obj = obj;
+        inf_input.Add( sv );
+    }
+
+    
+    public object Step_Random( float random_val )
+    {
+        if( inf_input.Count < 1 ) return null;
+
+        if( inf_calc.Count < 1 )
+        {
+            Mng_X128SS._STEP_Val  input_recent = null;
+            foreach( var s in inf_input )
+            {
+                Mng_X128SS._STEP_Val calc = new();
+                calc.val = s.val;
+                calc.obj = s.obj;
+                if( input_recent != null )
+                {
+                    calc.val += input_recent.val;
+                }
+                inf_calc.Add(calc);
+                input_recent = s;
+            }            
+        }
+
+
+        if( inf_calc.Count < 1 ) return null;
+        float r = random_val;
+        Mng_X128SS._STEP_Val  sv_last = inf_calc[ inf_calc.Count - 1 ];
+        r *= sv_last.val; // 마지막 값을 최대치 대응
+        foreach( var s in inf_calc )
+        {
+            if( r <= s.val )
+            {
+                return s.obj;
+            }
+        }
+        return inf_calc[ inf_calc.Count - 1 ].obj;
+    }
+}

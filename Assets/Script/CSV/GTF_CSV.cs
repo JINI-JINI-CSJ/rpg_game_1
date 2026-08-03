@@ -65,4 +65,27 @@ public class GTF_CSV : SJ_CSV_Mng
     {
         return 0;
     }
+
+    // 전투 결과 
+    static public void ResultBattle( List<CharBase> charBases , out int gold , out int exp )
+    {
+        // 레벨 * 강함 보정
+        // 나중에 전역설정
+        int csv_gold = 100;
+        int csv_exp = 20;
+
+        gold = 0;
+        exp = 0;
+        foreach( var s in charBases )
+        {
+            gold += ResultBattle_Calc( csv_gold , s.LEVEL , s.csv.pow_ratio );
+            exp += ResultBattle_Calc( csv_exp , s.LEVEL , s.csv.pow_ratio );
+        }
+    }
+
+    static public int ResultBattle_Calc( int base_val , int level , float pw_ratio )
+    {
+        float val = base_val * level * pw_ratio;
+        return (int)val;
+    }
 }

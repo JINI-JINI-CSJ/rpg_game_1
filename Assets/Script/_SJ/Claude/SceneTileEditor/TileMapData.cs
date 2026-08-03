@@ -95,6 +95,11 @@ namespace TilemapTool
         {
             customData?.Remove(key);
         }
+
+        public Vector2Int Vector2Int()
+        {
+            return new Vector2Int( x, z );
+        }
     }
 
     /// <summary>

@@ -3,7 +3,9 @@ using TilemapTool;
 
 public class PlayerMover : SJ_MapTileMover
 {
-    public SJ_MapTileViewer_claude mapView_Claude;
+    static public PlayerMover G;
+
+    public GTF_TileMap mapView_Claude;
 
     // 일단 다음 요소들중에 하나만 하고 
     // 대신 우선순위 대로 한다.
@@ -23,7 +25,14 @@ public class PlayerMover : SJ_MapTileMover
 
     void Awake()
     {
-        sJ_MapTile = mapView_Claude;
+        G = this;
+        //sJ_MapTile = mapView_Claude;
+    }
+
+    public void SetMap(GTF_TileMap tile_map )
+    {
+        mapView_Claude = tile_map;
+        sJ_MapTile = tile_map;
     }
 
     public override void OnMoveStart()
@@ -67,6 +76,12 @@ public class PlayerMover : SJ_MapTileMover
 
         // 일반 전투 체크
 
+    }
+
+
+    public void Ready()
+    {
+        InitPos( mapView_Claude.PlayerStartPos() );
     }
 
 }

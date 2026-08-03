@@ -1,5 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
+
+
+
 
 public class SJ_MapTileViewer_claude : SJ_MapTileViewer
 {
@@ -9,6 +14,48 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
     public List<TilemapTool.TileLayer> layers = new();
 
     public List<TilemapTool.TilePalette> claudePalette_s;
+
+    // 타일 인덱스 -> 위치 찾기 위한 클래스 
+    public class _LAYER_TILE_IDX_TO_POS
+    {
+        public Dictionary<int,HashSet<Vector2Int> > dic_TileIndex_Pos = new();
+        public void Clear()
+        {
+            dic_TileIndex_Pos.Clear();
+        }
+
+        public void Add( int tile_idx , Vector2Int pos )
+        {
+            HashSet<Vector2Int> hs = null;
+            if( dic_TileIndex_Pos.TryGetValue( tile_idx , out hs ) == false)
+            {
+                hs = new();
+                dic_TileIndex_Pos[tile_idx] = hs;
+            }
+            hs.Add( pos );
+        }
+
+        public HashSet<Vector2Int> Find( int tile_idx )
+        {
+            HashSet<Vector2Int> hs = null;
+            dic_TileIndex_Pos.TryGetValue( tile_idx , out hs );
+            return hs;
+        }
+
+        public Vector2Int FindOne( int tile_idx )
+        {
+            HashSet<Vector2Int> hs = Find( tile_idx );
+            if( hs != null && hs.Count > 0 )
+            {
+                Vector2Int[] arr = hs.ToArray();
+                return arr[0];
+            }
+            return new Vector2Int( -1 , -1 );
+        }
+    }
+
+    public List<_LAYER_TILE_IDX_TO_POS> Layer_TileIdxToPos = new();
+    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -48,11 +95,14 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
             return;   
         }
         Clear_MapLayer();
+        Layer_TileIdxToPos.Clear();
         foreach( var s in layers )
         {
             SJ_RawMap2D map2D = NewLayer();
+            _LAYER_TILE_IDX_TO_POS layer_tile_idx = new();
+            Layer_TileIdxToPos.Add( layer_tile_idx );
             map2D.layerName = s.layerName;
-            Load_SJ_RawMap2D( map2D , s );
+            Load_SJ_RawMap2D( map2D , s , layer_tile_idx );
         }
     }
 
@@ -76,7 +126,7 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
     }
 
 
-    public void Load_SJ_RawMap2D( SJ_RawMap2D rawMap2D , TilemapTool.TileLayer tileLayer_cl )
+    public void Load_SJ_RawMap2D( SJ_RawMap2D rawMap2D , TilemapTool.TileLayer tileLayer_cl , _LAYER_TILE_IDX_TO_POS layer_tile )
     {
         foreach( var s in tileLayer_cl.placements )
         {
@@ -92,6 +142,8 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
             }
 
             rawMap2D.AddRawTile( placement.x , placement.z , placement.userValue , news_dir );
+
+            layer_tile.Add( placement.userValue , new Vector2Int( placement.x , placement.z ) );
         }
     }
 
@@ -100,5 +152,25 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
         if( layers.Count <= layer ) return null;
         TilemapTool.TileLayer tileLayer = layers[layer];
         return tileLayer.Get( pos.x , pos.y );
+    }
+
+     public List<TilemapTool.ObjectPlacement> GetObjectPlacement_ByTileIdx( int layer , int tile_idx )
+    {
+        List<TilemapTool.ObjectPlacement> lt = new();
+        if( Layer_TileIdxToPos.Count <= layer ) return lt;
+
+        HashSet<Vector2Int> hs = Layer_TileIdxToPos[layer].Find( tile_idx );
+        if( hs != null )
+        {
+            foreach( var s in hs )
+            {
+                TilemapTool.ObjectPlacement tile_obj_pl = GetObjectPlacement( layer , s );
+                if( tile_obj_pl != null )
+                {
+                    lt.Add( tile_obj_pl );
+                }
+            }
+        }
+        return lt;
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // 타일맵 
@@ -13,6 +14,8 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
     static public GTF_TileMap G;
 
     public MapEventPlayer mapEvent;
+
+    public DungeonInfo dungeonInfo = new();
 
     void Awake()
     {
@@ -31,27 +34,31 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
         
     }
 
-    static public void StartMap()
+    static public void LoadMap()
     {
         if( G == null )
         {
             Debug.LogError( "주 타일맵 없음" );
             return;
         }
-        G._StartMap();
+        G._LoadMap();
     }
 
-    public void _StartMap()
+    public void _LoadMap()
     {
-        // 1. 타일맵 로드 및 생성
-        // 2. 시작점 배치
-        // 3. 트리거 이벤트 있으면 실행
         MENU_Load();
-        PlayerStartPos();
     }
 
-    public void PlayerStartPos()
+    public Vector2Int PlayerStartPos()
     {
-        // 인스턴스 밑에서 
+        // 레이어 1번의 0번 인덱스 찾기
+        List<TilemapTool.ObjectPlacement> lt = GetObjectPlacement_ByTileIdx( 1 , 0 );
+        if( lt.Count < 1 )
+        {
+            // 입구가 없다.
+            Debug.LogError( "입구 타일 없다!!!" );
+        }
+
+        return lt[0].Vector2Int();
     }
 }

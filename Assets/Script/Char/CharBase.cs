@@ -11,9 +11,10 @@ public enum _ARMY_FORCE
 // 캐릭터 객체 기본 , 플레이어 파티 , 적군 등등
 public class CharBase 
 {
+    public CSV_CharBaseStat csv;    
+    public int LEVEL;
     public _ARMY_FORCE armyForce;
     public int front_back; // 1 : 전열 , 2 : 후열
-    public CSV_CharBaseStat csv;
     public int cur_HP;
     public int cur_MP;
 
