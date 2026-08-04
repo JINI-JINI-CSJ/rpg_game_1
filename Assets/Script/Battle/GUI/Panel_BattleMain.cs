@@ -45,11 +45,13 @@ public class Panel_BattleMain : MonoBehaviour
         
     }
 
-    public void InitBattle()
+    static public void InitBattle()
     {
-        gameObject.SetActive(true);
-        TurnStart_InputCommand();
+        G.gameObject.SetActive(true);
+        G.TurnStart_InputCommand();
     }
+
+
 
     public void EndBattle()
     {

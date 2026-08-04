@@ -20,8 +20,13 @@ public class Player
         saveFile.Save();
     }
 
+    // 최초 인트로 씬에서 실행
+    // csv 1 번으로 캐릭터 만들고 , 전열 1에 등록
     static public bool FirstPlay()
     {
+        CharBase charBase = new();
+        
+
         return true;
     }
 }

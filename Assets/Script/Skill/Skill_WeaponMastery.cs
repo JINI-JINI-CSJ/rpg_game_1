@@ -7,5 +7,8 @@ using UnityEngine;
 
 public class Skill_WeaponMastery : SkillBase
 {
-    
+    public override void Action(BATTLE_SEL_GROUP sel_group)
+    {
+        
+    }
 }

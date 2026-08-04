@@ -1,6 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum _EQUIP_CHR_PART
+{
+    None = -1,
+
+    // 일단 간단하게 , 무기 , 방어구 , 악세 1234
+    Weapon , 
+    Armor , 
+    Acc_1 , 
+    Acc_2 ,
+    Acc_3 , 
+    Acc_4 ,
+
+    MAX ,
+
+}
+
 public enum _ARMY_FORCE
 {
     None = 0,
@@ -25,17 +41,74 @@ public class CharBase
     public SJ_COMMON.Func_VOID func_ANI_KO;
     public BattleCommand command;
 
+    // 전투에서 공격을 선택했을때 기본 공격
     public SkillBase skillBase_Default;
+
+
+    public List<ItemBase> items_EQ = new();
+
+    // 캐릭터 내장 스킬
+    public List<SkillBase> skills_Chr = new();
+
+
+    // 추가 스킬
+    public List<SkillBase> skills_ADD = new();
+
+    public CharBase()
+    {
+        for( int i = 0 ; i < (int)_EQUIP_CHR_PART.MAX ; i++ )
+        {
+            items_EQ.Add(null);
+        }
+    }
 
     public SkillBase GetDefaultSkill()
     {
         return skillBase_Default;
     }
 
+    public void Make( CSV_CharBaseStat _csv , int level , _ARMY_FORCE _force )
+    {
+        SetCSV( csv );
+        LEVEL = level;
+        armyForce = _force;
+        cur_HP = csv.charPrcValue.HP;
+        cur_MP = csv.charPrcValue.MP;
+        InitSkill_Chr();
+    }
+
+    public SkillBase AddSkill( CSV_Skill csv_skill , List<SkillBase> skills)
+    {
+        SkillBase skill = SkillBase.InstSkill( csv_skill );
+
+        skills.Add( skill );
+        return skill;
+    }
+
+    public void InitSkill_Chr()
+    {
+        if( skills_Chr.Count > 0 ) return;
+
+        // 기본 스킬, 일단 없는 경우는 없게..
+        CSV_Skill csv_skill_weapon = GTF_CSV.csv_SkillPage_NORMAL.Find_Int( csv.Weapon_ID ) as CSV_Skill;
+        if( csv_skill_weapon == null )
+        {
+            Debug.LogError( "기본 스킬 없음!!! : " + csv.ID_int );
+            return;
+        }
+        skillBase_Default = AddSkill( csv_skill_weapon , skills_Chr );
+
+        CSV_Skill csv_skill_armor = GTF_CSV.csv_SkillPage_NORMAL.Find_Int( csv.Armor_ID ) as CSV_Skill;
+        if( csv_skill_armor != null )
+        {
+            AddSkill( csv_skill_armor , skills_Chr );
+        }
+        
+    }
+
     public void SetCSV( CSV_CharBaseStat _csv )
     {
-        csv = _csv;
-
+        csv = _csv.Copy();
     }
 
     public bool AbleBattleCommand()

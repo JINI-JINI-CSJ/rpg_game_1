@@ -40,5 +40,9 @@ public class BattlePartyView_Player : MonoBehaviour
         foreach( var s in ui_chr_back )s.Active_CommandInput(false);
     }
 
+    static public void Update_Player()
+    {
+        
+    }
 
 }

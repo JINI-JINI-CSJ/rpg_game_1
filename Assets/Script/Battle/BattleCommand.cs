@@ -48,6 +48,4 @@ public class BattleCommand
     public ItemBase     item;
 
     public BATTLE_SEL_GROUP sel_group;
-
-    
 }

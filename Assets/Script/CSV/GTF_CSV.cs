@@ -15,7 +15,8 @@ public class GTF_CSV : SJ_CSV_Mng
     static public CSV_CharBaseStatPage      csv_CharPlayer = new(); // 아군 플레이어 정의
     static public CSV_CharBaseStatPage      csv_CharEnemy = new(); // 적군 정의
 
-    static public CSV_ItemPage              csv_ItemPage = new();
+    static public CSV_ItemPage              csv_ItemPage_Consume = new();
+    static public CSV_ItemPage              csv_ItemPage_Equip = new();
     static public CSV_OfficeUpgradePage     csv_OfficeUpgradePage = new();
     static public CSV_OfficeDepartmentPage  csv_OfficeDepartmentPage = new();
 
@@ -37,8 +38,13 @@ public class GTF_CSV : SJ_CSV_Mng
         Add_CSVName( csv_SkillPage_ADD_EFF      , "스킬추가효과"    , false );    
         Add_CSVName( csv_CharPlayer             , "캐릭터정의"      , false );   
         Add_CSVName( csv_CharEnemy              , "적군정의"        , false );   
+        Add_CSVName( csv_ItemPage_Consume       , "아이템-소비"     , false );   
+        Add_CSVName( csv_ItemPage_Equip         , "아이템-장비"     , false );   
 
-        Add_CSVName( null      , "기본"  , false , true );   
+        // 사무실 
+
+
+        Add_CSVName( null      , "기본"     , false , true );   
         Add_CSVName( null      , "대화컷신"  , false , true );   
     }
 

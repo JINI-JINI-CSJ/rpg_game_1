@@ -24,7 +24,7 @@ public class BattleMain : MonoBehaviour
     public GameObject               go_Cam_InputCommand; 
     public GameObject               go_Cam_BattleTurn; 
     public BattlePartyView_Enemy    view_Enemy;
-    public Panel_BattleMain         panel_BattleMain;    
+    //public Panel_BattleMain         panel_BattleMain;    
     public BattleParty              battleParty_Enemy;
 
 
@@ -81,7 +81,7 @@ public class BattleMain : MonoBehaviour
     public void _Phase_InputCommand()
     {
         // 유아이 열고 , 커맨드 카메라 활성화 
-        panel_BattleMain.InitBattle();
+        Panel_BattleMain.InitBattle();
         go_Cam_InputCommand.SetActive(true);
     }
     

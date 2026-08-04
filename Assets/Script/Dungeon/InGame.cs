@@ -48,7 +48,8 @@ public class InGame : MonoBehaviour
         GTF_TileMap.LoadMap();
         PlayerMover.G.Ready();
 
-
+        // 맵 시작 이벤트
+        MapEventPlayer.StartEventPlay();
     }
 
     public GameObject IntroFirst()

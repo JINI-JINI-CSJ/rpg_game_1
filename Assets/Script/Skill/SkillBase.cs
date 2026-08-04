@@ -13,6 +13,26 @@ public class SkillBase
 
     public int LEVEL;
 
+    static public SkillBase InstSkill( CSV_Skill csv )
+    {
+        SkillBase inst_skill = null;
+        if( string.IsNullOrEmpty( csv.class_name ) == false )
+        {
+            inst_skill = SJ_CSharpUtil.NewClass_Str( csv.class_name ) as SkillBase;
+        }
+        else
+        {
+            inst_skill = new();
+        }
+        inst_skill.SetCSV(csv);
+        return inst_skill;
+    }
+
+    public void SetCSV( CSV_Skill _csv )
+    {
+        csv = _csv;
+    }
+
     virtual public BATTLE_ACTION_TARGET GetTargetType()
     {
         return BATTLE_ACTION_TARGET.One_Opp_Front;
