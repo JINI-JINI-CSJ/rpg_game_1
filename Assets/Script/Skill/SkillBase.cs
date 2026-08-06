@@ -54,5 +54,23 @@ public class SkillBase
         }
     }
 
-    virtual public void Action( BATTLE_SEL_GROUP sel_group ){}
+    virtual public void Action( BATTLE_SEL_GROUP sel_group )
+    {
+        OnAction( sel_group );
+        foreach( var s in sel_group.chars )
+        {
+            OnActionChar(s);
+            s.Call_RecvSkill( this );
+        }
+    }
+    virtual public void OnAction( BATTLE_SEL_GROUP sel_group ){}
+    virtual public void OnActionChar( CharBase chr ){}
+
+
+
+    // 플레이어 (바닥 유아이) 에  스킬 효과 
+    virtual public void OnViewEffect_Player( GameObject go ){}
+
+    // 적군에  스킬 효과 
+    virtual public void OnViewEffect_Enemy( GameObject go ){}
 }

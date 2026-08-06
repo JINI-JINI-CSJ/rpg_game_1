@@ -131,5 +131,38 @@ public class SJ_CSharpUtil
                 if (index >= lt.Count) return lt[lt.Count - 1];
                 return lt[index];
         }
+
+        static public bool Add_Array<T>( T[] arr , T t )
+        {
+                for( int i  = 0 ; i < arr.Length ; i++ )
+                {
+                        if( arr[i] == null )
+                        {
+                                arr[i] = t;
+                                return true;
+                        }
+                }
+                return false;
+        }
+
+        static public void NULL_Index_Array<T>( T[] arr , int idx )
+        {
+                if( arr.Length <= idx ) return ;
+                arr[idx] = default;
+        }
+
+
+        static public bool Remove_Array<T>( T[] arr , T t )
+        {
+                for( int i  = 0 ; i < arr.Length ; i++ )
+                {
+                        if( EqualityComparer<T>.Default.Equals(arr[i], t) )
+                        {
+                                arr[i] = default;
+                                return true;
+                        }
+                }
+                return false;
+        }
 }
 

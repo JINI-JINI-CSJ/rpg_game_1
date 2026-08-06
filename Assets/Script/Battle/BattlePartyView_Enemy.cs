@@ -36,9 +36,9 @@ public class BattlePartyView_Enemy : MonoBehaviour
         InitLine( tr_Back , bp_enemy.chars_Back );
     }
 
-    void InitLine( List<BattleEnemyObjView> view , List<CharBase> chars )
+    void InitLine( List<BattleEnemyObjView> view , CharBase[] chars )
     {
-        for( int i = 0 ; i < chars.Count ; i++ )
+        for( int i = 0 ; i < chars.Length ; i++ )
         {
             view[i].InitCharBase( chars[i] );
         }

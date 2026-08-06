@@ -27,11 +27,14 @@ public class UIItem_BattleChr : MonoBehaviour
 
     public void SetChar( CharBase _chr )
     {
+        if( _chr == null ) return;
+
         gameObject.SetActive(true);
         charBase = _chr;
         
         charBase.func_ANI_ATK = ANI_ATK;
         charBase.func_ANI_Damage = ANI_GetDamage;
+        charBase.func_RecvSkill = Call_RecvSkill;
 
         SJ_UnityUI_Util.Image_Load( image , "2D/PLAYER/FACE/" + charBase.csv.res );
         SJ_UnityUI_Util.TextString( text_name , charBase.csv.name );
@@ -69,5 +72,11 @@ public class UIItem_BattleChr : MonoBehaviour
     {
         curve_ani_Damage.StartFunc_FWD();
         shakeEffect.Shake();
+    }
+
+    public void Call_RecvSkill( object skl_obj )
+    {
+        SkillBase skill = skl_obj as SkillBase;
+        skill.OnViewEffect_Player( gameObject );
     }
 }

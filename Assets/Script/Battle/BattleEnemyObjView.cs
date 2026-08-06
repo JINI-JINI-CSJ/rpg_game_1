@@ -51,6 +51,8 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public void InitCharBase( CharBase chr )
     {
+        if( chr == null ) return;
+
         if( image_targetMark == null )
         {
             image_targetMark = Panel_BattleMain.G.enemy_target_marks[IDX];
@@ -60,6 +62,7 @@ public class BattleEnemyObjView : MonoBehaviour
         charBase = chr;
         charBase.func_ANI_ATK = ANI_ATK;
         charBase.func_ANI_Damage = ANI_GetDamage;
+        charBase.func_RecvSkill = Call_RecvSkill;
 
 
         // 2D , 3D 
@@ -127,6 +130,12 @@ public class BattleEnemyObjView : MonoBehaviour
         {
             spr_curve_ko.StartPlay();
         }
+    }
+
+    public void Call_RecvSkill( object skl_obj )
+    {
+        SkillBase skill = skl_obj as SkillBase;
+        skill.OnViewEffect_Enemy( gameObject );
     }
 
 }

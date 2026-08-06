@@ -524,6 +524,14 @@ public class SJ_Unity
 		}
 	}
 
+	public	static	void	Child_Active(GameObject go_parent , bool b )
+	{ 
+		for( int i = 0 ; i < go_parent.transform.childCount ; i++ )
+		{
+			Transform tr_ch = go_parent.transform.GetChild(i);
+			tr_ch.gameObject.SetActive(b);
+		}
+	}
 
 	public	static	void	Child_OneSetActive(GameObject go_parent, string go_name)
 	{

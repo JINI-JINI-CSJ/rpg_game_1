@@ -50,6 +50,7 @@ public class SJ_UIDefaultShortMsg : MonoBehaviour
 
     virtual public void OnSetMsg( string msg )
     {
+        gameObject.SetActive(true);
         tr_shortMsg.gameObject.SetActive(true);
         text_msg.text = msg;
         sJ_Curve.StartTime();

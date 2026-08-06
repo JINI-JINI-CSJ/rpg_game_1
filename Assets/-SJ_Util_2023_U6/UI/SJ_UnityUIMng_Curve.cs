@@ -160,4 +160,10 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
         G.funcSync._Next();
     }
 
+    static public void ALL_Active( bool b )
+    {
+        // 자식들만 (판넬들) 적용
+        SJ_Unity.Child_Active( G.gameObject , b );
+    }
+
 }

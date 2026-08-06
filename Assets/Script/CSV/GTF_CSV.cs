@@ -15,8 +15,14 @@ public class GTF_CSV : SJ_CSV_Mng
     static public CSV_CharBaseStatPage      csv_CharPlayer = new(); // 아군 플레이어 정의
     static public CSV_CharBaseStatPage      csv_CharEnemy = new(); // 적군 정의
 
+    static public CSV_CharBaseStatPage      csv_Char_ALL = new();
+
     static public CSV_ItemPage              csv_ItemPage_Consume = new();
     static public CSV_ItemPage              csv_ItemPage_Equip = new();
+    static public CSV_ItemPage              csv_ItemPage_Unique = new();
+
+    static public CSV_ItemPage              csv_ItemPage_ALL = new();
+
     static public CSV_OfficeUpgradePage     csv_OfficeUpgradePage = new();
     static public CSV_OfficeDepartmentPage  csv_OfficeDepartmentPage = new();
 
@@ -46,6 +52,16 @@ public class GTF_CSV : SJ_CSV_Mng
 
         Add_CSVName( null      , "기본"     , false , true );   
         Add_CSVName( null      , "대화컷신"  , false , true );   
+    }
+
+    public override void OnLoadAfter()
+    {
+        csv_Char_ALL.Add( csv_CharPlayer );
+        csv_Char_ALL.Add( csv_CharEnemy );
+
+        csv_ItemPage_ALL.Add( csv_ItemPage_Consume );
+        csv_ItemPage_ALL.Add( csv_ItemPage_Equip );
+        csv_ItemPage_ALL.Add( csv_ItemPage_Unique );
     }
 
     static public List<CSV_Skill> GetSkill_JobMake( JOB_BASE job )

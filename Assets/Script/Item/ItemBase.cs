@@ -10,6 +10,13 @@ public class ItemBase
     // 장비 캐릭터 , 장비 아이템일때만
     public CharBase eq_chr;
 
+    static public ItemBase InstItemBase( int csv_id )
+    {
+        CSV_Item csv = GTF_CSV.csv_ItemPage_ALL.Find_Int( csv_id ) as CSV_Item;
+        if( csv == null ) return null;
+        return InstItemBase( csv );
+    }
+
     static public ItemBase InstItemBase( CSV_Item csv )
     {
         ItemBase inst_item = null;
@@ -29,6 +36,29 @@ public class ItemBase
     {
         csv = _csv;
     }
+
+
+    public void Add_EquipChar( CharBase charBase )
+    {
+        this.eq_chr = charBase;
+
+        if( csv.charPrcValue.HP > 0 )               charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.HP            , this , csv.charPrcValue.HP );
+        if( csv.charPrcValue.MP > 0 )               charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.MP            , this , csv.charPrcValue.MP );
+        if( csv.charPrcValue.ACTION_SPEED > 0 )     charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ACTION_SPEED  , this , csv.charPrcValue.ACTION_SPEED );
+        if( csv.charPrcValue.ATK_P > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ATK_P         , this , csv.charPrcValue.ATK_P );
+        if( csv.charPrcValue.DEF_P > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.DEF_P         , this , csv.charPrcValue.DEF_P );
+        if( csv.charPrcValue.HIT_RATE_P > 0 )       charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.HIT_RATE_P    , this , csv.charPrcValue.HIT_RATE_P );
+        if( csv.charPrcValue.EVASION_RATE_P > 0 )   charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.EVASION_RATE_P, this , csv.charPrcValue.EVASION_RATE_P );
+        if( csv.charPrcValue.ATK_M > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ATK_M         , this , csv.charPrcValue.ATK_M );
+        if( csv.charPrcValue.DEF_M > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.DEF_M         , this , csv.charPrcValue.DEF_M );
+    }
+
+    public void Remove_EquipChar( CharBase charBase )
+    {
+        this.eq_chr = null;
+        charBase.csv.charPrcValue.REMOVE_VAL_INF_RefClass( this );
+    }
+
 
     virtual public BATTLE_ACTION_TARGET GetTargetType()
     {

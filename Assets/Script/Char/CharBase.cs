@@ -1,21 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum _EQUIP_CHR_PART
-{
-    None = -1,
 
-    // 일단 간단하게 , 무기 , 방어구 , 악세 1234
-    Weapon , 
-    Armor , 
-    Acc_1 , 
-    Acc_2 ,
-    Acc_3 , 
-    Acc_4 ,
-
-    MAX ,
-
-}
 
 public enum _ARMY_FORCE
 {
@@ -39,6 +25,9 @@ public class CharBase
     public SJ_COMMON.Func_VOID func_ANI_ATK;
     public SJ_COMMON.Func_VOID func_ANI_Damage;
     public SJ_COMMON.Func_VOID func_ANI_KO;
+
+    public SJ_COMMON.Func_Arg func_RecvSkill;   // 스킬 받기 , 공격 맞기 , 힐받기 , 아이템 사용 대상 등등
+
     public BattleCommand command;
 
     // 전투에서 공격을 선택했을때 기본 공격
@@ -56,15 +45,21 @@ public class CharBase
 
     public CharBase()
     {
-        for( int i = 0 ; i < (int)_EQUIP_CHR_PART.MAX ; i++ )
-        {
-            items_EQ.Add(null);
-        }
+        for( int i = 0 ; i < (int)_EQUIP_CHR_PART.MAX ; i++ )items_EQ.Add(null);
     }
 
     public SkillBase GetDefaultSkill()
     {
         return skillBase_Default;
+    }
+
+    static public CharBase InstCharBase_CSV( int csv_id , int level , _ARMY_FORCE _force )
+    {
+        CSV_CharBaseStat csv = GTF_CSV.csv_Char_ALL.Find_Int( csv_id ) as CSV_CharBaseStat;
+        if( csv == null ) return null;
+        CharBase charBase = new();
+        charBase.Make( csv , level , _force );
+        return charBase;
     }
 
     public void Make( CSV_CharBaseStat _csv , int level , _ARMY_FORCE _force )
@@ -76,7 +71,13 @@ public class CharBase
         cur_MP = csv.charPrcValue.MP;
         InitSkill_Chr();
     }
+    public void SetCSV( CSV_CharBaseStat _csv )
+    {
+        csv = _csv.Copy();
+    }
 
+    //=============================================================================================
+    // 스킬
     public SkillBase AddSkill( CSV_Skill csv_skill , List<SkillBase> skills)
     {
         SkillBase skill = SkillBase.InstSkill( csv_skill );
@@ -104,12 +105,51 @@ public class CharBase
             AddSkill( csv_skill_armor , skills_Chr );
         }
         
+    }    
+    
+
+    //
+    //=============================================================================================
+
+
+    //=============================================================================================
+    // 장비 아이템
+
+    public ItemBase GetEquipItem( _EQUIP_CHR_PART part )
+    {
+        return items_EQ[(int)part];
     }
 
-    public void SetCSV( CSV_CharBaseStat _csv )
+    // 장비하기 
+    // 반환 : 기존 장비
+    public ItemBase Add_EquipItem( ItemBase item_eq )
     {
-        csv = _csv.Copy();
+        ItemBase item_recent = Remove_EquipItem( item_eq.csv.eq_part );
+        item_eq.Add_EquipChar( this );
+        items_EQ[(int)item_eq.csv.eq_part] = item_eq;
+        return item_recent;
     }
+
+    public ItemBase Remove_EquipItem( _EQUIP_CHR_PART part )
+    {
+        ItemBase item_recent = GetEquipItem( part );
+        if( item_recent != null )
+        {
+            item_recent.Remove_EquipChar( this );
+        }
+        return item_recent;
+    }
+
+    //
+    //=============================================================================================
+
+
+    public void GetDamage( int damage )
+    {
+        cur_HP -= damage;
+        if( cur_HP < 0 ) cur_HP = 0;
+    }
+
 
     public bool AbleBattleCommand()
     {
@@ -135,6 +175,11 @@ public class CharBase
     public void Call_ANI_Damage()
     {
         func_ANI_Damage?.Invoke();
+    }
+
+    public void Call_RecvSkill( SkillBase skill )
+    {
+        func_RecvSkill?.Invoke( skill );
     }
 
     public bool IsLive()

@@ -5,8 +5,6 @@ public class InGame : MonoBehaviour
 {
     static public InGame G;
 
-
-
     void Awake()
     {
         G = this;
@@ -48,6 +46,8 @@ public class InGame : MonoBehaviour
         GTF_TileMap.LoadMap();
         PlayerMover.G.Ready();
 
+        BattlePartyView_Player.Update_Player();
+
         // 맵 시작 이벤트
         MapEventPlayer.StartEventPlay();
     }
@@ -59,6 +59,7 @@ public class InGame : MonoBehaviour
         {
             inst_Intro = SJ_ResPoolSys.Inst_Obj( "Intro/MapIntro" );            
         }
+        Player.FirstPlay();
         return inst_Intro;
     }
 
