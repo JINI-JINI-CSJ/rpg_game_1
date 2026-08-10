@@ -28,6 +28,8 @@ public class SJ_MapTileMover : MonoBehaviour
     public _DIR_NEWS        cur_dir;
     public Vector2Int       cur_pos;
 
+    public PlayerInput      playerInput;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -38,6 +40,11 @@ public class SJ_MapTileMover : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void SetInputAble( bool b )
+    {
+        playerInput.enabled = b;
     }
 
     public void InitPos( Vector2Int pos , _DIR_NEWS dir = _DIR_NEWS.N )

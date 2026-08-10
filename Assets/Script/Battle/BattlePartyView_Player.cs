@@ -30,6 +30,11 @@ public class BattlePartyView_Player : MonoBehaviour
         
     }
 
+    static public void Show( bool b )
+    {
+        G.gameObject.SetActive(b);
+    }
+
     static public void All_HideInputAni()
     {
         G._All_HideInputAni();

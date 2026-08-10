@@ -8,6 +8,9 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
     public SJ_Curve_TransObjToggle  curve_Black;
     public float                    curve_default_time = 0.3f;
+
+    public GameObject               go_BlockInput;
+
     public SJ_DlgFuncSync funcSync = new();
 
     public class _STOCK_INF
@@ -39,7 +42,18 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
     static public GameObject  Open( string panel_name , SJ_COMMON.Func_VOID func_end = null )
     {
-        if( G == null ) return null;
+        if( G == null )
+        {
+            Debug.LogError( "에러 : SJ_UnityUIMng_Curve == NULL " );
+            return null;            
+        }
+
+        if( string.IsNullOrEmpty( panel_name ) )
+        {
+            Debug.LogError( "에러 : panel_name == null " );
+            return null;
+        }
+
         Transform tr = G.transform.Find( panel_name );
         if( tr == null )
         {
@@ -142,8 +156,6 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
         GameObject go = list_popup[list_popup.Count-1];
         SJ_Curve_TransObjToggle transObjToggle_Panel = go.GetComponentInChildren<SJ_Curve_TransObjToggle>();
 
-        list_popup.RemoveAt( list_popup.Count-1 );
-
         transObjToggle_Panel.StartFunc_BACK( G.EndAni_PanelClose );
     }
 
@@ -151,9 +163,16 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
     {
         if( list_popup.Count > 0 )
         {
-            AlignBackBlack();
             GameObject go = list_popup[list_popup.Count-1];
-            go.transform.SetAsLastSibling();
+            list_popup.RemoveAt( list_popup.Count-1 );        
+            SJ_Unity.SendMsg( go , "ClosePopup_EndAni" );
+        }
+
+        AlignBackBlack();
+        if( list_popup.Count > 0 )
+        {
+            GameObject go_last = list_popup[list_popup.Count-1];
+            go_last.transform.SetAsLastSibling();
         }
 
         cur_stock.func?.Invoke();
@@ -164,6 +183,20 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
     {
         // 자식들만 (판넬들) 적용
         SJ_Unity.Child_Active( G.gameObject , b );
+    }
+
+    static public void SetBlockInput( bool b )
+    {
+        if( G.go_BlockInput == null )
+        {
+            Debug.LogError( "G.go_BlockInput == null" );
+            return;
+        }
+        G.go_BlockInput.SetActive(b);
+        if( b )
+        {
+            G.go_BlockInput.transform.SetAsLastSibling();
+        }
     }
 
 }

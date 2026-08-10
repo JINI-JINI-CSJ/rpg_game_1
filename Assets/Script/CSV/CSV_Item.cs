@@ -62,8 +62,14 @@ public class CSV_Item : SJ_CSV_BaseObj
         Remain_Data( args );
     }
 
-    public string GetName(){return name;}
-    public string GetDesc(){return desc;}
+    public string GetName()
+    {
+        return SJ_Language.Str( "ITEM_NAME" , ID_int );
+    }
+    public string GetDesc()
+    {
+        return SJ_Language.Str( "ITEM_DESC" , ID_int );
+    }
 }
 
 public class CSV_ItemPage : SJ_CSV_BasePage

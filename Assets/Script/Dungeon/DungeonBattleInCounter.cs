@@ -7,6 +7,8 @@ using UnityEngine;
 [System.Serializable]
 public class DUNGEON_INCOUNT_INF
 {
+    public bool     NoInCountALL;
+
     public int      NoCount_Move = 10;
 
     // 걸음당 추가 확률
@@ -18,6 +20,8 @@ public class DUNGEON_INCOUNT_INF
 
 public class DungeonBattleInCounter : MonoBehaviour
 {
+    static public  DungeonBattleInCounter G;
+
     public DUNGEON_INCOUNT_INF incount_inf;
 
     // 현재 확률
@@ -28,7 +32,12 @@ public class DungeonBattleInCounter : MonoBehaviour
 
     public Mng_X128SS mng_X128;
 
-    public SJ_COMMON.Func_VOID func_InCount;
+    //public SJ_COMMON.Func_VOID func_InCount;
+
+    void Awake()
+    {
+        G = this;
+    }
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -54,17 +63,27 @@ public class DungeonBattleInCounter : MonoBehaviour
         cur_move = 0;
     }
 
-    public void OnMoveEnd()
+    static public bool OnMoveEnd()
+    {
+        return G._OnMoveEnd();
+    }
+
+    public bool _OnMoveEnd()
     {
         cur_move++;
         cur_per += incount_inf.AddPer_OneMove;
         if( cur_per >= incount_inf.MaxPer ) cur_per = incount_inf.MaxPer;
 
+        if( incount_inf.NoInCountALL ) return false;
+
         if( Check_InCount() )
         {
             // 전투 시작
-            func_InCount?.Invoke();
+            //func_InCount?.Invoke();
+            return true;
         }
+
+        return false;
     }
 
     bool Check_InCount()

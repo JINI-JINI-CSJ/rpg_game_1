@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
 using UnityEngine;
 
 // CSV 전역 관리자 베이스 클래스
@@ -96,6 +97,7 @@ public class SJ_CSV_Mng
 		foreach( _SEAT_NAME s in lt_SEAT_NAME )
 		{
             load_SeatAsync(s.page , s.name  , s.int_str , s.lang); // 일부러 await 안함
+            Thread.Sleep(20);
 		}
 
         //=========================================================================================
@@ -170,7 +172,7 @@ public class SJ_CSV_Mng
             }
 
             load_Complete = true;
-            g_base.OnLog("로드 단계  최종 완료~~~~~~~~~~~~~~~~~~~");
+            g_base.OnLog("CSV 로드 단계  최종 완료~~~~~~~~~~~~~~~~~~~");
             g_base.OnLoadAfter();
             SJ_CSharpUtil.CallStrFunc_NoArg(recv_object, recv_func);
             

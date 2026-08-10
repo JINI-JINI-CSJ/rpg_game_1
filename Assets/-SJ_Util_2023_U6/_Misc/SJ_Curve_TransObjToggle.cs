@@ -115,6 +115,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	public void OnEndCurve()
 	{
 		cur_toggle = !cur_toggle;
+		func_OnEnd?.Invoke();		
 		if( cur_toggle )
 		{
 			func_OnEndToggle_ON?.Invoke();
@@ -127,7 +128,6 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 				ActiveObj( false );
 			}
 		}
-		func_OnEnd?.Invoke();
 	}
 
 	public void ActiveObj( bool b )

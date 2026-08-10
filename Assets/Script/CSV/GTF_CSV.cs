@@ -48,10 +48,11 @@ public class GTF_CSV : SJ_CSV_Mng
         Add_CSVName( csv_ItemPage_Equip         , "아이템-장비"     , false );   
 
         // 사무실 
-
+        //..
 
         Add_CSVName( null      , "기본"     , false , true );   
         Add_CSVName( null      , "대화컷신"  , false , true );   
+        Add_CSVName( null      , "아이템_스킬"  , false , true );   
     }
 
     public override void OnLoadAfter()

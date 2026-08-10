@@ -55,16 +55,16 @@ public class CharBase
 
     static public CharBase InstCharBase_CSV( int csv_id , int level , _ARMY_FORCE _force )
     {
-        CSV_CharBaseStat csv = GTF_CSV.csv_Char_ALL.Find_Int( csv_id ) as CSV_CharBaseStat;
-        if( csv == null ) return null;
+        CSV_CharBaseStat csv_load = GTF_CSV.csv_Char_ALL.Find_Int( csv_id ) as CSV_CharBaseStat;
+        if( csv_load == null ) return null;
         CharBase charBase = new();
-        charBase.Make( csv , level , _force );
+        charBase.Make( csv_load , level , _force );
         return charBase;
     }
 
     public void Make( CSV_CharBaseStat _csv , int level , _ARMY_FORCE _force )
     {
-        SetCSV( csv );
+        SetCSV( _csv );
         LEVEL = level;
         armyForce = _force;
         cur_HP = csv.charPrcValue.HP;

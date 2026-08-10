@@ -154,6 +154,13 @@ public class SJ_MapTileViewer_claude : SJ_MapTileViewer
         return tileLayer.Get( pos.x , pos.y );
     }
 
+    public int GetObjectPlacement_UserValue( int layer , Vector2Int pos )
+    {
+        TilemapTool.ObjectPlacement obj = GetObjectPlacement( layer , pos );
+        if( obj == null ) return -1;
+        return obj.userValue;
+    }
+
      public List<TilemapTool.ObjectPlacement> GetObjectPlacement_ByTileIdx( int layer , int tile_idx )
     {
         List<TilemapTool.ObjectPlacement> lt = new();

@@ -42,6 +42,12 @@ public class PlayerMover : SJ_MapTileMover
 
     public override void OnMoveEnd()
     {
+        InGame.OnEnd_PlayerOneMove();
+        Prc_MoveEnd();
+    }
+
+    public void Prc_MoveEnd()
+    {
         // 트리거 레이어 2 번 , 현재 타일
         ObjectPlacement placement = mapView_Claude.GetObjectPlacement( 2 , cur_pos );
         if( placement != null )
@@ -75,13 +81,31 @@ public class PlayerMover : SJ_MapTileMover
         }
 
         // 일반 전투 체크
-
+        if( DungeonBattleInCounter.OnMoveEnd() )
+        {
+            // 배틀 시작
+            // ..
+        }
     }
-
 
     public void Ready()
     {
         InitPos( mapView_Claude.PlayerStartPos() );
+    }
+
+    override public bool OnCheckMoveAblePos( Vector2Int pos )
+    {
+        // 아이템 자리 이동 불가
+        // 레이어 1 번 , 값 2~5
+        int tile_val = GTF_TileMap.G.GetObjectPlacement_UserValue( 1 , pos );
+
+        Debug.Log( "OnCheckMoveAblePos : " + pos + " : " + tile_val );
+
+        if( tile_val >= 2 && tile_val <= 5 )
+        {
+            return false;
+        }
+        return true;
     }
 
 }

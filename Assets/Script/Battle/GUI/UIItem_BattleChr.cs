@@ -9,8 +9,6 @@ public class UIItem_BattleChr : MonoBehaviour
     public SJ_GageBarText   gage_HP;
     public SJ_GageBarText   gage_MP;
 
-
-
     // 현재 명령어 입력 대기
     public GameObject               go_AniCursor;
     // 공격 애니
@@ -43,8 +41,8 @@ public class UIItem_BattleChr : MonoBehaviour
 
     public void UpdateUI()
     {
-        gage_HP.SetValue( charBase.cur_HP , charBase.csv.charPrcValue.HP );
-        gage_HP.SetValue( charBase.cur_MP , charBase.csv.charPrcValue.MP );
+        gage_HP.SetValue( charBase.cur_HP , charBase.cur_HP );
+        gage_MP.SetValue( charBase.cur_MP , charBase.cur_MP );
     }
 
     // 커맨드 입력 알림

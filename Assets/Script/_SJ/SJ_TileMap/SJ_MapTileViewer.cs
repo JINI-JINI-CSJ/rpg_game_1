@@ -60,10 +60,21 @@ public class SJ_MAP_LAYER_TILE_COORD : IEquatable<SJ_MAP_LAYER_TILE_COORD>
     public int layer;
     public Vector2Int pos;
 
+
+    // 2. IEquatable<T> 구현 (성능 향상)
     public bool Equals(SJ_MAP_LAYER_TILE_COORD other)
     {
-        throw new NotImplementedException();
+        if( layer != other.layer || pos != other.pos ) return false;
+        return true;
     }
+
+    // 3. 해시 기반 검색을 위한 GetHashCode 오버라이드
+    public override int GetHashCode()
+    {
+        // HashCode.Combine은 C# 8.0/단넷 코어 이상에서 지원합니다.
+        return HashCode.Combine(layer, pos);
+    }
+
 
     public void Save( BinaryWriter bw )
     {

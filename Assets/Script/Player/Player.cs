@@ -10,9 +10,13 @@ public class Player
     static public PlayerInventory   inventory = new();
 
 
+    static public int TURN_WORLD = 1;
+
+
     static public void LoadUserFile()
     {
         if( loaded )return;
+        loaded = true;
         saveFile.Load();
     }
 

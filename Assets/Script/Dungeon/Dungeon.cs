@@ -9,7 +9,6 @@ public class DungeonInfo
 {
     public int ID;
     public int randomSeed;
-    public bool NO_INCOUNT_BATTLE;
 
     public int LEVEL;
 

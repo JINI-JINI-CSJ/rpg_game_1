@@ -216,4 +216,12 @@ public class DialogueTyper : MonoBehaviour
         if (autoStartOnEnable && lines.Count > 0)
             StartDialogue(lines);
     }
+
+    // 커브 판넬 닫기 이벤트
+    public void ClosePopup_EndAni()
+    {
+        Debug.Log( "ClosePopup_EndAni====================================" );
+        if(tmpDialogueText != null)     tmpDialogueText.text = "";
+        if(legacyDialogueText != null)  legacyDialogueText.text = "";
+    }
 }

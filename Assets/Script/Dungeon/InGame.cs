@@ -5,11 +5,14 @@ public class InGame : MonoBehaviour
 {
     static public InGame G;
 
+    public int Turn_Dungeon = 1;
+
     void Awake()
     {
         G = this;
         SJPool.InitMng();
         SJSound.Init();
+        SJ_ResPoolSys.Init_Scene();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,6 +51,10 @@ public class InGame : MonoBehaviour
 
         BattlePartyView_Player.Update_Player();
 
+        DungeonBattleInCounter.G.incount_inf = gTF_TileMap.dungeonInfo.iNCOUNT_INF;
+
+        Panel_DungeonMain.OnEnd_PlayerMove();
+
         // 맵 시작 이벤트
         MapEventPlayer.StartEventPlay();
     }
@@ -63,9 +70,27 @@ public class InGame : MonoBehaviour
         return inst_Intro;
     }
 
-    // Update is called once per frame
-    void Update()
+    static public void ShowUIDungeon( bool b )
     {
-        
+        Panel_DungeonMain.Show( b );
+        BattlePartyView_Player.Show(b);
     }
+
+    static public void OnEnd_PlayerOneMove()
+    {
+        G._OnEnd_PlayerOneMove();
+    }
+
+    public void _OnEnd_PlayerOneMove()
+    {
+        Turn_Dungeon++;
+
+        // 던전턴 월드 1턴 체크
+        // ....
+
+
+        Panel_DungeonMain.OnEnd_PlayerMove();
+    }
+
+
 }
