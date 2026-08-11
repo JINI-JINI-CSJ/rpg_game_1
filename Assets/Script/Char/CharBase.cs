@@ -104,9 +104,27 @@ public class CharBase
         {
             AddSkill( csv_skill_armor , skills_Chr );
         }
-        
     }    
     
+    public List<SkillBase> GetSkills_ALL()
+    {
+        List<SkillBase> lt = new();
+        lt.AddRange( skills_Chr );
+        lt.AddRange( skills_ADD );
+        return lt;
+    }
+
+    public List<SkillBase> GetSkills( SKILL_TYPE skill_type )
+    {
+        List<SkillBase> all = GetSkills_ALL();
+        List<SkillBase> lt = new();
+
+        foreach( var s in lt )
+        {
+            if( s.csv.skill_type == skill_type ) lt.Add(s);
+        }
+        return lt;
+    }
 
     //
     //=============================================================================================

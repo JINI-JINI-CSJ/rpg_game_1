@@ -12,9 +12,13 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
 {
     public SJ_UIGridMove uIGridMove;
     public CursorDirectionInput cursorInput;
-    public event Action<GameObject> OnMoveObj;
-    public event Action<GameObject> OnOK_Input;
-    public event Action<GameObject> OnCancel_Input;
+
+    public event SJ_COMMON.Func_Arg OnMoveObj;
+    public event SJ_COMMON.Func_Arg OnOK_Input;
+    public event SJ_COMMON.Func_Arg OnCancel_Input;
+
+    // 아이템 목록일때만.
+    public SJ_UIListItem    uIListItem;
 
     void Awake()
     {
@@ -22,11 +26,22 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
         cursorInput = GetComponent<CursorDirectionInput>();
     }
 
+    public void SetFunc( SJ_COMMON.Func_Arg func_ok , SJ_COMMON.Func_Arg func_move = null , SJ_COMMON.Func_Arg func_cancel = null )
+    {
+        OnOK_Input = func_ok;
+        OnMoveObj = func_move;
+        OnCancel_Input = func_cancel;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        //Init();
     }
+
+    public void ListingDefault( List<_GRID_MOVE_DEFAULT_DATA> list_default )
+    {
+        uIListItem.Listing( list_default );
+    } 
 
     void OnEnable()
     {
@@ -45,25 +60,6 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
         uIGridMove.Init();
         ActiveObj();
     }
-
-    public void RegOnMoveObj_One( Action<GameObject> callback )
-    {
-        if( OnMoveObj?.GetInvocationList().Length > 0 ) return;
-        OnMoveObj += callback;
-    }
-
-    public void RegOnOK_Input_One( Action<GameObject> callback )
-    {
-        if( OnOK_Input?.GetInvocationList().Length > 0 ) return;
-        OnOK_Input += callback;
-    }
-
-    public void RegOnCancel_Input_One( Action<GameObject> callback )
-    {
-        if( OnCancel_Input?.GetInvocationList().Length > 0 ) return;
-        OnCancel_Input += callback;
-    }
-
 
     public void OnInputMoveX( int v )
     {

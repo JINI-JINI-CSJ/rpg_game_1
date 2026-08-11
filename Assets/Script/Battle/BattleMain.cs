@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class BATTLE_RESULT_INF
+public class _BATTLE_RESULT_INF
 {
     public int gold;
     public int exp;
@@ -15,18 +16,50 @@ public class BATTLE_RESULT_INF
     }
 }
 
+
+[System.Serializable]
+public class _ENEMY_BATTLE_INIT
+{
+    public int LEVEL_FIX;   // 현 던전 레벨 보정  
+
+    public class _ENEMY_ID_COUNT
+    {
+        public int count = 1;
+        public int csv_id;
+    }
+
+    public List<_ENEMY_ID_COUNT> enemies = new();
+
+    // 배틀 파티 
+    public BattleParty Make_BattleParty()
+    {
+        BattleParty battleParty = new();
+        foreach( var s in enemies )
+        {
+            for( int i = 0 ; i < s.count ; i++ )
+            {
+                battleParty.Add(s.csv_id , LEVEL_FIX , _ARMY_FORCE.Enemy);
+            }
+        }
+        return battleParty;
+    }
+}
+
+
 public class BattleMain : MonoBehaviour
 {
     static public BattleMain G;
-    static public BATTLE_RESULT_INF result_inf = new();
+    static public _BATTLE_RESULT_INF result_inf = new();
 
     
     public GameObject               go_Cam_InputCommand; 
     public GameObject               go_Cam_BattleTurn; 
     public BattlePartyView_Enemy    view_Enemy;
-    //public Panel_BattleMain         panel_BattleMain;    
     public BattleParty              battleParty_Enemy;
 
+    public _ENEMY_BATTLE_INIT       TEST_BATTLE;
+
+    //public PlayerInput              playerInput;
 
     public int TURN;
 
@@ -47,9 +80,20 @@ public class BattleMain : MonoBehaviour
         
     }
 
+    static public void BattleTEST(){G._BattleTEST();}
+    public void _BattleTEST()
+    {
+        InitBattle( TEST_BATTLE.Make_BattleParty() );
+    }
+
     // 적군을 세팅해서 넘겨주기
     public void InitBattle( BattleParty bp_enemy )
     {
+        PlayerMover.G.SetInputAble( false );
+
+        // 인트로 애니
+        // bgm
+
         TURN = 1;
         battleParty_Enemy = bp_enemy;
         view_Enemy.Init();
@@ -73,16 +117,13 @@ public class BattleMain : MonoBehaviour
         return null;
     }
 
-    static public void Phase_InputCommand()
-    {
-        G._Phase_InputCommand();
-    }
-
+    static public void Phase_InputCommand(){G._Phase_InputCommand();}
     public void _Phase_InputCommand()
     {
         // 유아이 열고 , 커맨드 카메라 활성화 
         Panel_BattleMain.InitBattle();
         go_Cam_InputCommand.SetActive(true);
+        //playerInput.enabled = true;
     }
     
     static public void Phase_StartTurn()
@@ -95,6 +136,7 @@ public class BattleMain : MonoBehaviour
         // 카메라 전환 
         // 턴 매니저 시작
         go_Cam_BattleTurn.SetActive(true);
+        BattleTurn.TurnStart();
     }
 
     static public void NextCharAction()
@@ -120,18 +162,13 @@ public class BattleMain : MonoBehaviour
         BattleTurn.NextCharAction();
     }
 
-
-
-    static public void Phase_EndTurn()
-    {
-        G._Phase_EndTurn();
-    }
-
+    static public void Phase_EndTurn(){G._Phase_EndTurn();}
     public void _Phase_EndTurn()
     {
-        
-    }
+        // 전투 카메라 해제
+        go_Cam_BattleTurn.SetActive(false);
 
+    }
 
     public void ResultBattleWin()
     {
@@ -143,12 +180,15 @@ public class BattleMain : MonoBehaviour
 
     static public void OnOK_ResultPopup()
     {
-        
+        G._OnOK_ResultPopup();
     }
 
     public void _OnOK_ResultPopup()
     {
-        
+        // 배틀인풋 카메라 해제
+        //playerInput.enabled = false;
+        go_Cam_InputCommand.SetActive(false);
+        PlayerMover.G.SetInputAble( true );
     }
 
 }

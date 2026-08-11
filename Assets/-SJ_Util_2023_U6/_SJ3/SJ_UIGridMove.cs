@@ -34,6 +34,8 @@ public class SJ_UIGridMove : MonoBehaviour
     public Vector2Int cur_pos;
     public GameObject recent_active;
 
+    //public SJ_COMMON.Func_Arg   func_cur_select;
+
 
     // Start is called before the first frame update
     void Start()
@@ -104,7 +106,7 @@ public class SJ_UIGridMove : MonoBehaviour
         if( _ROW_s.Count > 0 ) return;
 
         // 현재는 픽스 컬럼 카운트만 지원
-        if (gridLayoutGroup.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
+        //if (gridLayoutGroup.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
         {
             int y_pre = -1;
             _ROW_GO row = null;

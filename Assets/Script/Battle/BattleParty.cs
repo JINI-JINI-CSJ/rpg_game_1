@@ -23,6 +23,24 @@ public class BattleParty
         }
     }
 
+    public bool Add( int csv_id , int level , _ARMY_FORCE fORCE )
+    {
+        CharBase charBase = CharBase.InstCharBase_CSV( csv_id , level , fORCE );
+        if( charBase == null ) return false;
+        return Add(charBase);
+    }
+
+    public bool Add( CharBase charBase )
+    {
+        CharBase[] lt = GetLine( 0 );
+        if(SJ_CSharpUtil.Add_Array( lt , charBase ) == false)
+        {
+            lt = GetLine( 1 );
+            return SJ_CSharpUtil.Add_Array( lt , charBase );
+        }
+        return false;
+    }
+
     // 0 : 앞 , 1 : 뒤
     public bool Add( int front_back , CharBase charBase )
     {

@@ -107,7 +107,7 @@ public class Panel_BattleMain : MonoBehaviour
     public void OnTurnEnd()
     {
         // 오토 모드면 다시 자동 전투
-
+        if( auto_mode ) TurnStart();
     }
 
 
@@ -144,6 +144,7 @@ public class Panel_BattleMain : MonoBehaviour
     public void OnBT_Skill()
     {
         // 전투 스킬창 오픈 
+
     }
 
     // 스킬 선택완료

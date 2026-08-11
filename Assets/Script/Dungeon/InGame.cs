@@ -7,6 +7,8 @@ public class InGame : MonoBehaviour
 
     public int Turn_Dungeon = 1;
 
+    public bool TEST_NO_EVENT;
+
     void Awake()
     {
         G = this;
@@ -52,11 +54,11 @@ public class InGame : MonoBehaviour
         BattlePartyView_Player.Update_Player();
 
         DungeonBattleInCounter.G.incount_inf = gTF_TileMap.dungeonInfo.iNCOUNT_INF;
-
         Panel_DungeonMain.OnEnd_PlayerMove();
 
         // 맵 시작 이벤트
-        MapEventPlayer.StartEventPlay();
+        if( TEST_NO_EVENT == false )
+            MapEventPlayer.StartEventPlay();
     }
 
     public GameObject IntroFirst()
@@ -92,5 +94,11 @@ public class InGame : MonoBehaviour
         Panel_DungeonMain.OnEnd_PlayerMove();
     }
 
+
+    [ContextMenu("전투 테스트")]
+    public void BattleTEST()
+    {
+        BattleMain.BattleTEST();
+    }
 
 }

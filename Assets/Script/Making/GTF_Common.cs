@@ -46,17 +46,16 @@ public enum EQ_ITEM_BASE
 }
 
 // 스킬 대 분류
-// 자주 사용하는 타입
-// -적군 공격
-// -적군 디버프
-// -
+// 액티브 - 전투
+// 액티브 - 탐험
+// 패시브
 public enum SKILL_TYPE
 {
-    None = 0 ,      // 전용 클래스가 있는 경우
-    ATK ,           // 
-    DEBUFF_ENEMY , 
-    BUFF_ALLIES ,   
-    SUPPORT ,       
+    None = -1 ,     
+    Active_BATTLE ,
+    Active_NORMAL , 
+    Passive ,
+
 }
 
 public class GTF_Common 
