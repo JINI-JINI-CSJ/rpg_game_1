@@ -22,6 +22,7 @@ public class _ENEMY_BATTLE_INIT
 {
     public int LEVEL_FIX;   // 현 던전 레벨 보정  
 
+    [System.Serializable]
     public class _ENEMY_ID_COUNT
     {
         public int count = 1;

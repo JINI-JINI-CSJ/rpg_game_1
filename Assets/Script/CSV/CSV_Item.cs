@@ -37,6 +37,9 @@ public class CSV_Item : SJ_CSV_BaseObj
     public string desc;
     public string res;
     public _ITEM_TYPE item_type;
+    public int useLobby;    // 마을 도시에서 사용가능
+    public int useDungeon;  // 던전에서 사용가능
+    public int useBattle;   // 전투중에 사용가능
     public int grade;
     public string class_name;
     public _EQUIP_CHR_PART eq_part;
@@ -54,6 +57,9 @@ public class CSV_Item : SJ_CSV_BaseObj
         desc = Next();
         res = Next();
         Enum.TryParse( Next() , out item_type );
+        useLobby = Next_Int();
+        useDungeon = Next_Int();
+        useBattle = Next_Int();
         grade = Next_Int();
         class_name = Next();
         Enum.TryParse( Next() , out eq_part );
@@ -69,6 +75,13 @@ public class CSV_Item : SJ_CSV_BaseObj
     public string GetDesc()
     {
         return SJ_Language.Str( "ITEM_DESC" , ID_int );
+    }
+
+    // 
+    public bool UseCheckUSE_OR( int useLobby,int useDungeon,int useBattle )
+    {
+        if( this.useLobby == useLobby || this.useDungeon == useDungeon || this.useBattle == useBattle ) return true;
+        return false;
     }
 }
 

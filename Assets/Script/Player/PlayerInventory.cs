@@ -86,4 +86,15 @@ public class PlayerInventory
         hs.Remove(item);
         return true;
     }
+
+    public List<ItemBase> GetItemUse( int useLobby,int useDungeon,int useBattle )
+    {
+        List<ItemBase> lt = new();
+        // 일단 소비품에서만 , 드퀘처럼 장비 사용은 없는걸로..
+        foreach( var s in dic_item_consume.Values )
+        {
+            if( s.csv.UseCheckUSE_OR( useLobby, useDungeon, useBattle ) )lt.Add(s);
+        }
+        return lt;
+    }
 }

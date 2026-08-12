@@ -107,7 +107,7 @@ namespace ValueAnim
 
         private void ApplyAtElapsed()
         {
-            if (targetRenderer == null) return;
+            if (targetRenderer == null || _mpb == null) return;
 
             float t = LoopTimeUtility.Evaluate(_elapsed, duration, loopMode, out bool finished);
             float eased = easeCurve.Evaluate(t);

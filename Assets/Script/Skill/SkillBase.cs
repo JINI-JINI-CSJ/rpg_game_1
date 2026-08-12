@@ -38,12 +38,12 @@ public class SkillBase
         return BATTLE_ACTION_TARGET.One_Opp_Front;
     }
 
-    virtual public void SelectTarget()
+    virtual public void SelectTarget( SJ_COMMON.Func_Arg func_ok = null , SJ_COMMON.Func_VOID func_cancel = null )
     {
         List<BATTLE_SEL_GROUP> lt = BattleTargetSelector.MakeSelectGroup( charBase.armyForce , GetTargetType() );
         OnSelectTargetDefault( lt );
 
-        BattleTargetSelector.Show( true );
+        BattleTargetSelector.Show( true , func_ok , func_cancel );
     }
 
     virtual public void OnSelectTargetDefault( List<BATTLE_SEL_GROUP> lt )

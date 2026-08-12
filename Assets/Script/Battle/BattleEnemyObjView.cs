@@ -57,12 +57,14 @@ public class BattleEnemyObjView : MonoBehaviour
         {
             image_targetMark = Panel_BattleMain.G.enemy_target_marks[IDX];
             SJ_UnityUIMng.WorldToUI( image_targetMark.transform , tr_TargetMarkPos );
+            image_targetMark.gameObject.SetActive(false);
         }
 
         charBase = chr;
         charBase.func_ANI_ATK = ANI_ATK;
         charBase.func_ANI_Damage = ANI_GetDamage;
         charBase.func_RecvSkill = Call_RecvSkill;
+        charBase.func_SelectTarget = Call_SelectTarget;
 
 
         // 2D , 3D 
@@ -136,6 +138,11 @@ public class BattleEnemyObjView : MonoBehaviour
     {
         SkillBase skill = skl_obj as SkillBase;
         skill.OnViewEffect_Enemy( gameObject );
+    }
+
+    public void Call_SelectTarget( bool b )
+    {
+        image_targetMark.gameObject.SetActive(b);
     }
 
 }

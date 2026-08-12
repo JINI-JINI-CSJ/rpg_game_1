@@ -110,8 +110,8 @@ public class BattleParty
     {
         List<CharBase> chars = new();
 
-        foreach( var s in chars_Front ) if( s.AbleBattleCommand() ) chars.Add(s);
-        foreach( var s in chars_Back ) if( s.AbleBattleCommand() ) chars.Add(s);
+        foreach( var s in chars_Front ) if( s != null && s.AbleBattleCommand() ) chars.Add(s);
+        foreach( var s in chars_Back )  if( s != null && s.AbleBattleCommand() ) chars.Add(s);
         return chars;
     }
 

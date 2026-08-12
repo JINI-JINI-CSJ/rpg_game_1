@@ -10,12 +10,19 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CursorDirectionInput))]
 public class SJ_UIGridMove_PlayerInput : MonoBehaviour
 {
+    [HideInInspector]
     public SJ_UIGridMove uIGridMove;
+    [HideInInspector]
     public CursorDirectionInput cursorInput;
 
-    public event SJ_COMMON.Func_Arg OnMoveObj;
-    public event SJ_COMMON.Func_Arg OnOK_Input;
-    public event SJ_COMMON.Func_Arg OnCancel_Input;
+    // 다른 컴포넌트에 있을수도 있다.
+    PlayerInput playerInput;
+
+    public bool close_OK_curve = true;
+
+    public SJ_COMMON.Func_Arg func_MoveObj;
+    public SJ_COMMON.Func_Arg func_OnOK;
+    public SJ_COMMON.Func_Arg func_Cancel;
 
     // 아이템 목록일때만.
     public SJ_UIListItem    uIListItem;
@@ -24,13 +31,14 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
     {
         uIGridMove = GetComponent<SJ_UIGridMove>();
         cursorInput = GetComponent<CursorDirectionInput>();
+        playerInput = GetComponent<PlayerInput>();
     }
 
     public void SetFunc( SJ_COMMON.Func_Arg func_ok , SJ_COMMON.Func_Arg func_move = null , SJ_COMMON.Func_Arg func_cancel = null )
     {
-        OnOK_Input = func_ok;
-        OnMoveObj = func_move;
-        OnCancel_Input = func_cancel;
+        func_OnOK = func_ok;
+        func_MoveObj = func_move;
+        func_Cancel = func_cancel;
     }
 
     // Start is called before the first frame update
@@ -38,10 +46,28 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
     {
     }
 
+    public void SetInputAble( bool b )
+    {
+        if( playerInput != null ) playerInput.enabled = b;
+    }
+
     public void ListingDefault( List<_GRID_MOVE_DEFAULT_DATA> list_default )
     {
+        if( uIListItem == null )
+        {
+            Debug.Log( "ListingDefault : uIListItem == null : " + gameObject.name );
+            return;
+        }
         uIListItem.Listing( list_default );
+        uIGridMove.Align_By_GridLayoutGroup();
     } 
+
+    public void Listing_SetFunc_OK( List<_GRID_MOVE_DEFAULT_DATA> list_default , SJ_COMMON.Func_Arg func_ok , bool input_able = true )
+    {
+        ListingDefault(list_default );
+        SetFunc( func_ok );
+        SetInputAble(input_able);
+    }
 
     void OnEnable()
     {
@@ -77,7 +103,8 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
 
     public void ActiveObj()
     {
-        OnMoveObj?.Invoke( uIGridMove.recent_active );    
+        func_MoveObj?.Invoke( uIGridMove.recent_active );    
+        OnFunc_Move( uIGridMove.recent_active );
     }
 
     public GameObject GetCurObj()
@@ -95,7 +122,8 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
 
     public void OnSubmit( InputValue value )
     {
-        OnOK_Input?.Invoke( uIGridMove.recent_active );
+        func_OnOK?.Invoke( uIGridMove.recent_active );
+        OnFunc_OK( uIGridMove.recent_active );
 
         // 가능한 gui 호출들...
         GameObject go = uIGridMove.recent_active;
@@ -115,10 +143,22 @@ public class SJ_UIGridMove_PlayerInput : MonoBehaviour
             }
         }
 
+        if( close_OK_curve )
+        {
+            SJ_UnityUIMng_Curve.CloseOne();
+        }
+
     }
 
     public void OnCancel( InputValue value )
     {
-        OnCancel_Input?.Invoke( uIGridMove.recent_active );
+        func_Cancel?.Invoke( uIGridMove.recent_active );
+        OnFunc_Cancel( uIGridMove.recent_active );
     }
+    //
+    //=========================================================================
+
+    virtual public void OnFunc_Move( GameObject go ){}
+    virtual public void OnFunc_OK( GameObject go ){}
+    virtual public void OnFunc_Cancel( GameObject go ){}
 }

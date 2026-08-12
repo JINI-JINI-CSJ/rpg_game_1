@@ -56,6 +56,7 @@ public enum SKILL_TYPE
     Active_NORMAL , 
     Passive ,
 
+    ALL ,
 }
 
 public class GTF_Common 

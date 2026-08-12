@@ -46,12 +46,8 @@ public class BattleTargetSelector : MonoBehaviour
     BATTLE_SEL_GROUP bs_cur_select;
 
     public SJ_COMMON.Func_Arg func_SelectOK;
-    public SJ_COMMON.Func_Arg func_SelectCancel;
+    public SJ_COMMON.Func_VOID func_SelectCancel;
 
-    // public BattleTargetSelector()
-    // {
-    //     G = this;
-    // }
 
     void Awake()
     {
@@ -287,10 +283,12 @@ public class BattleTargetSelector : MonoBehaviour
         ActiveGroup();
     }
 
-    static public void Show( bool b )
+    static public void Show( bool b , SJ_COMMON.Func_Arg func_ok = null , SJ_COMMON.Func_VOID func_cancel = null )
     {
         G.enabled = b;
         G.playerInput.enabled = b;
+        G.func_SelectOK = func_ok;
+        G.func_SelectCancel = func_cancel;
     }
 
     static public void ActiveGroup()
@@ -311,6 +309,7 @@ public class BattleTargetSelector : MonoBehaviour
         return G.gridObjDir.GetCursor() as BATTLE_SEL_GROUP;
     }
 
+
     public void InputCursor_X( int off )
     {
         MoveCursor( off , 0 );
@@ -321,11 +320,26 @@ public class BattleTargetSelector : MonoBehaviour
         MoveCursor( 0 , off );
     }
 
+    //=========================================================================
+    // 유니티 인풋
     public void OnNavigate(InputValue value)
     {
         Vector2 v = value.Get<Vector2>();
         cursorDirectionInput.SetInput( v.x , v.y );
     }
+
+
+    public void OnSubmit( InputValue value )
+    {
+        OnSelectOK();
+    }
+
+    public void OnCancel( InputValue value )
+    {
+        OnSelectCancel();
+    }
+    //
+    //=========================================================================
 
     public void OnSelectOK()
     {
@@ -336,7 +350,7 @@ public class BattleTargetSelector : MonoBehaviour
     public void OnSelectCancel()
     {
         playerInput.enabled = false;
-        func_SelectCancel?.Invoke(bs_cur_select);
+        func_SelectCancel?.Invoke();
     }
 
 }

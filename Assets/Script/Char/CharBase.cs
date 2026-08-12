@@ -56,7 +56,12 @@ public class CharBase
     static public CharBase InstCharBase_CSV( int csv_id , int level , _ARMY_FORCE _force )
     {
         CSV_CharBaseStat csv_load = GTF_CSV.csv_Char_ALL.Find_Int( csv_id ) as CSV_CharBaseStat;
-        if( csv_load == null ) return null;
+        if( csv_load == null )
+        {
+            Debug.LogError( "InstCharBase_CSV  csv_load == null : " + csv_id );
+            return null;            
+        }
+
         CharBase charBase = new();
         charBase.Make( csv_load , level , _force );
         return charBase;
@@ -117,6 +122,12 @@ public class CharBase
     public List<SkillBase> GetSkills( SKILL_TYPE skill_type )
     {
         List<SkillBase> all = GetSkills_ALL();
+
+        if( skill_type == SKILL_TYPE.ALL )
+        {
+            return all;
+        }
+
         List<SkillBase> lt = new();
 
         foreach( var s in lt )

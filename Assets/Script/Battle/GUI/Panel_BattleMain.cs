@@ -8,18 +8,11 @@ public class Panel_BattleMain : MonoBehaviour
 {
     static public Panel_BattleMain G;
 
-    public PlayerInput playerInput;
-
-    public CursorDirectionInput cursorDirectionInput;
-
-    public GameObject go_MENU;
-
-    public List<Button> buttons_ChrCmd;
+    // 오른쪽 사이드 메뉴
+    public SJ_UIGridMove_PlayerInput input_MenuCommand;
 
     // 적군 타겟 마크
     public List<Image> enemy_target_marks;
-
-    
 
     // 커맨드 입력
     List<CharBase> charBases_inputWait = new();
@@ -29,14 +22,12 @@ public class Panel_BattleMain : MonoBehaviour
     void Awake()
     {
         G = this;
-        cursorDirectionInput.RegisterMoveX_One( InputCursor_X );
-        cursorDirectionInput.RegisterMoveY_One( InputCursor_Y );
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -45,12 +36,13 @@ public class Panel_BattleMain : MonoBehaviour
         
     }
 
-    static public void InitBattle()
+    static public void InitBattle(){G._InitBattle();}
+    public void _InitBattle()
     {
-        G.gameObject.SetActive(true);
-        G.TurnStart_InputCommand();
+        auto_mode = false;
+        gameObject.SetActive(true);
+        TurnStart_InputCommand();        
     }
-
 
 
     public void EndBattle()
@@ -61,7 +53,8 @@ public class Panel_BattleMain : MonoBehaviour
 
     public void TurnStart_InputCommand()
     {
-        go_MENU.SetActive(true);
+        // 버튼들을 여기 함수로 바로 링크 한다.
+        input_MenuCommand.gameObject.SetActive(true);
 
         // 전투불능이나 수면 등등 제외하고 입력 가능 캐릭터들
         charBases_inputWait = Player.battleParty.GetBattleCommandAble();
@@ -73,33 +66,40 @@ public class Panel_BattleMain : MonoBehaviour
     }
 
 
-    CharBase cur_input_wait = null;
+    CharBase cur_input_char_wait = null;
     public void NextInputCommand()
     {
-        go_MENU.SetActive(true);
+        MenuInputActive(true);
         BattlePartyView_Player.All_HideInputAni();
-        cur_input_wait = null;
+        cur_input_char_wait = null;
+        skillBase_cur_sel   = null;
+        itemBase_cur_sel    = null;
         foreach( var s in charBases_inputWait )
         {
             if( s.AbleBattleCommand() )
             {
-                cur_input_wait = s;
+                cur_input_char_wait = s;
                 break;
             }
         }
 
-        if( cur_input_wait == null )
+        if( cur_input_char_wait == null )
         {
             TurnStart();
             return;
         }
-        cur_input_wait.Call_BattleCommandInputWait(true);
+        cur_input_char_wait.Call_BattleCommandInputWait(true);
+    }
+
+    public void MenuInputActive( bool b )
+    {
+        input_MenuCommand.gameObject.SetActive(b);
     }
 
     public void TurnStart()
     {
         // 전투 시작
-        go_MENU.SetActive(false);
+        MenuInputActive(false);
         // 배틀 턴 시작        
         BattleMain.Phase_StartTurn();
     }
@@ -116,66 +116,71 @@ public class Panel_BattleMain : MonoBehaviour
 
     public void OnBT_Attack()
     {
-        playerInput.enabled = false;
-        go_MENU.SetActive(false);
-        skillBase_cur_sel = cur_input_wait.GetDefaultSkill();
-        skillBase_cur_sel.SelectTarget();
+        MenuInputActive(false);
+        skillBase_cur_sel = cur_input_char_wait.GetDefaultSkill();
+        skillBase_cur_sel.SelectTarget( OnOK_TargetSelect , OnCancel_TargetSelect );
     }
 
     // 셀렉터에서 타겟을 선택했다.
     public void OnOK_TargetSelect( object arg )
     {
-        playerInput.enabled = true;
         BattleCommand command = new();
         command.sel_group = arg as BATTLE_SEL_GROUP;
         command.skill = skillBase_cur_sel;
-        cur_input_wait.command = command;
+        command.item = itemBase_cur_sel;
+        cur_input_char_wait.command = command;
         NextInputCommand();
     }
     
     // 셀렉터에서 취소했다.
-    public void OnCancel_TargetSelect( object arg )
+    public void OnCancel_TargetSelect()
     {
-        playerInput.enabled = true;
+        MenuInputActive(true);
         skillBase_cur_sel = null;
-        NextInputCommand(); 
     }
 
     public void OnBT_Skill()
     {
+        MenuInputActive(false);
         // 전투 스킬창 오픈 
-
+        PanelPopup_ItemSkill.Open_CharSkill( cur_input_char_wait , SKILL_TYPE.Active_BATTLE , OnBT_Skill_Select );
     }
 
     // 스킬 선택완료
+    // 공격과 똑같이 타겟 설정
     public void OnBT_Skill_Select( object arg )
     {
-        
+        skillBase_cur_sel = SJ_UIGridMove_PrcActiveObj.GetUserValue<SkillBase>( arg );
+        skillBase_cur_sel.SelectTarget( OnOK_TargetSelect , OnCancel_TargetSelect );
     }
 
     public void OnBT_Guard()
     {
         BattleCommand command = new();
         command.cmd_cate = BATTLE_COMMAND_CATE.Guard;
-        cur_input_wait.command = command;
+        cur_input_char_wait.command = command;
         NextInputCommand();
     }
 
     public void OnBT_Item()
     {
-        
+        MenuInputActive(false);
+        // 아이템창 오픈 
+        PanelPopup_ItemSkill.Open_Item( 0 , 0 , 1 , OnBT_Item_Select );
     }
 
+    ItemBase itemBase_cur_sel;
     public void OnBT_Item_Select( object arg )
     {
-        
+        itemBase_cur_sel = SJ_UIGridMove_PrcActiveObj.GetUserValue<ItemBase>( arg );
+        itemBase_cur_sel.SelectTarget( cur_input_char_wait , OnOK_TargetSelect , OnCancel_TargetSelect );
     }
 
     public void OnBT_Escape()
     {
         BattleCommand command = new();
         command.cmd_cate = BATTLE_COMMAND_CATE.Escape;
-        cur_input_wait.command = command;
+        cur_input_char_wait.command = command;
         NextInputCommand();
     }
 
@@ -221,14 +226,18 @@ public class Panel_BattleMain : MonoBehaviour
         }
     }
 
-    public void InputCursor_X( int off )
-    {
-        //MoveCursor( off , 0 );
-    }
+    //=========================================================================
+    // 유니티 인풋
+    // public void OnNavigate( InputValue value )
+    // {
+    //     Vector2 input = value.Get<Vector2>();
+    // }
 
-    public void InputCursor_Y( int off )
+    // 오토전투설정이고 전투중일 때 캔슬버튼이라면 
+    // 오토 전투 취소 설정
+    public void OnCancel( InputValue value )
     {
-        //MoveCursor( 0 , off );
+        
     }
 
 }

@@ -8,6 +8,14 @@ public class _GRID_MOVE_DEFAULT_DATA
 {
     public string name;
     public object userData;
+
+    static public void AddList( List<_GRID_MOVE_DEFAULT_DATA> lt , string _name , object _obj )
+    {
+        _GRID_MOVE_DEFAULT_DATA s = new();
+        s.name = _name;
+        s.userData = _obj;
+        lt.Add(s);
+    }
 }
 
 // SJ_UIGridMove 의 디폴트 동작
@@ -34,15 +42,8 @@ public class SJ_UIGridMove_PrcActiveObj : MonoBehaviour
 
     public void OnGrid_MOVE( bool active )
     {
-        if( mono_cur_active != null )
-        {
-            mono_cur_active.enabled = active;
-        }
-
-        if( obj_cur_active != null )
-        {
-            obj_cur_active.SetActive(active);
-        }
+        if( mono_cur_active != null )mono_cur_active.enabled = active;
+        if( obj_cur_active != null )obj_cur_active.SetActive(active);
     }
 
     public void OnCurObj_Active()

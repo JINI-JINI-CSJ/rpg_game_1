@@ -34,6 +34,9 @@ public class CSV_Skill : SJ_CSV_BaseObj
         Enum.TryParse( Next() , out act_target );
         Remain_Data( args );
     }
+
+    public string GetName(){return SJ_Language.Str( "SKILL_NAME" , ID_int );}
+    public string GetDesc(){return SJ_Language.Str( "SKILL_DESC" , ID_int );}
 }
 
 public class CSV_SkillPage : SJ_CSV_BasePage
