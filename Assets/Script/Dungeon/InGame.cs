@@ -4,9 +4,7 @@ using UnityEngine;
 public class InGame : MonoBehaviour
 {
     static public InGame G;
-
     public int Turn_Dungeon = 1;
-
     public bool TEST_NO_EVENT;
 
     void Awake()
@@ -16,6 +14,7 @@ public class InGame : MonoBehaviour
         SJSound.Init();
         SJ_ResPoolSys.Init_Scene();
     }
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -50,6 +49,8 @@ public class InGame : MonoBehaviour
         PlayerMover.G.SetMap( gTF_TileMap );
         GTF_TileMap.LoadMap();
         PlayerMover.G.Ready();
+
+
 
         BattlePartyView_Player.Update_Player();
 

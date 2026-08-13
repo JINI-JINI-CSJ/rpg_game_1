@@ -17,6 +17,7 @@ public class UIItem_BattleChr : MonoBehaviour
     public SJ_Curve_TransObjToggle  curve_ani_Damage;
     public Cld_ShakeEffect          shakeEffect;    
 
+
     public void Clear()
     {
         charBase = null;
@@ -55,12 +56,14 @@ public class UIItem_BattleChr : MonoBehaviour
     // 행동 애니 
     public void ANI_ATK()
     {
+        Debug.Log( "플레이어 공격 ---->" );
         curve_ani_ATK.func_OnEnd = ANI_ATK_End;
-        curve_ani_ATK.StartFunc_FWD();
+        curve_ani_ATK.StartFunc_FWD( null , true );
     }
 
     public void ANI_ATK_End()
     {
+        Debug.Log( "플레이어 공격 <----" );
         charBase.OnEnd_TurnAction();
     }
 
@@ -68,7 +71,7 @@ public class UIItem_BattleChr : MonoBehaviour
     // 빨강게 반짝이면서 흔들림
     public void ANI_GetDamage()
     {
-        curve_ani_Damage.StartFunc_FWD();
+        curve_ani_Damage.StartFunc_FWD(null , true);
         shakeEffect.Shake();
     }
 

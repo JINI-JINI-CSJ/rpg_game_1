@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -25,8 +26,8 @@ public class _ENEMY_BATTLE_INIT
     [System.Serializable]
     public class _ENEMY_ID_COUNT
     {
+        public int csv_id;        
         public int count = 1;
-        public int csv_id;
     }
 
     public List<_ENEMY_ID_COUNT> enemies = new();
@@ -51,8 +52,6 @@ public class BattleMain : MonoBehaviour
 {
     static public BattleMain G;
     static public _BATTLE_RESULT_INF result_inf = new();
-
-    
     public GameObject               go_Cam_InputCommand; 
     public GameObject               go_Cam_BattleTurn; 
     public BattlePartyView_Enemy    view_Enemy;
@@ -60,7 +59,9 @@ public class BattleMain : MonoBehaviour
 
     public _ENEMY_BATTLE_INIT       TEST_BATTLE;
 
-    //public PlayerInput              playerInput;
+    public float delay_StartTurn = 0.5f;
+
+    public float delay_Result = 0.5f;
 
     public int TURN;
 
@@ -99,6 +100,7 @@ public class BattleMain : MonoBehaviour
         battleParty_Enemy = bp_enemy;
         view_Enemy.Init();
 
+        Panel_BattleMain.InitBattle();
         Phase_InputCommand();
     }
 
@@ -121,10 +123,12 @@ public class BattleMain : MonoBehaviour
     static public void Phase_InputCommand(){G._Phase_InputCommand();}
     public void _Phase_InputCommand()
     {
+        Debug.Log( "배틀 커맨드 대기 : " + TURN );
+        go_Cam_BattleTurn.SetActive(false);
         // 유아이 열고 , 커맨드 카메라 활성화 
-        Panel_BattleMain.InitBattle();
+        Panel_BattleMain.G.TurnStart_InputCommand();
         go_Cam_InputCommand.SetActive(true);
-        //playerInput.enabled = true;
+
     }
     
     static public void Phase_StartTurn()
@@ -135,8 +139,15 @@ public class BattleMain : MonoBehaviour
     public void _Phase_StartTurn()
     {
         // 카메라 전환 
-        // 턴 매니저 시작
+        // 기다렸다가  턴 매니저 시작
         go_Cam_BattleTurn.SetActive(true);
+        StartCoroutine( CO_WaitTurnStart() );
+    }
+
+
+    IEnumerator CO_WaitTurnStart()
+    {
+        yield return new WaitForSeconds( delay_StartTurn );
         BattleTurn.TurnStart();
     }
 
@@ -147,6 +158,7 @@ public class BattleMain : MonoBehaviour
 
     public void _NextCharAction()
     {
+        Debug.Log( "NextCharAction ->" );
         // 양측 전멸 체크
         if( Player.battleParty.CheckLiveALL() == false )
         {
@@ -166,13 +178,21 @@ public class BattleMain : MonoBehaviour
     static public void Phase_EndTurn(){G._Phase_EndTurn();}
     public void _Phase_EndTurn()
     {
-        // 전투 카메라 해제
-        go_Cam_BattleTurn.SetActive(false);
+        // 턴 증가
+        TURN++;
 
+        _Phase_InputCommand();
     }
 
     public void ResultBattleWin()
     {
+        StartCoroutine( CO_WaitResult_Win() );
+    }
+
+    IEnumerator CO_WaitResult_Win()
+    {
+        yield return new WaitForSeconds( delay_Result );
+
         result_inf.Clear();
         result_inf.gold = 100;
         result_inf.exp = 100;

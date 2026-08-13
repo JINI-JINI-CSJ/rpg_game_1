@@ -6,6 +6,8 @@ public class SJ_Curve_Color_Mono : MonoBehaviour
 {
     public SJ_Curve_Color curve_Color = new();
 
+    public bool enable_start;
+
     public Image image;
     public SpriteRenderer spriteRenderer;
     public Text text;
@@ -14,6 +16,11 @@ public class SJ_Curve_Color_Mono : MonoBehaviour
     void Start()
     {
         
+    }
+
+    void OnEnable()
+    {
+        if( enable_start )StartPlay();
     }
 
     public void StartPlay( SJ_COMMON.Func_VOID func_End = null )

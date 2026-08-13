@@ -8,7 +8,7 @@ using UnityEngine;
 public class DungeonInfo
 {
     public int ID;
-    public int randomSeed;
+    public int randomSeed = 12345;
 
     public int LEVEL;
 

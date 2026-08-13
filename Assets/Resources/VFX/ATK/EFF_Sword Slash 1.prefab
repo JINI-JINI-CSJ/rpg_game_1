@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SJ_ReturnDestroy
   timer: 2
-  start_Enable: 0
+  start_Enable: 1
   go_return: {fileID: 0}
   debug_state: 0
 --- !u!1 &3707694475377131828

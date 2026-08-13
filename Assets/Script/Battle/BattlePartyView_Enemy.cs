@@ -15,7 +15,7 @@ public class BattlePartyView_Enemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        Clear();
     }
 
     // Update is called once per frame
@@ -24,10 +24,15 @@ public class BattlePartyView_Enemy : MonoBehaviour
         
     }
 
-    public void Init()
+    public void Clear()
     {
         foreach( var s in tr_Front )s.Clear();
-        foreach( var s in tr_Back )s.Clear();
+        foreach( var s in tr_Back )s.Clear();        
+    }
+
+    public void Init()
+    {
+        Clear();
 
         // 배틀 매인의 적군 파티를 참고해서 배치
         BattleParty bp_enemy = BattleMain.G.battleParty_Enemy;

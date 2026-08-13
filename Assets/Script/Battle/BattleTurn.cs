@@ -40,9 +40,17 @@ public class BattleTurn : MonoBehaviour
     public void _TurnStart()
     {
         char_turn.Clear();
+
+        List<CharBase> chars_enemy = BattleMain.G.battleParty_Enemy.GetBattleLive();
+
+        // 적군 커멘드
+        foreach( var s in chars_enemy )
+        {
+            s.OnMakeCommand();
+        }
         
         char_turn.AddRange( Player.battleParty.GetBattleLive() );
-        char_turn.AddRange( BattleMain.G.battleParty_Enemy.GetBattleLive() );
+        char_turn.AddRange( chars_enemy );
 
         // 행동 속도로 순서
         char_turn.Sort( 
@@ -53,6 +61,13 @@ public class BattleTurn : MonoBehaviour
                 return 0;
             }
         );
+
+        Debug.Log( "행동 순서 ====>>>>" );
+        for( int i = 0 ; i < char_turn.Count ; i++ )
+        {
+            Debug.Log( i + " : " + char_turn[i].csv.name );
+        }
+        Debug.Log( "행동 순서 <<<<=====" );
     }
 
     static public void NextCharAction()
@@ -65,10 +80,14 @@ public class BattleTurn : MonoBehaviour
         if( char_turn.Count < 1 )
         {
             // 턴 종료
+            Debug.Log( "턴 종료---------------" );
             BattleMain.Phase_EndTurn();
             return;
         }
+
         CharBase charBase = char_turn[0];
+        char_turn.RemoveAt( 0 );
+
         charBase.TurnAction_Start();
     }
 

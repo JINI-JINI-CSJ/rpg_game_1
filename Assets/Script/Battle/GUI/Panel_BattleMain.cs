@@ -12,7 +12,11 @@ public class Panel_BattleMain : MonoBehaviour
     public SJ_UIGridMove_PlayerInput input_MenuCommand;
 
     // 적군 타겟 마크
-    public List<Image> enemy_target_marks;
+    public List<GameObject> enemy_target_marks;
+
+    public Text text_TURN;
+
+    public float delay_StartTurn = 0.5f;
 
     // 커맨드 입력
     List<CharBase> charBases_inputWait = new();
@@ -39,6 +43,7 @@ public class Panel_BattleMain : MonoBehaviour
     static public void InitBattle(){G._InitBattle();}
     public void _InitBattle()
     {
+        Active_TargetMark_ALL(false);
         auto_mode = false;
         gameObject.SetActive(true);
         TurnStart_InputCommand();        
@@ -53,11 +58,12 @@ public class Panel_BattleMain : MonoBehaviour
 
     public void TurnStart_InputCommand()
     {
+        SJ_UnityUI_Util.TextString( text_TURN , BattleMain.G.TURN.ToString() );
         // 버튼들을 여기 함수로 바로 링크 한다.
         input_MenuCommand.gameObject.SetActive(true);
 
         // 전투불능이나 수면 등등 제외하고 입력 가능 캐릭터들
-        charBases_inputWait = Player.battleParty.GetBattleCommandAble();
+        charBases_inputWait = Player.battleParty.GetBattleCommandAble_Ready();
         foreach( var s in charBases_inputWait )
         {
             s.ClearBattleCommand();
@@ -69,6 +75,7 @@ public class Panel_BattleMain : MonoBehaviour
     CharBase cur_input_char_wait = null;
     public void NextInputCommand()
     {
+        Active_TargetMark_ALL(false);
         MenuInputActive(true);
         BattlePartyView_Player.All_HideInputAni();
         cur_input_char_wait = null;
@@ -76,7 +83,7 @@ public class Panel_BattleMain : MonoBehaviour
         itemBase_cur_sel    = null;
         foreach( var s in charBases_inputWait )
         {
-            if( s.AbleBattleCommand() )
+            if( s.Check_ExistCommand() == false )
             {
                 cur_input_char_wait = s;
                 break;
@@ -103,6 +110,8 @@ public class Panel_BattleMain : MonoBehaviour
         // 배틀 턴 시작        
         BattleMain.Phase_StartTurn();
     }
+
+    
 
     public void OnTurnEnd()
     {
@@ -193,7 +202,7 @@ public class Panel_BattleMain : MonoBehaviour
         CharBase charBase_last_cmd = null;
         foreach( var s in charBases_inputWait )
         {
-            if( s.AbleBattleCommand() == false )
+            if( s.AbleBattleCommand_Ready() == false )
             {
                 charBase_last_cmd = s;
             }
@@ -220,10 +229,21 @@ public class Panel_BattleMain : MonoBehaviour
 
     void AutoBattleSetting()
     {
-        foreach( var s in Player.battleParty.GetBattleCommandAble() )
+        foreach( var s in Player.battleParty.GetBattleCommandAble_Ready() )
         {
-            if( s.AbleBattleCommand() ) s.Auto_Command();
+            if( s.AbleBattleCommand_Ready() ) s.Auto_Command();
         }
+    }
+
+    // 마크들을 적군 월드 객체랑 미리 연결 
+    static public void Active_TargetMark( int idx ,  bool b )
+    {
+        G.enemy_target_marks[idx].SetActive(b);
+    }
+
+    public void Active_TargetMark_ALL( bool b )
+    {
+        foreach( var s in enemy_target_marks ) s.SetActive(b);
     }
 
     //=========================================================================

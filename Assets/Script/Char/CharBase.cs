@@ -86,6 +86,7 @@ public class CharBase
     public SkillBase AddSkill( CSV_Skill csv_skill , List<SkillBase> skills)
     {
         SkillBase skill = SkillBase.InstSkill( csv_skill );
+        skill.charBase = this;
 
         skills.Add( skill );
         return skill;
@@ -176,13 +177,31 @@ public class CharBase
     public void GetDamage( int damage )
     {
         cur_HP -= damage;
-        if( cur_HP < 0 ) cur_HP = 0;
+        if( cur_HP <= 0 )
+        {
+            cur_HP = 0;
+            func_ANI_KO?.Invoke();
+        }
+        else
+        {
+            Call_ANI_Damage();
+        }
+         
+
+        Debug.Log( csv.name + " : 데미지 : " + damage + "      hp : " + cur_HP );
     }
 
-
-    public bool AbleBattleCommand()
+    // 커맨드를 입력가능한 캐릭터
+    // KO , 수면 , 마비 등등 캐릭터는 제외
+    public bool AbleBattleCommand_Ready()
     {
         if( cur_HP < 1 ) return false;
+        return true;
+    }
+
+    public bool Check_ExistCommand()
+    {
+        if( command == null ) return false;
         return true;
     }
     
@@ -243,12 +262,40 @@ public class CharBase
         // 일단 무조건 공격
         command = new BattleCommand();
         command.cmd_cate = BATTLE_COMMAND_CATE.Attack;
+        command.skill = skillBase_Default;
+        command.sel_group = BattleTargetSelector.RandomTargetOpp_One( armyForce );
+        
+    }
+
+    virtual public void OnMakeCommand()
+    {
+        Auto_Command();
     }
 
 
     public void TurnAction_Start()
     {
+        if( command == null )
+        {
+            Debug.LogError( "커멘드 없음!!!" );
+            return;
+        }
+
         Call_ANI_ATK();
+        if( command.skill != null )
+        {
+            command.skill.Action( command.sel_group );
+            return;
+        }
+
+        if( command.item != null )
+        {
+            command.item.Action( command.sel_group );
+            return;
+        }
+
+        // 도망 처리 등등
+
     }
 
     // 객체 뷰어에서 호출한다.

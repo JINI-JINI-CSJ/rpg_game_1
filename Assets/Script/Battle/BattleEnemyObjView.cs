@@ -7,13 +7,15 @@ public class BattleEnemyObjView : MonoBehaviour
 {
     public int IDX; // 본인 인덱스 , 타겟 마크 같은거 찾을때 
 
-    public Transform tr_TargetMarkPos;
+    //public Transform tr_TargetMarkPos;
 
     public CharBase charBase;
 
     // 2디 이미지 일경우
     // 3디 캐릭이면 스프라이트 감춘다.
     public SpriteRenderer spriteRenderer;
+
+    public SJ_GageBarText HP_Bar;
 
     public SJ_Curve_Color_Mono  spr_curve_atk;
     public SJ_Curve_Color_Mono  spr_curve_damage;
@@ -23,7 +25,7 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public float Time_ATK = 0.5f;
 
-    Image       image_targetMark;
+    //Image       image_targetMark;
 
     Animator    anit;
     EnemyMono   enemyMono;
@@ -47,18 +49,12 @@ public class BattleEnemyObjView : MonoBehaviour
         if( enemyMono != null )GameObject.DestroyImmediate(enemyMono.gameObject);
         anit = null;
         gameObject.SetActive(false);
+        HP_Bar.gameObject.SetActive(false);
     }
 
     public void InitCharBase( CharBase chr )
     {
         if( chr == null ) return;
-
-        if( image_targetMark == null )
-        {
-            image_targetMark = Panel_BattleMain.G.enemy_target_marks[IDX];
-            SJ_UnityUIMng.WorldToUI( image_targetMark.transform , tr_TargetMarkPos );
-            image_targetMark.gameObject.SetActive(false);
-        }
 
         charBase = chr;
         charBase.func_ANI_ATK = ANI_ATK;
@@ -82,10 +78,18 @@ public class BattleEnemyObjView : MonoBehaviour
             enemyMono = load_3D.GetComponent<EnemyMono>();
         }
         gameObject.SetActive(true);
+        HP_Bar.gameObject.SetActive(true);
+        UpdateUI();
+    }
+
+    public void UpdateUI()
+    {
+        HP_Bar.SetValue( charBase.cur_HP , charBase.csv.charPrcValue.HP );
     }
 
     public void ANI_ATK()
     {
+        Debug.Log( "적군 공격 ---->" );
         if( anit != null )
         {
             anit.Play( "Attack" );
@@ -106,6 +110,7 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public void ANI_ATK_End()
     {
+        Debug.Log( "적군 공격 <----" );
         charBase.OnEnd_TurnAction();
     }
 
@@ -120,6 +125,7 @@ public class BattleEnemyObjView : MonoBehaviour
             spr_curve_damage.StartPlay();
             shakeEffect_damage.Shake();            
         }
+        UpdateUI();
     }
 
     public void ANI_KO()
@@ -132,6 +138,7 @@ public class BattleEnemyObjView : MonoBehaviour
         {
             spr_curve_ko.StartPlay();
         }
+        HP_Bar.gameObject.SetActive(false);
     }
 
     public void Call_RecvSkill( object skl_obj )
@@ -142,7 +149,7 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public void Call_SelectTarget( bool b )
     {
-        image_targetMark.gameObject.SetActive(b);
+        Panel_BattleMain.Active_TargetMark( IDX , b );
     }
 
 }

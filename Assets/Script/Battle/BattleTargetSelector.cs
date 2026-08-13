@@ -320,6 +320,18 @@ public class BattleTargetSelector : MonoBehaviour
         MoveCursor( 0 , off );
     }
 
+    // 상대 라인 차순 랜덤 1개체
+    static public BATTLE_SEL_GROUP RandomTargetOpp_One( _ARMY_FORCE self_force )
+    {
+        BattleParty bp_opp = BattleMain.GetBattleParty( self_force , false );
+
+        CharBase charBase = bp_opp.GetRandomLive();
+        if( charBase == null ) return null;
+        BATTLE_SEL_GROUP s = new();
+        s.Add( charBase );
+        return s;
+    }
+
     //=========================================================================
     // 유니티 인풋
     public void OnNavigate(InputValue value)

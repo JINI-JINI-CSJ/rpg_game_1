@@ -17,6 +17,9 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
 
     public DungeonInfo dungeonInfo = new();
 
+    
+    public Mng_X128SS random_dungeon;
+
     void Awake()
     {
         G = this;
@@ -46,7 +49,13 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
 
     public void _LoadMap()
     {
+        random_dungeon = new( (uint)dungeonInfo.randomSeed );
         MENU_Load();
+    }
+
+    static public Mng_X128SS Random()
+    {
+        return G.random_dungeon;
     }
 
     public Vector2Int PlayerStartPos()

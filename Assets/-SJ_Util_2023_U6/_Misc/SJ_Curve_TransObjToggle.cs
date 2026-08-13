@@ -73,6 +73,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		{
 			// 이미 열린 상태
 			func_OnEndToggle_ON?.Invoke();
+			func_OnEnd?.Invoke();		
 			return;
 		}
 		sJ_Curve.StartTime_PlayDir( true );//그외에는 그냥 오픈 애니
@@ -87,6 +88,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		{
 			// 이미 닫힌 상태
 			func_OnEndToggle_OFF?.Invoke();
+			func_OnEnd?.Invoke();		
 			return;
 		}
 		sJ_Curve.StartTime_PlayDir( false );
