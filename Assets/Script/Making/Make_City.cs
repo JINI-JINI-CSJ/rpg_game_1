@@ -18,12 +18,17 @@ public class Make_City : MakeBase
     public override void OnMake()
     {
         WorldForgeManager worldForge = Make_WorldMap.G.worldForge;
+
+        // 시작지점
         QuadTree quadTree = Make_WorldMap.G.quadTree;
-
         List<QTPoint> qTs = quadTree.GetAllPoints( Make_WorldMap.TAG_HASH_CITY_Village() );
-
         QTPoint qt_s = GTF_Random.rd_make_world.RandomList( qTs );
         cityData_Start = (CityData)qt_s.Data;
+
+
+        // 도시 메이킹
+
+
 
         MakingMain.NextMake();
     }

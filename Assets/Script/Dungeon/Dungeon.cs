@@ -9,12 +9,12 @@ public class DungeonInfo
 {
     public int ID;
     public int randomSeed = 12345;
-
     public int LEVEL;
-
     public string res_map;
-
     public DUNGEON_INCOUNT_INF iNCOUNT_INF = new();
+
+    // 던전 계층
+    public int MAX_LAYER;
 
     // 적군 등장
     // 일단 5가지 

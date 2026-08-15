@@ -17,6 +17,8 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public SJ_GageBarText HP_Bar;
 
+    public SJ_WaitActive waitActive_HP;
+
     public SJ_Curve_Color_Mono  spr_curve_atk;
     public SJ_Curve_Color_Mono  spr_curve_damage;
     public SJ_Curve_Color_Mono  spr_curve_ko;
@@ -61,6 +63,7 @@ public class BattleEnemyObjView : MonoBehaviour
         charBase.func_ANI_Damage = ANI_GetDamage;
         charBase.func_RecvSkill = Call_RecvSkill;
         charBase.func_SelectTarget = Call_SelectTarget;
+        charBase.func_ANI_KO = ANI_KO;
 
 
         // 2D , 3D 
@@ -78,13 +81,19 @@ public class BattleEnemyObjView : MonoBehaviour
             enemyMono = load_3D.GetComponent<EnemyMono>();
         }
         gameObject.SetActive(true);
-        HP_Bar.gameObject.SetActive(true);
+        //HP_Bar.gameObject.SetActive(true);
         UpdateUI();
     }
 
     public void UpdateUI()
     {
         HP_Bar.SetValue( charBase.cur_HP , charBase.csv.charPrcValue.HP );
+    }
+
+    public void Call_TurnInit()
+    {
+        waitActive_HP.Clear();
+        HP_Bar.gameObject.SetActive(false);
     }
 
     public void ANI_ATK()
@@ -116,6 +125,8 @@ public class BattleEnemyObjView : MonoBehaviour
 
     public void ANI_GetDamage()
     {
+        UpdateUI();
+        waitActive_HP.StartWait();
         if( anit != null )
         {
             anit.Play( "Damage" );
@@ -125,11 +136,11 @@ public class BattleEnemyObjView : MonoBehaviour
             spr_curve_damage.StartPlay();
             shakeEffect_damage.Shake();            
         }
-        UpdateUI();
     }
 
     public void ANI_KO()
     {
+        UpdateUI();
         if( anit != null )
         {
             anit.Play( "KO" );
@@ -150,6 +161,7 @@ public class BattleEnemyObjView : MonoBehaviour
     public void Call_SelectTarget( bool b )
     {
         Panel_BattleMain.Active_TargetMark( IDX , b );
+        HP_Bar.gameObject.SetActive(b);
     }
 
 }

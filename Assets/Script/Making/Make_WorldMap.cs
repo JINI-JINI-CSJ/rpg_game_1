@@ -33,12 +33,18 @@ public class Make_WorldMap : MakeBase
         G = this;
     }
 
+
     public override void OnMake()
     {
-        worldForge.OnWorldGenerated += UpdateStats;
+        worldForge.OnWorldGenerated += OnAfterMakeWorld;
+        worldForge.Generate();
+
+        // 월드 이미지 저장
+
+
     }
 
-    private void UpdateStats(WorldData w)
+    private void OnAfterMakeWorld(WorldData w)
     {
         InitQuadTree();
         MakingMain.NextMake();
@@ -62,6 +68,8 @@ public class Make_WorldMap : MakeBase
 
     public void InitQuadTree()
     {
+        Debug.Log( "월드 시티 : " + worldForge.CurrentWorld.Cities.Count );
+
         // 월드 메이커는 0 위치 시작 , 넓이 인자로 되 있다.
         quadTree = new QuadTree( Vector2.zero , new Vector2( worldForge.CurrentWorld.Width , worldForge.CurrentWorld.Height ) );
 
@@ -75,7 +83,7 @@ public class Make_WorldMap : MakeBase
         {
             switch( s.Tier )
             {
-                case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village );break;
+                case CityTier.Village:InsertQuad_City( s , hs_CITY_Village );break;
                 case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor );break;
                 case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major );break;
                 case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital );break;
@@ -86,8 +94,6 @@ public class Make_WorldMap : MakeBase
         {
             InsertQuad_Spot( s , hs_SPOT_BASE );
         }
-
-
     }
 
     void InsertQuad_City( CityData cityData , int tag_hash )

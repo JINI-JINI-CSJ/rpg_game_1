@@ -20,6 +20,8 @@ public class CharBase
     public int cur_HP;
     public int cur_MP;
 
+    public SJ_COMMON.Func_VOID func_TurnInit;
+
     public SJ_COMMON.Func_Arg_BOOL func_BattleCommandInputWait;
     public SJ_COMMON.Func_Arg_BOOL func_SelectTarget;           // 스킬 및 아이템 대상 선택
     public SJ_COMMON.Func_VOID func_ANI_ATK;
@@ -204,6 +206,11 @@ public class CharBase
         if( command == null ) return false;
         return true;
     }
+
+    public void Call_TurnInit()
+    {
+        func_TurnInit?.Invoke();
+    }
     
     public void Call_BattleCommandInputWait( bool b )
     {
@@ -275,6 +282,13 @@ public class CharBase
 
     public void TurnAction_Start()
     {
+        // 행동불가.. ko , 수면 마비 등등
+        if( AbleBattleCommand_Ready() == false )
+        {
+            OnEnd_TurnAction();
+            return;
+        }
+
         if( command == null )
         {
             Debug.LogError( "커멘드 없음!!!" );

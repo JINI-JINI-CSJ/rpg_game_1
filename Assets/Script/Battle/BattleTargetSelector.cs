@@ -84,7 +84,13 @@ public class BattleTargetSelector : MonoBehaviour
         {
             case BATTLE_ACTION_TARGET.One_Opp_Front:
                 {
-                    foreach( var  s in bp_opp.GetBattleLive( true , false , live ) )
+                    List<CharBase> chars = bp_opp.GetBattleLive( true , false , live );
+                    if( chars.Count == 0 )
+                    {
+                        chars = bp_opp.GetBattleLive( false , true , live );
+                    }
+
+                    foreach( var  s in chars )
                     {
                         BATTLE_SEL_GROUP bs = new();
                         bs.Add(s);

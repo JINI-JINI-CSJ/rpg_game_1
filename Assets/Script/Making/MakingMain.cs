@@ -13,25 +13,53 @@ public class MakingMain : MonoBehaviour
 {
     static public MakingMain G;
 
+    public SJ_SimpleSyncMono syncMono;
+
+    // 새로 생성 , 또는 로드
+    public int mode_make_load;
+
     void Awake()
     {
         G = this;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    static public void StartMake(){G._StartMake();}
+    public void _StartMake()
     {
+        syncMono.func_PlayStep = OnNextPlayStep;
+        syncMono.func_EndALL = OnEndALL;
+    }
+
+
+    static public void NextMake(){}
+    public void _NextMake()
+    {
+        SJ_SimpleSyncMono.NextPlaySelf();
+    }
+
+    public void OnNextPlayStep( object obj )
+    {
+        GameObject go = obj as GameObject;
+        MakeBase makeBase = go.GetComponent<MakeBase>();
+        if( mode_make_load == 0 )
+        {
+            makeBase.OnMake();
+        }
+        else
+        {
+            makeBase.OnLoad();
+        }
+    }
+
+    public void OnEndALL()
+    {
+        MakeBase[] makes = GetComponentsInChildren<MakeBase>();
+        foreach( var s in makes )
+        {
+            s.OnAfterWork();
+        }
+
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    static public void NextMake()
-    {
-        
-    }
 }

@@ -8,9 +8,8 @@ public class BattlePartyView_Enemy : MonoBehaviour
     public List<BattleEnemyObjView> tr_Back;
 
     // 배치 그리드
-    //public SJ_LineGridPos gridPos_front;
-
-    //public SJ_LineGridPos gridPos_back;
+    public SJ_AlignPosLine align_front;
+    public SJ_AlignPosLine align_back;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -39,6 +38,9 @@ public class BattlePartyView_Enemy : MonoBehaviour
 
         InitLine( tr_Front , bp_enemy.chars_Front );
         InitLine( tr_Back , bp_enemy.chars_Back );
+
+        align_front.Align();
+        align_back.Align();
     }
 
     void InitLine( List<BattleEnemyObjView> view , CharBase[] chars )

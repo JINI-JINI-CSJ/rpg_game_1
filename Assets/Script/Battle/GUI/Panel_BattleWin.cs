@@ -50,6 +50,13 @@ public class Panel_BattleWin : MonoBehaviour
 
     public void OnOK()
     {
-        
+        SJ_UnityUIMng_Curve.CloseOne();
     }
+
+    public void ClosePopup_EndAni()
+    {
+        BattleMain.OnOK_ResultPopup();
+    }
+
+
 }

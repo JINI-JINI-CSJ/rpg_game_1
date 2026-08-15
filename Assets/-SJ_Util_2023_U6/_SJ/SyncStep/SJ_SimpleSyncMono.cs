@@ -22,6 +22,10 @@ public class SJ_SimpleSyncMono : MonoBehaviour
     [HideInInspector]
     public GameObject go_curPlay;
 
+    public SJ_COMMON.Func_Arg func_PlayStep;
+
+    public SJ_COMMON.Func_VOID func_EndALL;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -108,6 +112,7 @@ public class SJ_SimpleSyncMono : MonoBehaviour
             Debug.Log( "이벤트 객체 목록 끝!!!!" );
             is_play = false;
             SJ_Unity.SendMsg( func_end_mono , func_end_name );
+            func_EndALL?.Invoke();
             return;
         }
         GameObject s = lt_step[cur_idx];
@@ -117,6 +122,8 @@ public class SJ_SimpleSyncMono : MonoBehaviour
             Debug.Log("이벤트 객체 플레이 : " + s.name);
             s.SetActive(true);
             s.SendMessage("PlayStep", SendMessageOptions.DontRequireReceiver);
+
+            func_PlayStep?.Invoke( s );
 
             go_curPlay = s;
 //            GF_PlayerMachine.DEBUG_LOG_POS("SJ_SimpleSyncMono 3======================================================");

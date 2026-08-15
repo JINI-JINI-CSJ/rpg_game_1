@@ -1,6 +1,9 @@
 using UnityEngine;
+using WorldForge;
 
 public class City 
 {
-    public int grade;
+    public CityData cityData;
+
+    
 }

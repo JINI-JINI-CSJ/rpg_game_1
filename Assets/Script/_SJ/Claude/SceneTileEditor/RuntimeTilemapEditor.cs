@@ -375,7 +375,7 @@ namespace TilemapTool
 
         private void LoadMapFrom()
         {
-            string picked = EditorUtility.OpenFilePanel("타일맵 불러오기", saveDirectory, "bin");
+            string picked = EditorUtility.OpenFilePanel("타일맵 불러오기", saveDirectory, "");
             if (string.IsNullOrEmpty(picked)) return;
 
             saveDirectory = Path.GetDirectoryName(picked);

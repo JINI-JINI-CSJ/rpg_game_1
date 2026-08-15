@@ -5,6 +5,7 @@ public class InGame : MonoBehaviour
 {
     static public InGame G;
     public int Turn_Dungeon = 1;
+    public int Dungeon_LAYER_cur = 1;   // 현재 던전 계층
     public bool TEST_NO_EVENT;
 
     void Awake()

@@ -8,13 +8,23 @@ public class SJ_UIWorldPos : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        UpdatePos();
+    }
+
+    void OnEnable()
+    {
+        UpdatePos();
     }
 
     // Update is called once per frame
     void Update()
     {
+        UpdatePos();
+    }
+
+    public void UpdatePos()
+    {
         if( tr_target == null ) return;
-        transform.position = Camera.main.WorldToScreenPoint(tr_target.position);
+        transform.position = Camera.main.WorldToScreenPoint(tr_target.position);        
     }
 }

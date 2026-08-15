@@ -42,8 +42,8 @@ public class UIItem_BattleChr : MonoBehaviour
 
     public void UpdateUI()
     {
-        gage_HP.SetValue( charBase.cur_HP , charBase.cur_HP );
-        gage_MP.SetValue( charBase.cur_MP , charBase.cur_MP );
+        gage_HP.SetValue( charBase.cur_HP , charBase.csv.charPrcValue.HP );
+        gage_MP.SetValue( charBase.cur_MP , charBase.csv.charPrcValue.MP );
     }
 
     // 커맨드 입력 알림
@@ -73,6 +73,7 @@ public class UIItem_BattleChr : MonoBehaviour
     {
         curve_ani_Damage.StartFunc_FWD(null , true);
         shakeEffect.Shake();
+        UpdateUI();
     }
 
     public void Call_RecvSkill( object skl_obj )

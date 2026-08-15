@@ -88,8 +88,8 @@ public class BattleParty
     public List<CharBase> GetALL()
     {
         List<CharBase> chars = new();
-        chars.AddRange( chars_Front );
-        chars.AddRange( chars_Back );
+        foreach( var s in chars_Front ) if( s != null ) chars.Add(s);
+        foreach( var s in chars_Back ) if( s != null ) chars.Add(s);
         return chars;
     }
 
@@ -129,9 +129,9 @@ public class BattleParty
     {
         foreach( var s in GetALL() )
         {
-            if( s != null && s.IsLive() == false ) return false;
+            if( s != null && s.IsLive() ) return true;
         }
-        return true;
+        return false;
     }
 
     // 랜덤으로 전열 , 후열에서 1캐릭 선택

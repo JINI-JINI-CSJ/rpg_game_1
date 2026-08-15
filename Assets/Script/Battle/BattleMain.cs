@@ -194,8 +194,7 @@ public class BattleMain : MonoBehaviour
         yield return new WaitForSeconds( delay_Result );
 
         result_inf.Clear();
-        result_inf.gold = 100;
-        result_inf.exp = 100;
+        GTF_CSV.ResultBattle( battleParty_Enemy.GetALL() , out result_inf.gold , out result_inf.exp );
         SJ_UnityUIMng_Curve.Open( "Panel_BattleWin" );
     }
 
@@ -207,8 +206,9 @@ public class BattleMain : MonoBehaviour
     public void _OnOK_ResultPopup()
     {
         // 배틀인풋 카메라 해제
-        //playerInput.enabled = false;
+        Panel_BattleMain.G.gameObject.SetActive(false);
         go_Cam_InputCommand.SetActive(false);
+        go_Cam_BattleTurn.SetActive(false);
         PlayerMover.G.SetInputAble( true );
     }
 

@@ -29,6 +29,8 @@ public class Player
     // csv 1 번으로 캐릭터 만들고 , 전열 1에 등록
     static public bool FirstPlay()
     {
+        if( char_Hero != null ) return false;
+
         // 주인공 캐릭터
         char_Hero = CharBase.InstCharBase_CSV( 1 , 1 , _ARMY_FORCE.Player );
         battleParty.Add( 0 , char_Hero );

@@ -29,8 +29,16 @@ public class SJ_WaitActive : MonoBehaviour
 		}
 	}
 
+	public void Clear()
+	{
+		StopAllCoroutines();
+		fixedFrame_cur = 0;
+		enabled = false;
+	}
+
 	public void StartWait()
 	{
+		enabled = true;
 		StopAllCoroutines();		
 		if (go_Active == null)
 		{

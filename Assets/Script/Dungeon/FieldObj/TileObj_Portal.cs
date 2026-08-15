@@ -46,7 +46,7 @@ public class TileObj_Portal : SJ_TileCoordBase
             case 1:
                 {
                     // 로비 씬 , 월드맵
-
+                    SJ_UILoadingScene.LoadScene( "Lobby" );
                 }
                 break;
         }

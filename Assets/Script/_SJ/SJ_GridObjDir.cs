@@ -110,18 +110,18 @@ public class SJ_GridObjDir
 
     List<_POS_DIST> FindNear_ByStart( int nx , int ny )
     {
-        if( nx == 0 && ny == 0 ) return null;
+        //if( nx == 0 && ny == 0 ) return null;
 
         List<_POS_DIST> lt = new();
         // 시작점 제외하고 가장 가까운 객체 리스트 정렬
         foreach( var s in dic )
         {
-            if( cursor.x == nx && cursor.y == ny )continue;
+            //if( cursor.x == nx && cursor.y == ny )continue;
             _POS_DIST ps = new();
             ps.obj = s.Value;
             ps.pos = s.Key;
-            ps.off_x = cursor.x - nx;
-            ps.off_y = cursor.y - ny;
+            ps.off_x = s.Key.x - nx;
+            ps.off_y = s.Key.y - ny;
             ps.total_len = Mathf.Abs( ps.off_x ) +  Mathf.Abs( ps.off_y );
             lt.Add(ps);
         }
@@ -129,8 +129,8 @@ public class SJ_GridObjDir
         lt.Sort( 
             (x,y) =>
             {
-                if( x.total_len > y.total_len ) return -1;
-                if( x.total_len < y.total_len ) return 1;
+                if( x.total_len < y.total_len ) return -1;
+                if( x.total_len > y.total_len ) return 1;
                 return 0;
             }
          );
