@@ -36,6 +36,7 @@ public class CSV_Item : SJ_CSV_BaseObj
     public string name;
     public string desc;
     public string res;
+    public string tag;
     public _ITEM_TYPE item_type;
     public int useLobby;    // 마을 도시에서 사용가능
     public int useDungeon;  // 던전에서 사용가능
@@ -56,6 +57,7 @@ public class CSV_Item : SJ_CSV_BaseObj
         name = Next();
         desc = Next();
         res = Next();
+        tag = Next();
         Enum.TryParse( Next() , out item_type );
         useLobby = Next_Int();
         useDungeon = Next_Int();

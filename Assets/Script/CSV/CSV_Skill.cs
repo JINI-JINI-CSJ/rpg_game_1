@@ -10,6 +10,7 @@ public class CSV_Skill : SJ_CSV_BaseObj
     public string desc;
     public string res;
     public string res3d;
+    public string tag;
     public int grade;
     public SKILL_TYPE skill_type;
     public string TAG_ITEM;
@@ -26,6 +27,7 @@ public class CSV_Skill : SJ_CSV_BaseObj
         desc = Next();
         res = Next();
         res3d = Next();
+        tag = Next();
         grade = Next_Int();
         Enum.TryParse( Next() , out skill_type );
         TAG_ITEM = Next();

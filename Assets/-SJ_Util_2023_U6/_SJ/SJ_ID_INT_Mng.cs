@@ -112,7 +112,6 @@ public class SJ_ID_INT_Mng : SJ_InterfaceSerialization
         uint val = 0;
         if( dic_UID.TryGetValue( type , out val ) == false ) // 최신 아이디
         {
-            //dic[part] = val;
         }
         // 1 부터 시작 , 0 없음
         val++; 

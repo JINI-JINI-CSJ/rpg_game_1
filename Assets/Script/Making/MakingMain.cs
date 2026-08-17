@@ -58,8 +58,6 @@ public class MakingMain : MonoBehaviour
         {
             s.OnAfterWork();
         }
-
-        
     }
 
 }

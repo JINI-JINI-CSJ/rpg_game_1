@@ -20,20 +20,39 @@ using UnityEngine;
 // - 소문 입수로만 달성 가능 ( 술집등에서 입수 , 대신 소문 범위 넓음 )
 // 성향 템플릿을 csv 로 만들자.
 
-public class ConteStory 
-{
-    // 제목 
-    // 템플릿 1개 , 신의 결사단 등등 
-    // 템플릿 2개로 조합 , ??? 의 소문  등등
+// 장편 스토리 타입
+// - 일반
+// - 메인 스토리
+// public enum CONTE_STROY_TYPE
+// {
+//     None = - 1,
+//     Normal , 
+//     MainStroy , 
 
-    // 템플릿 1 종류 
-    public int title_Template_1;
-    
-    // 템플릿 2 내용
-    public int title_Template_2;
-    
-    virtual public string GetTitle(){return "제목";}
+// }
 
-    // 임무들 
-    public List<MissionBase> missions = new();
-}
+// // 미션 베이스랑 똑같으니 미션베이스로 대체..
+
+// public class ConteStory 
+// {
+//     // 제목 
+//     // 템플릿 1개 , 신의 결사단 등등 
+//     // 템플릿 2개로 조합 , ??? 의 소문  등등
+
+//     // 템플릿 1 종류 
+//     public int title_Template_1;
+    
+//     // 템플릿 2 내용
+//     public int title_Template_2;
+    
+//     virtual public string GetTitle(){return "제목";}
+
+//     // 임무들 
+//     // 주요 미션들만? 서브는 주요 미션들 하위로?
+//     public List<MissionBase> missions = new();
+
+
+//     // 메이킹 정보
+//     // 전체 미션 경향 , 보상 경향 , 난이도 시작 끝 레벨 , 최종 미션 , 최종 보상 , 
+
+// }
