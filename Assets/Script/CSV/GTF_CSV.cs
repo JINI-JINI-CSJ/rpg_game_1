@@ -65,6 +65,18 @@ public class GTF_CSV : SJ_CSV_Mng
         csv_ItemPage_ALL.Add( csv_ItemPage_Unique );
     }
 
+    // 확률표
+
+    static public int GetPerIdx( Mng_X128SS rd , string tag , ref int max_arg ){return csv_PercentInfPage.GetPerIdx( rd , tag , ref max_arg );}
+    static public int GetPerIdx( Mng_X128SS rd , string tag)
+    {
+        int max_arg = 0;
+        return GetPerIdx( rd , tag , ref max_arg );
+    }
+
+    // 희소 등급
+    static public int GetPerIdx_UniqueGrade( Mng_X128SS rd ){return GetPerIdx( rd , "PER_UNIQUE_GRADE" );}
+
     static public List<CSV_Skill> GetSkill_JobMake( JOB_BASE job )
     {
         List<CSV_Skill> cSVs = new List<CSV_Skill>();
@@ -111,4 +123,6 @@ public class GTF_CSV : SJ_CSV_Mng
         float val = base_val * level * pw_ratio;
         return (int)val;
     }
+
+    
 }

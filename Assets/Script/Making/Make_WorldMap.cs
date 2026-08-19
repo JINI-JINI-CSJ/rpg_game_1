@@ -1,6 +1,7 @@
 using UnityEngine;
 using QuadTreeSystem;
 using WorldForge;
+using System.Collections.Generic;
 
 
 /// <summary>
@@ -19,13 +20,18 @@ public class Make_WorldMap : MakeBase
 
     // 월드 스폿 태그 
     // 도시 
-    public const string CITY_Village = "CITY_Village";
-    public const string CITY_Minor = "CITY_Minor";
-    public const string CITY_Major = "CITY_Major";
+    public const string CITY_Village= "CITY_Village";
+    public const string CITY_Minor  = "CITY_Minor";
+    public const string CITY_Major  = "CITY_Major";
     public const string CITY_Capital= "CITY_Capital";
 
     // 일반 스폿 , 월드 메이커에서는 타입이 있지만 여기서는 통합
+    // 일단 던전으로 통합
     public const string SPOT_BASE = "SPOT_BASE";
+
+
+    public Dictionary<CityTier,List<City>>  dic_city = new();
+    public List<DungeonInfo>                dungeonInfos = new();
 
 
     void Awake()
@@ -33,17 +39,13 @@ public class Make_WorldMap : MakeBase
         G = this;
     }
 
-
     public override void OnMake()
     {
         worldForge.OnWorldGenerated += OnAfterMakeWorld;
         worldForge.Generate();
 
         // 월드 이미지 저장
-
-
     }
-
     private void OnAfterMakeWorld(WorldData w)
     {
         InitQuadTree();
@@ -68,7 +70,7 @@ public class Make_WorldMap : MakeBase
 
     public void InitQuadTree()
     {
-        Debug.Log( "월드 시티 : " + worldForge.CurrentWorld.Cities.Count );
+        Debug.Log( "월드 : 시티 : " + worldForge.CurrentWorld.Cities.Count + "     던전 스폿 : " + worldForge.CurrentWorld.Spots.Count );
 
         // 월드 메이커는 0 위치 시작 , 넓이 인자로 되 있다.
         quadTree = new QuadTree( Vector2.zero , new Vector2( worldForge.CurrentWorld.Width , worldForge.CurrentWorld.Height ) );
@@ -79,17 +81,19 @@ public class Make_WorldMap : MakeBase
         int hs_CITY_Capital = TAG_HASH_CITY_Capital();
         int hs_SPOT_BASE    = TAG_HASH_SPOT_BASE();
 
+        // 도시
         foreach( var s in worldForge.CurrentWorld.Cities )
         {
             switch( s.Tier )
             {
-                case CityTier.Village:InsertQuad_City( s , hs_CITY_Village );break;
+                case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village );break;
                 case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor );break;
                 case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major );break;
                 case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital );break;
             }
         } 
 
+        // 던전
         foreach( var s in worldForge.CurrentWorld.Spots )
         {
             InsertQuad_Spot( s , hs_SPOT_BASE );
@@ -99,13 +103,28 @@ public class Make_WorldMap : MakeBase
     void InsertQuad_City( CityData cityData , int tag_hash )
     {
         Vector2 pos = new Vector2( cityData.X , cityData.Y );
-        quadTree.Insert( pos , tag_hash , cityData );
+        City city = new();
+        city.ID = MakingMain.Make_UID( typeof(City) );
+        city.cityData = cityData;
+        List<City> lt = null;
+        if( dic_city.TryGetValue( cityData.Tier , out lt ) == false )
+        {
+            lt = new();
+            dic_city[cityData.Tier] = lt;
+        }
+        lt.Add( city );
+        quadTree.Insert( pos , tag_hash , city );
     }
 
     void InsertQuad_Spot( SpotData spotData , int tag_hash )
     {
         Vector2 pos = new Vector2( spotData.X , spotData.Y );
-        quadTree.Insert( pos , tag_hash , spotData );
+
+        DungeonInfo dungeon = new();
+        dungeon.ID =  MakingMain.Make_UID( typeof(DungeonInfo) );
+        dungeon.spotData = spotData;
+
+        quadTree.Insert( pos , tag_hash , dungeon );
     }
 
 }

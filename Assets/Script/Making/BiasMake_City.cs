@@ -20,8 +20,6 @@ using UnityEngine;
 // 도시 유니크 퀘스트 
 
 
-// 
-
 // 기본적인 도시 위치 및 
 public class BiasMake_City 
 {

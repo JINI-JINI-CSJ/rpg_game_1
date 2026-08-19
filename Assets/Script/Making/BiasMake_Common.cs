@@ -1,6 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//
+public class _BIAS_TWO_VAL
+{
+    public float val_1;
+    public float val_2;
+    public float Random( Mng_X128SS rd ){return rd.NextFloat( val_1 , val_2 );}
+}
+
 // 범용 성향
 public class _BIAS_COMMON
 {

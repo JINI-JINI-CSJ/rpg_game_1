@@ -1,4 +1,43 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+public class StockMakeInf
+{
+    public class _STOCK
+    {
+        public string str;
+        public object obj;
+    }
+
+    public List<_STOCK> lt = new();
+
+    public void Add( string _str , object _obj = null )
+    {
+        _STOCK s = new();
+        s.str = _str;
+        s.obj = _obj;
+    }
+
+    public _STOCK RandomPop( Mng_X128SS rd )
+    {
+        if( lt.Count < 1 ) return null;
+        return rd.RandomList(lt);
+    }
+
+    public string RandomPop_Str( Mng_X128SS rd )
+    {
+        _STOCK s = RandomPop(rd);
+        if( s != null ) return s.str;
+        return "";
+    }
+
+    public object RandomPop_Obj( Mng_X128SS rd )
+    {
+        _STOCK s = RandomPop(rd);
+        if( s != null ) return s.obj;
+        return null;
+    }
+}
 
 // 메이크 작업 단위 기본 클래스
 public class MakeBase : MonoBehaviour

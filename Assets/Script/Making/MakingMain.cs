@@ -18,12 +18,23 @@ public class MakingMain : MonoBehaviour
     // 새로 생성 , 또는 로드
     public int mode_make_load;
 
+    public SJ_ID_INT_Mng idMng;
+
     void Awake()
     {
         G = this;
     }
 
     static public void StartMake(){G._StartMake();}
+
+    static public SJ_ID_INT_Mng IDMaker(){return G.idMng;}
+
+    static public uint Make_UID( System.Type type )
+    {
+        return G.idMng.Make_UID( type );
+    }
+
+
     public void _StartMake()
     {
         syncMono.func_PlayStep = OnNextPlayStep;

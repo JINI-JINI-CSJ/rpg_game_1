@@ -9,5 +9,5 @@ using UnityEngine;
 
 public class Make_CharUnique : MakeBase
 {
-
+    
 }

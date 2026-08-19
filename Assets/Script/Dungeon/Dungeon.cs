@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using WorldForge;
 
 // 던전 정보
 // 도시 외곽 필드 등도 포함
@@ -7,7 +8,10 @@ using UnityEngine;
 [System.Serializable]
 public class DungeonInfo
 {
-    public int ID;
+    public uint ID;
+
+    public SpotData spotData;
+
     public int randomSeed = 12345;
     public int LEVEL;
     public string res_map;

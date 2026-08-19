@@ -11,22 +11,23 @@ using WorldForge;
 // 하지만 각종 스킬(은신,뇌물,협상등등) 로 갈수도 있다.
 public class Make_City : MakeBase
 {
-    public CityData cityData_Start;
 
-    // 저장 로드 할땐 위치값만 사용
+    public City city_Start;
+
+    // 특수 도시 , 
 
     public override void OnMake()
     {
         WorldForgeManager worldForge = Make_WorldMap.G.worldForge;
 
-        // 시작지점
+        // 시작지점 , 소마을 티어중에 한개1
         QuadTree quadTree = Make_WorldMap.G.quadTree;
         List<QTPoint> qTs = quadTree.GetAllPoints( Make_WorldMap.TAG_HASH_CITY_Village() );
         QTPoint qt_s = GTF_Random.rd_make_world.RandomList( qTs );
-        cityData_Start = (CityData)qt_s.Data;
+        city_Start = (City)qt_s.Data;
 
 
-        // 도시 메이킹
+        // 
 
 
 
