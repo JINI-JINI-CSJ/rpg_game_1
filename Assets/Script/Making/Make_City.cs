@@ -9,8 +9,17 @@ using WorldForge;
 // 이론상 모든 도시를 다 갈수 있으나 
 // 도로 가도 이동 난이도가 있으니 힘들수 있다.
 // 하지만 각종 스킬(은신,뇌물,협상등등) 로 갈수도 있다.
+
+
+// 1. 시작도시 , 시작 알려진 도시 타입 
+// 2. 알져지지 않은 도시 , 특수 도시 
+// 3. 동료 아이템 퀘스트 등등 배분
+
+
 public class Make_City : MakeBase
 {
+    // 처음부터 보일 도시들의 깊이 제한
+    public int depth_start_active = 2;
 
     public City city_Start;
 
@@ -27,9 +36,64 @@ public class Make_City : MakeBase
         city_Start = (City)qt_s.Data;
 
 
+        // 도시 이웃
+        foreach (var (a, b) in worldForge.CurrentWorld.Roads)
+        {
+            City city_a = Make_WorldMap.GetCity_WorldIdx( a );
+            City city_b = Make_WorldMap.GetCity_WorldIdx( b );
+            city_a.AddNeighbor(city_b);
+            city_b.AddNeighbor(city_a);
+        }
+
+        // 도시 활성 타입
+        // 1. 시작점 및 수도권 지역 기본 활성
+        foreach( var s in Make_WorldMap.G.GetCities_Tire(CityTier.Capital) )
+        {
+            s.SetDepthNeighbor_CITY_ACTIVE_TYPE( CITY_FIND_TYPE.FIND_FIRST , depth_start_active );
+        }
+        city_Start.SetDepthNeighbor_CITY_ACTIVE_TYPE( CITY_FIND_TYPE.FIND_FIRST , depth_start_active );
+
+
+        // 2. 일반 도시 및 특수 발견 도시 나누기
+        //   - 수도권에서 먼 순서로 정렬하고 , 그중에 비율로 특수 도시
+        //   - 1. 계산 : 가장 가까운 수도건 찾아서 거리 저장
+        //   - 2. 정렬 : 장거리 -> 근거리 정렬
+        // 후보들 , CITY_ACTIVE_TYPE.FIND_FIRST 아닌 것들 , 소도시만 해당
+        List<City> cities_no_FIND_FIRST = new();
+        foreach( var s in Make_WorldMap.G.dic_world_idx_city.Values )
+        {
+            if( s.city_find_type != CITY_FIND_TYPE.FIND_FIRST && s.cityData.Tier == CityTier.Village )
+                cities_no_FIND_FIRST.Add(s);
+        }
+
+        List<(City,float)> city_no_find = new();
+        foreach( var s in cities_no_FIND_FIRST )
+        {
+            var near = s.FindNear( Make_WorldMap.G.GetCities_Tire(CityTier.Capital) );
+            city_no_find.Add( new( s , near.Item2 ) );
+        }
+
+        // 가장 먼것이 앞으로
+        city_no_find.Sort( (a,b) => -a.Item2.CompareTo( b.Item2 ) );
+
+        // 1. 비율 분배해서 남은거 특수 도시
+        // 2. 그 외에 특수 퀘스트 및 특수 아이템 등
+        int total_spc_city = (int)((float)city_no_find.Count * Make_Global.G.BiasCityNormalSpc());
+
+        // 총 특수 도시를 다 하거나 , 특수 태그가 다 없어질때까지.
+        // 여기에 해당하는 도시들은 CITY_FIND_TYPE.NO_FIND 이다
+        for( int i = 0 ; i < total_spc_city; i++ )
+        {
+            if( city_no_find.Count < 1 ) break;
+            if( Make_Global.G.stock_CitySpcTag.Count() < 1 ) break;
+
+            City city = city_no_find[0].Item1;
+            city.city_find_type = CITY_FIND_TYPE.NO_FIND;
+            city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_world );
+            city_no_find.RemoveAt(0);
+        }
+
         // 
-
-
 
         MakingMain.NextMake();
     }

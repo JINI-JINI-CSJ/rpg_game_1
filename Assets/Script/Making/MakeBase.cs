@@ -18,6 +18,18 @@ public class StockMakeInf
         s.obj = _obj;
     }
 
+    public int Count(){return lt.Count;}
+
+    public void AddRange( List<string> strings )
+    {
+        foreach( var s in strings )Add( s );
+    }
+
+    public void AddRange( List<object> objs )
+    {
+        foreach( var s in objs )Add( null , s );
+    }
+
     public _STOCK RandomPop( Mng_X128SS rd )
     {
         if( lt.Count < 1 ) return null;

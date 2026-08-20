@@ -30,9 +30,10 @@ public class Make_WorldMap : MakeBase
     public const string SPOT_BASE = "SPOT_BASE";
 
 
-    public Dictionary<CityTier,List<City>>  dic_city = new();
+    public Dictionary<CityTier,List<City>>  dic_tier_city = new();
+    public Dictionary<int, City>            dic_world_idx_city = new();
     public List<DungeonInfo>                dungeonInfos = new();
-
+    
 
     void Awake()
     {
@@ -52,11 +53,7 @@ public class Make_WorldMap : MakeBase
         MakingMain.NextMake();
     }
 
-    public override void OnSave()
-    {
-        
-    }
-
+    public override void OnSave(){}
     public override void OnLoad()
     {
         InitQuadTree();
@@ -82,14 +79,15 @@ public class Make_WorldMap : MakeBase
         int hs_SPOT_BASE    = TAG_HASH_SPOT_BASE();
 
         // 도시
-        foreach( var s in worldForge.CurrentWorld.Cities )
+        for( int i = 0 ; i < worldForge.CurrentWorld.Cities.Count ; i++ )
         {
+            CityData s = worldForge.CurrentWorld.Cities[i];
             switch( s.Tier )
             {
-                case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village );break;
-                case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor );break;
-                case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major );break;
-                case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital );break;
+                case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village , i  );break;
+                case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor   , i  );break;
+                case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major   , i  );break;
+                case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital , i  );break;
             }
         } 
 
@@ -100,20 +98,36 @@ public class Make_WorldMap : MakeBase
         }
     }
 
-    void InsertQuad_City( CityData cityData , int tag_hash )
+    void InsertQuad_City( CityData cityData , int tag_hash , int idx_world )
     {
         Vector2 pos = new Vector2( cityData.X , cityData.Y );
         City city = new();
         city.ID = MakingMain.Make_UID( typeof(City) );
+        city.idx_world_data = idx_world;
         city.cityData = cityData;
         List<City> lt = null;
-        if( dic_city.TryGetValue( cityData.Tier , out lt ) == false )
+        if( dic_tier_city.TryGetValue( cityData.Tier , out lt ) == false )
         {
             lt = new();
-            dic_city[cityData.Tier] = lt;
+            dic_tier_city[cityData.Tier] = lt;
         }
         lt.Add( city );
+        dic_world_idx_city[idx_world] = city;
         quadTree.Insert( pos , tag_hash , city );
+    }
+
+    public List<City> GetCities_Tire( CityTier cityTier )
+    {
+        List<City> lt = null;
+        dic_tier_city.TryGetValue( cityTier , out lt );
+        return lt;
+    }
+
+    static public City GetCity_WorldIdx(int idx)
+    {
+        City city = null;
+        G.dic_world_idx_city.TryGetValue( idx , out city );
+        return city;
     }
 
     void InsertQuad_Spot( SpotData spotData , int tag_hash )

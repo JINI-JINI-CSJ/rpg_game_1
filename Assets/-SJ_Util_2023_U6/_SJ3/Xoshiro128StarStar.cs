@@ -253,6 +253,36 @@ public class Mng_X128SS
             lt.RemoveAt( idx );
         return r_obj;
     }
+
+    // 향목 분배
+    // 객체 , 등급
+    public List<(object , int)> lt_RandomDivision = new();
+
+    public void Clear_RandomDivision()
+    {
+        lt_RandomDivision.Clear();
+    }
+
+    public void Add_RandomDivision( object obj )
+    {
+        lt_RandomDivision.Add( new ( obj , 0 ) );
+    }
+
+    public void Random_RandomDivision( int score )
+    {
+        for( int i = 0 ; i < score ; i++ )
+        {
+            var item = RandomList( lt_RandomDivision );
+            item.Item2 = item.Item2 + 1;
+        }
+    }
+
+    public int Result_RandomDivision( object obj )
+    {
+        var val = lt_RandomDivision.Find( x => x.Item1 == obj );
+        if( val != default ) return val.Item2;
+        return 0;
+    }
 }
 
 // 랜덤 스텝기능만 간단 구현

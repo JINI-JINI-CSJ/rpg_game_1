@@ -1,12 +1,37 @@
 using UnityEngine;
 
 
+// 일반 범용 스킬 메이킹
+// 단순하게 좋은거 확률적으로 더하기..
+// 위력 % + 대상수  + 소비 mp 감소 + 부가 효과 
+public class Skill_MAKE_NormalGrade
+{
+    public const string GRADE_POW       = "GRADE_POW";
+    public const string GRADE_TARGET    = "GRADE_TARGET";
+    public const string GRADE_MP        = "GRADE_MP";
+    public const string GRADE_ADD_EFF   = "GRADE_ADD_EFF";
+
+    static public SkillBase Make( JOB_BASE jOB_type , int grade_bonus , Mng_X128SS rd )
+    {
+        SkillBase skill = new();
+
+        rd.Clear_RandomDivision();
+        rd.Add_RandomDivision( GRADE_POW );
+        rd.Add_RandomDivision( GRADE_TARGET );
+        rd.Add_RandomDivision( GRADE_MP );
+        rd.Add_RandomDivision( GRADE_ADD_EFF );
+        rd.Random_RandomDivision( grade_bonus );
+
+
+
+
+        return skill;
+    }
+}
+
 
 // 잠정 보류~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // 스킬 정의 + 부가 효과
-
-
-
 
 
 // 스킬 메이킹 요소
