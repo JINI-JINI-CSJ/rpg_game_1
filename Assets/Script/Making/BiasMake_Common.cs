@@ -74,7 +74,7 @@ public class _BIAS_JOB
 
     public JOB_BASE Random()
     {
-        rd_inGame.Step_Start_Add( WARRIOR  , JOB_BASE.WARRIOR );
+        rd_inGame.Step_Start_Add( WARRIOR  , JOB_BASE.FIGHTER );
         rd_inGame.Step_Add( WIZARD         , JOB_BASE.WIZARD );
         rd_inGame.Step_Add( SUPPORTER      , JOB_BASE.SUPPORTER );
         return (JOB_BASE)rd_inGame.Step_Random();

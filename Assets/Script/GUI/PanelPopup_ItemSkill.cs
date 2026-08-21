@@ -20,7 +20,7 @@ public class PanelPopup_ItemSkill : SJ_UIGridMove_PlayerInput
     }
 
     // 캐릭터 스킬
-    static public void Open_CharSkill( CharBase charBase , SKILL_TYPE skill_type , SJ_COMMON.Func_Arg func_ok )
+    static public void Open_CharSkill( CharBase charBase , SKILL_ACTIVE_TYPE skill_type , SJ_COMMON.Func_Arg func_ok )
     {
         List<_GRID_MOVE_DEFAULT_DATA> lt_grid = new();
         foreach( var s in charBase.GetSkills( skill_type ) ) _GRID_MOVE_DEFAULT_DATA.AddList( lt_grid , s.csv.GetName() , s );

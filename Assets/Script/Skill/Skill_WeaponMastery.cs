@@ -10,7 +10,7 @@ public class Skill_WeaponMastery : SkillBase
 
     public override void OnActionChar(CharBase chr)
     {
-        chr.GetDamage( charBase.csv.charPrcValue.ATK_P );
+        chr.GetDamage( charHave.csv.charPrcValue.ATK_P );
     }
 
     override public void OnViewEffect_Enemy( GameObject go )

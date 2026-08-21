@@ -152,7 +152,7 @@ public class Panel_BattleMain : MonoBehaviour
     {
         MenuInputActive(false);
         // 전투 스킬창 오픈 
-        PanelPopup_ItemSkill.Open_CharSkill( cur_input_char_wait , SKILL_TYPE.Active_BATTLE , OnBT_Skill_Select );
+        PanelPopup_ItemSkill.Open_CharSkill( cur_input_char_wait , SKILL_ACTIVE_TYPE.Active_BATTLE , OnBT_Skill_Select );
     }
 
     // 스킬 선택완료

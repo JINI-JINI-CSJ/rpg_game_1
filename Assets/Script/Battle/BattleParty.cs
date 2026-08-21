@@ -85,11 +85,11 @@ public class BattleParty
     }
 
 
-    public List<CharBase> GetALL()
+    public List<CharBase> GetALL( bool live = true)
     {
         List<CharBase> chars = new();
-        foreach( var s in chars_Front ) if( s != null ) chars.Add(s);
-        foreach( var s in chars_Back ) if( s != null ) chars.Add(s);
+        foreach( var s in chars_Front ) if( s != null && (s.IsLive() || live == false) ) chars.Add(s);
+        foreach( var s in chars_Back ) if( s != null && (s.IsLive() || live == false) ) chars.Add(s);
         return chars;
     }
 
@@ -127,10 +127,12 @@ public class BattleParty
 
     public bool CheckLiveALL()
     {
-        foreach( var s in GetALL() )
-        {
-            if( s != null && s.IsLive() ) return true;
-        }
+        // foreach( var s in GetALL() )
+        // {
+        //     if( s != null && s.IsLive() ) return true;
+        // }
+        //return false;
+        if( GetALL().Count > 0 ) return true;
         return false;
     }
 

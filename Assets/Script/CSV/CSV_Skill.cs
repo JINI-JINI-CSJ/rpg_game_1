@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -12,7 +13,7 @@ public class CSV_Skill : SJ_CSV_BaseObj
     public string res3d;
     public string tag;
     public int grade;
-    public SKILL_TYPE skill_type;
+    public SKILL_ACTIVE_TYPE skill_type;
     public string TAG_ITEM;
     public string TAG_MAGIC_PROP;
     public string class_name;
@@ -46,5 +47,15 @@ public class CSV_SkillPage : SJ_CSV_BasePage
     public override SJ_CSV_BaseObj OnAlloc_Obj()
     {
         return new CSV_Skill();
+    }
+
+    public List<CSV_Skill> GetTag_Contain( string tag )
+    {
+        List<CSV_Skill> lt = new();
+        foreach( var s in dic_int.Values.Cast<CSV_Skill>() )
+        {
+            if( s.tag.Contains( tag ) ) lt.Add(s);
+        }
+        return lt;
     }
 }

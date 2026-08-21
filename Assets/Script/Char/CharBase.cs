@@ -88,7 +88,7 @@ public class CharBase
     public SkillBase AddSkill( CSV_Skill csv_skill , List<SkillBase> skills)
     {
         SkillBase skill = SkillBase.InstSkill( csv_skill );
-        skill.charBase = this;
+        skill.charHave = this;
 
         skills.Add( skill );
         return skill;
@@ -122,11 +122,11 @@ public class CharBase
         return lt;
     }
 
-    public List<SkillBase> GetSkills( SKILL_TYPE skill_type )
+    public List<SkillBase> GetSkills( SKILL_ACTIVE_TYPE skill_type )
     {
         List<SkillBase> all = GetSkills_ALL();
 
-        if( skill_type == SKILL_TYPE.ALL )
+        if( skill_type == SKILL_ACTIVE_TYPE.ALL )
         {
             return all;
         }

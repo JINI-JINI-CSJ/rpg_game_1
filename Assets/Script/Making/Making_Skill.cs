@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
 // 일반 범용 스킬 메이킹
 // 단순하게 좋은거 확률적으로 더하기..
-// 위력 % + 대상수  + 소비 mp 감소 + 부가 효과 
+// 위력 % + 대상  + 소비 mp 감소 + 부가 효과 
 public class Skill_MAKE_NormalGrade
 {
     public const string GRADE_POW       = "GRADE_POW";
@@ -13,8 +14,15 @@ public class Skill_MAKE_NormalGrade
 
     static public SkillBase Make( JOB_BASE jOB_type , int grade_bonus , Mng_X128SS rd )
     {
-        SkillBase skill = new();
+        Skill_MakeNormal skill = new();
 
+        skill.skill_normal_inf = new();
+        SKILL_NORMAL_INF sni = skill.skill_normal_inf;
+
+
+
+        // 일단 공통
+        // 점점 세부적으로 할경우 다 따로 설정할수도 있다.
         rd.Clear_RandomDivision();
         rd.Add_RandomDivision( GRADE_POW );
         rd.Add_RandomDivision( GRADE_TARGET );
@@ -22,10 +30,103 @@ public class Skill_MAKE_NormalGrade
         rd.Add_RandomDivision( GRADE_ADD_EFF );
         rd.Random_RandomDivision( grade_bonus );
 
+        SJ_RangeStep rangeStep = new();
 
 
+        switch( jOB_type )
+        {
+            case JOB_BASE.FIGHTER:
+                {
+                    // 일단 전부 공격 타입
+                    sni.base_val = GTF_CSV.csv_Config.makeSkill_BaseVal_WARRIOR;
+                    sni.add_pow = GTF_CSV.csv_Config.GetMakeSkill_addPow( rd.Result_RandomDivision( GRADE_POW ) );
+
+                    // 타겟 타입
+                    rangeStep.Add( 0 , 1 , 1 );     // 1 단계 : 전열 1 , 후열 1
+                    rangeStep.Add( 2 , 5 , 2 );     // 2 단계 : 전후 1
+                    rangeStep.Add( 6 , 8 , 3 );     // 3 단계 : 전열 라인 , 후열 라인
+                    rangeStep.Add( 9 , 12 , 4 );    // 4 단계 : 전후열 라인
+                    rangeStep.Add( 13 , 9999 , 5 ); // 5 단계 : 전체
+                    int grade_target = (int)rangeStep.Result( rd.Result_RandomDivision( GRADE_MP ) );
+                    switch( grade_target )
+                    {
+                        case 1:
+                            {
+                                sni.target = GTF_Random.rd_make_world.RandomList( BATTLE_ACTION_TARGET.One_Opp_Front , BATTLE_ACTION_TARGET.One_Opp_Back );
+                                
+                            }
+                            break;
+                        case 2:
+                            {
+                                sni.target = BATTLE_ACTION_TARGET.One_Opp_ALL;
+                            }
+                            break;
+                        case 3:
+                            {
+                                sni.target = GTF_Random.rd_make_world.RandomList( BATTLE_ACTION_TARGET.Line_Opp_Front , BATTLE_ACTION_TARGET.Line_Opp_Back );
+                            }
+                            break;
+                        case 4:
+                            {
+                                sni.target = BATTLE_ACTION_TARGET.Line_Opp_ALL;
+                            }
+                            break;
+                        case 5:
+                            {
+                                sni.target = BATTLE_ACTION_TARGET.ALL_Opp;
+                            }
+                            break;
+                    }
+
+                    // mp
+                    sni.mp = GTF_CSV.csv_Config.GetMakeSkill_MP( rd.Result_RandomDivision( GRADE_MP ) );
+
+                    // 추가 효과
+                    // 물리스킬용 추가 이펙트 중에서 1개 가져오기
+                    // 최소값 이상일때만 
+                    
+
+                }
+                break;
+
+             case JOB_BASE.WIZARD:
+                {
+                    // 공격 , 회복 , 버프 등 기본 분류 
+                }
+                break;
+
+            case JOB_BASE.SUPPORTER:
+                {
+                    // 지원 전용 스킬들. 위력 
+                }
+                break;
+        }
 
         return skill;
+    }
+
+    BATTLE_ACTION_TARGET GetTargetGrade( bool self_opp , int grade )
+    {
+        BATTLE_ACTION_TARGET tar = BATTLE_ACTION_TARGET.None;
+
+        // 대략 -> 1 개 , 전열 , 전체
+        // 각단계별 세부 전후열만 선택 가능 , 전체 선택가능
+
+        // 등급강도로 배치 , 대략 단계는 6단계
+        // 최대 전체 선택은 거의 최대 점수 
+        int grade_6 = 15;
+
+
+        if( self_opp )
+        {
+
+        }
+        else
+        {
+            
+        }
+
+        return tar;
     }
 }
 

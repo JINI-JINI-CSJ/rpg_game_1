@@ -254,6 +254,12 @@ public class Mng_X128SS
         return r_obj;
     }
 
+    public T RandomList<T>( params T[] args_rp )
+    {
+        List<T> lt = new(args_rp);
+        return RandomList(lt);
+    }
+
     // 향목 분배
     // 객체 , 등급
     public List<(object , int)> lt_RandomDivision = new();

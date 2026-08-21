@@ -279,6 +279,15 @@ public class BattleTargetSelector : MonoBehaviour
                     
                 }
                 break;
+
+            case BATTLE_ACTION_TARGET.ALL:
+                {
+                    BATTLE_SEL_GROUP bs = new();
+                    bs.AddRange( bp_self.GetALL() );
+                    bs.AddRange( bp_opp.GetALL() );
+                    gridObjDir.Add( x , y , bs );   
+                }
+                break;
         }
         return lt;
     }

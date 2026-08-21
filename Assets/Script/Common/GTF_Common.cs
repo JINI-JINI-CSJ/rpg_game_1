@@ -28,7 +28,7 @@ public enum CHAR_STAT
 public enum JOB_BASE
 {
     Common = 0,
-    WARRIOR , 
+    FIGHTER , 
     WIZARD , 
     SUPPORTER
 }
@@ -45,17 +45,16 @@ public enum EQ_ITEM_BASE
     ACCESSORIES , 
 }
 
-// 스킬 대 분류
+// 스킬 활성 타입
 // 액티브 - 전투
 // 액티브 - 탐험
 // 패시브
-public enum SKILL_TYPE
+public enum SKILL_ACTIVE_TYPE
 {
     None = -1 ,     
     Active_BATTLE ,
     Active_NORMAL , 
     Passive ,
-
     ALL ,
 }
 

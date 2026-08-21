@@ -194,7 +194,7 @@ public class BattleMain : MonoBehaviour
         yield return new WaitForSeconds( delay_Result );
 
         result_inf.Clear();
-        GTF_CSV.ResultBattle( battleParty_Enemy.GetALL() , out result_inf.gold , out result_inf.exp );
+        GTF_CSV.ResultBattle( battleParty_Enemy.GetALL(false) , out result_inf.gold , out result_inf.exp );
         SJ_UnityUIMng_Curve.Open( "Panel_BattleWin" );
     }
 

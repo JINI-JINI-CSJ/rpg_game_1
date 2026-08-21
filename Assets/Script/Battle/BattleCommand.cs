@@ -35,6 +35,8 @@ public enum BATTLE_ACTION_TARGET
     Line_Self_Back ,  // 
     Line_Self_ALL ,  // 
     ALL_Self     ,   // 
+
+    ALL ,           // 아군 적군 전체
 }
 
 
