@@ -34,4 +34,29 @@ public class CharPrcValue : SJ_PrcValueMng
         SetValue( (int)CHAR_STAT.ATK_M          , csv.Next_Float() );
         SetValue( (int)CHAR_STAT.DEF_M          , csv.Next_Float() );
     }
+
+    // 보너스 점수로 원본 수치를 바꾼다.
+    public void RandomStatBonus( Mng_X128SS rd , int score , float add_fix )
+    {
+        rd.Clear_RandomDivision();
+        rd.Add_RandomDivision( CHAR_STAT.HP );
+        rd.Add_RandomDivision( CHAR_STAT.MP );
+        rd.Add_RandomDivision( CHAR_STAT.ACTION_SPEED );
+        rd.Add_RandomDivision( CHAR_STAT.ATK_P );
+        rd.Add_RandomDivision( CHAR_STAT.DEF_P );
+        rd.Add_RandomDivision( CHAR_STAT.HIT_RATE_P );
+        rd.Add_RandomDivision( CHAR_STAT.EVASION_RATE_P );
+        rd.Add_RandomDivision( CHAR_STAT.ATK_M );
+        rd.Add_RandomDivision( CHAR_STAT.DEF_M );
+        rd.Random_RandomDivision( score );
+
+        foreach( var s in rd.lt_RandomDivision )
+        {
+            CHAR_STAT stat = (CHAR_STAT)s.Item1;
+            int add_lv = s.Item2;
+            SJ_PrcValue prcValue = FindAlloc_SJ_PrcValue( (int)stat );
+            prcValue.src = prcValue.src * ( (float)add_lv * add_fix );
+            prcValue.LastCal();
+        }
+    }
 }

@@ -6,9 +6,11 @@ public class CSV_Config : SJ_CSV_BasePage
     // 월드 메이킹 
 
     // 캐릭터 메이킹
+    // 보너스 점수당 10 퍼센트
+    public float makeChar_statAddFix = 0.1f; 
 
     // 스킬 메이킹
-    public int makeSkill_BaseVal_WARRIOR;       // 메이킹 스킬 기본 공격력
+    public int makeSkill_BaseVal_FIGHTER;       // 메이킹 스킬 기본 공격력
     public int makeSkill_BaseVal_WIZARD_ATK;    // 공격 마법 기본 공격력
     public int makeSkill_BaseVal_WIZARD_HEAL;   // 회복 마법 기본 수치
     public int makeSkill_BaseVal_SUPPORTER;     // 지원

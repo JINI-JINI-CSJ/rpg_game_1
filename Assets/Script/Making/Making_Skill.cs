@@ -12,14 +12,70 @@ public class Skill_MAKE_NormalGrade
     public const string GRADE_MP        = "GRADE_MP";
     public const string GRADE_ADD_EFF   = "GRADE_ADD_EFF";
 
-    static public SkillBase Make( JOB_BASE jOB_type , int grade_bonus , Mng_X128SS rd )
+
+    static public SkillBase Make( JOB_BASE jOB_type , string tag_job , int grade_bonus , Mng_X128SS rd )
     {
         Skill_MakeNormal skill = new();
-
         skill.skill_normal_inf = new();
-        SKILL_NORMAL_INF sni = skill.skill_normal_inf;
+
+        switch( tag_job )
+        {
+            case "FIGHTER":         DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , GTF_CSV.csv_Config.makeSkill_BaseVal_FIGHTER ); break;
+            case "WIZARD_ATK":      DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_ATK ); break;
+            case "WIZARD_DEBUFF":   DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_ATK ); break;
+            case "WIZARD_HEAL":     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL ); break;
+            case "WIZARD_BUFF":     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL ); break;
+
+        }
 
 
+        // switch( jOB_type )
+        // {
+        //     case JOB_BASE.FIGHTER:
+        //         {
+        //             DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , "FIGHTER" , GTF_CSV.csv_Config.makeSkill_BaseVal_FIGHTER );
+        //         }
+        //         break;
+
+        //      case JOB_BASE.WIZARD:
+        //         {
+        //                 // 공격 , 회복 , 버프 , 디버프 등 
+        //                 if( tag_job.Contains( "ATK" ) )
+        //                 {
+        //                     DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , "WIZARD_ATK" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_ATK );
+        //                 }
+        //                 if( tag_job.Contains( "DEBUFF" ) )
+        //                 {
+        //                     DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , "WIZARD_DEBUFF" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_ATK );
+        //                 }
+
+        //                 if( tag_job.Contains( "HEAL" ) )
+        //                 {
+        //                     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , "WIZARD_HEAL" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL );
+        //                 }
+        //                 if( tag_job.Contains( "BUFF" ) )
+        //                 {
+        //                     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , "WIZARD_BUFF" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL );
+        //                 }
+        //             }
+        //         break;
+
+        //     case JOB_BASE.SUPPORTER:
+        //         {
+        //             // 지원 전용 스킬들. 위력 
+        //             // 지원 스킬 정의 후에 코딩
+        //         }
+        //         break;
+        // }
+
+        return skill;
+    }
+
+
+    static public void DefaultMake( Mng_X128SS rd , int grade_bonus , SkillBase skill_self , int atk_def , string tag_addEff , 
+                                    int base_val )
+    {
+        SKILL_NORMAL_INF sni = skill_self.skill_normal_inf;
 
         // 일단 공통
         // 점점 세부적으로 할경우 다 따로 설정할수도 있다.
@@ -32,16 +88,17 @@ public class Skill_MAKE_NormalGrade
 
         SJ_RangeStep rangeStep = new();
 
+        sni.base_val = base_val;
+        sni.add_pow = GTF_CSV.csv_Config.GetMakeSkill_addPow( rd.Result_RandomDivision( GRADE_POW ) );
+        sni.mp = GTF_CSV.csv_Config.GetMakeSkill_MP( rd.Result_RandomDivision( GRADE_MP ) );          
 
-        switch( jOB_type )
+        AddEffSkill( rd , skill_self ,  tag_addEff , 3 , (int)rd.Result_RandomDivision( GRADE_ADD_EFF ) );
+
+        switch( atk_def )
         {
-            case JOB_BASE.FIGHTER:
+            // 공격형 
+            case 0:
                 {
-                    // 일단 전부 공격 타입
-                    sni.base_val = GTF_CSV.csv_Config.makeSkill_BaseVal_WARRIOR;
-                    sni.add_pow = GTF_CSV.csv_Config.GetMakeSkill_addPow( rd.Result_RandomDivision( GRADE_POW ) );
-
-                    // 타겟 타입
                     rangeStep.Add( 0 , 1 , 1 );     // 1 단계 : 전열 1 , 후열 1
                     rangeStep.Add( 2 , 5 , 2 );     // 2 단계 : 전후 1
                     rangeStep.Add( 6 , 8 , 3 );     // 3 단계 : 전열 라인 , 후열 라인
@@ -50,84 +107,60 @@ public class Skill_MAKE_NormalGrade
                     int grade_target = (int)rangeStep.Result( rd.Result_RandomDivision( GRADE_MP ) );
                     switch( grade_target )
                     {
-                        case 1:
-                            {
-                                sni.target = GTF_Random.rd_make_world.RandomList( BATTLE_ACTION_TARGET.One_Opp_Front , BATTLE_ACTION_TARGET.One_Opp_Back );
-                                
-                            }
+                        case 1:sni.target = rd.RandomList( BATTLE_ACTION_TARGET.One_Opp_Front , BATTLE_ACTION_TARGET.One_Opp_Back );
+                                break;
+                        case 2:sni.target = BATTLE_ACTION_TARGET.One_Opp_ALL;
                             break;
-                        case 2:
-                            {
-                                sni.target = BATTLE_ACTION_TARGET.One_Opp_ALL;
-                            }
+                        case 3:sni.target = rd.RandomList( BATTLE_ACTION_TARGET.Line_Opp_Front , BATTLE_ACTION_TARGET.Line_Opp_Back );
                             break;
-                        case 3:
-                            {
-                                sni.target = GTF_Random.rd_make_world.RandomList( BATTLE_ACTION_TARGET.Line_Opp_Front , BATTLE_ACTION_TARGET.Line_Opp_Back );
-                            }
+                        case 4:sni.target = BATTLE_ACTION_TARGET.Line_Opp_ALL;
                             break;
-                        case 4:
-                            {
-                                sni.target = BATTLE_ACTION_TARGET.Line_Opp_ALL;
-                            }
+                        case 5:sni.target = BATTLE_ACTION_TARGET.ALL_Opp;
                             break;
-                        case 5:
-                            {
-                                sni.target = BATTLE_ACTION_TARGET.ALL_Opp;
-                            }
-                            break;
-                    }
+                    }                       
+                }
+                break;
 
-                    // mp
-                    sni.mp = GTF_CSV.csv_Config.GetMakeSkill_MP( rd.Result_RandomDivision( GRADE_MP ) );
-
-                    // 추가 효과
-                    // 물리스킬용 추가 이펙트 중에서 1개 가져오기
-                    // 최소값 이상일때만 
+            // 방어형
+            // 3 단계 정도 : 1 체 선택 , 1라인 선택 , 전체
+            case 1:
+                {
                     
-
+                    rangeStep.Add( 0 , 5 , 1 );     // 1 단계 :
+                    rangeStep.Add( 6 , 12 , 2 );    // 4 단계 : 
+                    rangeStep.Add( 13 , 9999 , 3 ); // 5 단계 : 
+                    int grade_target = (int)rangeStep.Result( rd.Result_RandomDivision( GRADE_MP ) );
+                    switch( grade_target )
+                    {
+                        case 1:sni.target = BATTLE_ACTION_TARGET.One_Self_ALL;
+                                break;
+                        case 2:sni.target = BATTLE_ACTION_TARGET.Line_Self_ALL;
+                            break;
+                        case 3:sni.target = BATTLE_ACTION_TARGET.ALL_Self;
+                            break;
+                    }     
                 }
                 break;
-
-             case JOB_BASE.WIZARD:
-                {
-                    // 공격 , 회복 , 버프 등 기본 분류 
-                }
-                break;
-
-            case JOB_BASE.SUPPORTER:
-                {
-                    // 지원 전용 스킬들. 위력 
-                }
-                break;
+         
         }
 
-        return skill;
+
     }
 
-    BATTLE_ACTION_TARGET GetTargetGrade( bool self_opp , int grade )
+    // 추가 효과
+    // 물리스킬용 추가 이펙트 중에서 1개 가져오기 , 물리 공격에 맞는것만.
+    // 최소값 이상일때만 
+    static public void AddEffSkill( Mng_X128SS rd , SkillBase skill_self , string tag , int min_lv , int lv_score )
     {
-        BATTLE_ACTION_TARGET tar = BATTLE_ACTION_TARGET.None;
-
-        // 대략 -> 1 개 , 전열 , 전체
-        // 각단계별 세부 전후열만 선택 가능 , 전체 선택가능
-
-        // 등급강도로 배치 , 대략 단계는 6단계
-        // 최대 전체 선택은 거의 최대 점수 
-        int grade_6 = 15;
-
-
-        if( self_opp )
+        if( lv_score >= min_lv )
         {
-
+            List<CSV_Skill> skills_addEff = GTF_CSV.csv_SkillPage_ADD_EFF.GetTag_Contain( tag );
+            CSV_Skill csv_addEff = rd.RandomList( skills_addEff );     
+            int lv_addEff = lv_score - min_lv;
+            skill_self.skill_addEff = SkillBase.InstSkill( csv_addEff , lv_addEff );
         }
-        else
-        {
-            
-        }
-
-        return tar;
     }
+
 }
 
 

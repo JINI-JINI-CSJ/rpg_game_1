@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// 클래스 진화 돌파 등급 , 최대 레벨 상승
+// 다음 클래스 돌파는 특수아이템이 있어야 한다.
 
 
 public enum _ARMY_FORCE
@@ -14,9 +16,12 @@ public enum _ARMY_FORCE
 public class CharBase 
 {
     public CSV_CharBaseStat csv;    
+
+    public int GRADE_CLASS;
+
     public int LEVEL;
     public _ARMY_FORCE armyForce;
-    public int front_back; // 1 : 전열 , 2 : 후열
+    //public int front_back; // 1 : 전열 , 2 : 후열
     public int cur_HP;
     public int cur_MP;
 
@@ -64,6 +69,13 @@ public class CharBase
             return null;            
         }
 
+        CharBase charBase = new();
+        charBase.Make( csv_load , level , _force );
+        return charBase;
+    }
+
+    static public CharBase InstCharBase_CSV( CSV_CharBaseStat csv_load , int level , _ARMY_FORCE _force )
+    {
         CharBase charBase = new();
         charBase.Make( csv_load , level , _force );
         return charBase;

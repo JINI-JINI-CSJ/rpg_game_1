@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // ``ID	이름	설명	리소스	등급	직업 대 분류	무기 정의	방어구 정의	HP	행동속도	물공	물방	물공명중	물공회피	마공	마방													
@@ -72,5 +74,21 @@ public class CSV_CharBaseStatPage : SJ_CSV_BasePage
     public override void LoadAfter()
     {
         
+    }
+
+    public List<CSV_CharBaseStat> GetTag_Contain( string tag )
+    {
+        List<CSV_CharBaseStat> lt = new();
+        foreach( var s in dic_int.Values.Cast<CSV_CharBaseStat>() )
+        {
+            if( s.tag.Contains(tag) ) lt.Add(s);
+        }
+        return lt;
+    }
+
+    public CSV_CharBaseStat GetTag_Contain_Random( Mng_X128SS rd , string tag )
+    {
+        List<CSV_CharBaseStat> lt = GetTag_Contain( tag );
+        return rd.RandomList(lt);
     }
 }

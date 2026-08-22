@@ -21,11 +21,13 @@ public class SkillBase
     // 탐문 , 함정 해체 등등  메이킹으로 만들었을 경우 참조하자.
     public SKILL_NORMAL_INF skill_normal_inf;
 
+    // 부가 효과 있을때만.
+    public SkillBase skill_addEff; 
 
     public CharBase charHave;
     public int LEVEL;
 
-    static public SkillBase InstSkill( CSV_Skill csv )
+    static public SkillBase InstSkill( CSV_Skill csv , int level = 1 )
     {
         SkillBase inst_skill = null;
         if( string.IsNullOrEmpty( csv.class_name ) == false )
@@ -37,6 +39,7 @@ public class SkillBase
             inst_skill = new();
         }
         inst_skill.SetCSV(csv);
+        inst_skill.LEVEL = level;
         return inst_skill;
     }
 
