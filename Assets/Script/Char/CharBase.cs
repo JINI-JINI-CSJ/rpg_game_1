@@ -15,40 +15,46 @@ public enum _ARMY_FORCE
 // 캐릭터 객체 기본 , 플레이어 파티 , 적군 등등
 public class CharBase 
 {
+    //===========================================
+    // 설정
     public CSV_CharBaseStat csv;    
-
     public int GRADE_CLASS;
-
     public int LEVEL;
     public _ARMY_FORCE armyForce;
-    //public int front_back; // 1 : 전열 , 2 : 후열
+    public CSV_MagicPropDefine magic_prop; // 방어 마법 속성 , null 이면 없음
+    //===========================================
+
+
+    //===========================================
+    // 현재 상태
     public int cur_HP;
     public int cur_MP;
 
-    public SJ_COMMON.Func_VOID func_TurnInit;
+    // 캐릭터 내장 스킬
+    public List<SkillBase> skills_Chr = new();
+    // 추가 스킬
+    public List<SkillBase> skills_ADD = new();
+    public List<ItemBase> items_EQ = new();    
 
+    // 전투에서 공격을 선택했을때 기본 공격
+    public SkillBase skillBase_Default;
+
+    // 배틀 중 전투 커멘드
+    public BattleCommand command;
+    //===========================================
+
+
+    //===========================================
+    // 알림 함수
+    public SJ_COMMON.Func_VOID func_TurnInit;
     public SJ_COMMON.Func_Arg_BOOL func_BattleCommandInputWait;
     public SJ_COMMON.Func_Arg_BOOL func_SelectTarget;           // 스킬 및 아이템 대상 선택
     public SJ_COMMON.Func_VOID func_ANI_ATK;
     public SJ_COMMON.Func_VOID func_ANI_Damage;
     public SJ_COMMON.Func_VOID func_ANI_KO;
-
     public SJ_COMMON.Func_Arg func_RecvSkill;   // 스킬 받기 , 공격 맞기 , 힐받기 , 아이템 사용 대상 등등
 
-    public BattleCommand command;
-
-    // 전투에서 공격을 선택했을때 기본 공격
-    public SkillBase skillBase_Default;
-
-
-    public List<ItemBase> items_EQ = new();
-
-    // 캐릭터 내장 스킬
-    public List<SkillBase> skills_Chr = new();
-
-
-    // 추가 스킬
-    public List<SkillBase> skills_ADD = new();
+    //===========================================
 
     public CharBase()
     {
@@ -106,12 +112,18 @@ public class CharBase
         return skill;
     }
 
+    public void AddSkill_ADD( SkillBase skill )
+    {
+        skill.charHave = this;
+        skills_ADD.Add(skill);
+    }
+
     public void InitSkill_Chr()
     {
         if( skills_Chr.Count > 0 ) return;
 
         // 기본 스킬, 일단 없는 경우는 없게..
-        CSV_Skill csv_skill_weapon = GTF_CSV.csv_SkillPage_NORMAL.Find_Int( csv.Weapon_ID ) as CSV_Skill;
+        CSV_Skill csv_skill_weapon = GTF_CSV.csv_SkillPage_NORMAL.Find_Int( csv.Weapon_Skill_ID ) as CSV_Skill;
         if( csv_skill_weapon == null )
         {
             Debug.LogError( "기본 스킬 없음!!! : " + csv.ID_int );
@@ -119,7 +131,7 @@ public class CharBase
         }
         skillBase_Default = AddSkill( csv_skill_weapon , skills_Chr );
 
-        CSV_Skill csv_skill_armor = GTF_CSV.csv_SkillPage_NORMAL.Find_Int( csv.Armor_ID ) as CSV_Skill;
+        CSV_Skill csv_skill_armor = GTF_CSV.csv_SkillPage_NORMAL.Find_Int( csv.Armor_Skill_ID ) as CSV_Skill;
         if( csv_skill_armor != null )
         {
             AddSkill( csv_skill_armor , skills_Chr );

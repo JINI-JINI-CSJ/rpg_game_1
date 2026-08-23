@@ -19,66 +19,41 @@ public class _BIAS_COMMON
     }
     public List<OBJ_PER_VAL> objs = new List<OBJ_PER_VAL>();
 
-    public Mng_X128SS rd_make;
-    public Mng_X128SS rd_inGame;
+    public Mng_X128SS rd_init;
+    public Mng_X128SS rd_random;
 
-    public void SetRandom_Init( Mng_X128SS _rd_make , Mng_X128SS _rd_inGame )
+    public void SetRandom_Init( Mng_X128SS _rd_make , Mng_X128SS _rd_inGame = null )
     {
-        rd_make = _rd_make;
-        rd_inGame = _rd_inGame;
+        rd_init = _rd_make;
+        rd_random = _rd_inGame;
+        if( rd_random == null ) rd_random = _rd_make;
         OnSetRandom_Init();
+    }
+
+    public Mng_X128SS GetRandomClass()
+    {
+        return rd_random;
     }
 
     virtual public void OnSetRandom_Init(){}
 
-    public void AddObj( object obj , float min_per = 0.01f )
+    virtual public void AddObj( object obj , float min_per = 0.01f )
     {
         OBJ_PER_VAL s = new OBJ_PER_VAL();
         s.obj = obj;
-        s.per = rd_make.NextFloat( min_per , 1 );
+        s.per = rd_init.NextFloat( min_per , 1 );
         objs.Add(s);
     }
-    public object Random()
+
+    virtual public object Random()
     {
-        rd_inGame.Step_Clear();
+        rd_random.Step_Clear();
         foreach( var s in objs )
         {
-            rd_inGame.Step_Add( s.per , s.obj );
+            rd_random.Step_Add( s.per , s.obj );
         }
-        return rd_inGame.Step_Random();
+        return rd_random.Step_Random();
     }
-}
-
-//=================================================================================================
-// 전사 , 마법사 , 지원가
-
-public class _BIAS_JOB
-{
-    public float WARRIOR;
-    public float WIZARD;
-    public float SUPPORTER;
-
-    Mng_X128SS rd_make;
-    Mng_X128SS rd_inGame;
-
-    public void SetRandom_Init( Mng_X128SS _rd_make , Mng_X128SS _rd_inGame )
-    {
-        rd_make = _rd_make;
-        rd_inGame = _rd_inGame;
-
-        WARRIOR     = rd_make.NextFloat(0.1f , 1);
-        WIZARD      = rd_make.NextFloat(0.1f , 1);
-        SUPPORTER   = rd_make.NextFloat(0.1f , 1);
-    }
-
-
-    public JOB_BASE Random()
-    {
-        rd_inGame.Step_Start_Add( WARRIOR  , JOB_BASE.FIGHTER );
-        rd_inGame.Step_Add( WIZARD         , JOB_BASE.WIZARD );
-        rd_inGame.Step_Add( SUPPORTER      , JOB_BASE.SUPPORTER );
-        return (JOB_BASE)rd_inGame.Step_Random();
-    }   
 }
 
 
@@ -95,7 +70,7 @@ public class _BIAS_SKILL_MAIN_JOB : _BIAS_COMMON
 
         for( int i = 0 ; i < init_num ; i++ )
         {
-            CSV_Skill sk = rd_make.RandomList( cSVs_all , true );
+            CSV_Skill sk = rd_init.RandomList( cSVs_all , true );
             if( sk != null )csv_sell.Add( sk );
         }
         foreach( var s in csv_sell )
@@ -120,7 +95,7 @@ public class _BIAS_MAGIC_DEFINE : _BIAS_COMMON
         List<CSV_MagicPropDefine> csv_sell = new();
         for( int i = 0 ; i < init_num ; i++ )
         {
-            CSV_MagicPropDefine sk = rd_make.RandomList( cSVs , true );
+            CSV_MagicPropDefine sk = rd_init.RandomList( cSVs , true );
             if( sk != null )csv_sell.Add( sk );
         }
         foreach( var s in csv_sell )
@@ -147,7 +122,7 @@ public class _BIAS_CHAR_STAT : _BIAS_COMMON
         List<CSV_CharBaseStat> csv_sell = new();
         for( int i = 0 ; i < init_num ; i++ )
         {
-            CSV_CharBaseStat sk = rd_make.RandomList( cSVs , true );
+            CSV_CharBaseStat sk = rd_init.RandomList( cSVs , true );
             if( sk != null )csv_sell.Add( sk );
         }
         foreach( var s in csv_sell )

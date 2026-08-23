@@ -14,8 +14,8 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
     public int grade;
     public float pow_ratio; // 적군 전용 , 강함 가중치 , 경험치 계산등에 사용한다. 예) 하급고블린 -> 1 , 오우거 -> 2
     public JOB_BASE jOB_BASE;
-    public int Weapon_ID;
-    public int Armor_ID;
+    public int Weapon_Skill_ID;
+    public int Armor_Skill_ID;
     public CharPrcValue charPrcValue = new();
 
     // 아이템 정의 객체들
@@ -34,8 +34,8 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         grade = Next_Int();
         pow_ratio = Next_Float();
         Enum.TryParse( Next() , out jOB_BASE );
-        Weapon_ID = Next_Int();
-        Armor_ID = Next_Int();
+        Weapon_Skill_ID = Next_Int();
+        Armor_Skill_ID = Next_Int();
         charPrcValue.ReadCSV(this);
     }
 
@@ -49,8 +49,8 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         s.grade = grade;
         s.pow_ratio = pow_ratio;
         s.jOB_BASE = jOB_BASE;
-        s.Weapon_ID = Weapon_ID;
-        s.Armor_ID = Armor_ID;
+        s.Weapon_Skill_ID = Weapon_Skill_ID;
+        s.Armor_Skill_ID = Armor_Skill_ID;
         s.csv_EqItem_Weapon = csv_EqItem_Weapon;
         s.csv_EqItem_Armor = csv_EqItem_Armor;
 
@@ -58,6 +58,10 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         
         return s;
     }
+
+    public CSV_Skill GetWeaponSkill(){return GTF_CSV.csv_SkillPage_NORMAL.Find_Int( Weapon_Skill_ID ) as CSV_Skill;}
+    public CSV_Skill GetArmorSkill(){return GTF_CSV.csv_SkillPage_NORMAL.Find_Int( Armor_Skill_ID ) as CSV_Skill;}
+
 }
 
 

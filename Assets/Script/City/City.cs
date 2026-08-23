@@ -34,13 +34,12 @@ public class City
 
     // 용병 : 직업 경향  , 마법경향 
     // 더 세부적이라면 각 직업들 가중치
-    public _BIAS_SKILL_MAIN_JOB bias_job;
-    public _BIAS_MAGIC_DEFINE bias_job_magic_prop;
+    public Making_Char  making_Char;
 
-    // 도시 퀘스트
-    public MissionBase mission_Unique;
 
-    // 도시 인물? 등등
+    // 도시 전용 퀘스트
+    // 인물 , 아이템 등등 보상
+    public List<MissionBase> mission_Unique;
 
 
     // 상태

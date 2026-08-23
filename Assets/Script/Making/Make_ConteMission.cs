@@ -16,9 +16,6 @@ using UnityEngine;
 /// 정보나 힌트가 쉽게 나온다.
 /// 현단계 클리어 하면 다음 단계가 거의 확실하게 단서없이 나온다.
 /// 
-/// 
-/// 
-/// 
 /// </summary>
 
 public class Make_ConteMission : MakeBase

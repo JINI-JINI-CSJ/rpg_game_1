@@ -13,7 +13,7 @@ public class Skill_MAKE_NormalGrade
     public const string GRADE_ADD_EFF   = "GRADE_ADD_EFF";
 
 
-    static public SkillBase Make( JOB_BASE jOB_type , string tag_job , int grade_bonus , Mng_X128SS rd )
+    static public SkillBase Make( string tag_job , int grade_bonus , Mng_X128SS rd )
     {
         Skill_MakeNormal skill = new();
         skill.skill_normal_inf = new();
@@ -27,46 +27,6 @@ public class Skill_MAKE_NormalGrade
             case "WIZARD_BUFF":     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL ); break;
 
         }
-
-
-        // switch( jOB_type )
-        // {
-        //     case JOB_BASE.FIGHTER:
-        //         {
-        //             DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , "FIGHTER" , GTF_CSV.csv_Config.makeSkill_BaseVal_FIGHTER );
-        //         }
-        //         break;
-
-        //      case JOB_BASE.WIZARD:
-        //         {
-        //                 // 공격 , 회복 , 버프 , 디버프 등 
-        //                 if( tag_job.Contains( "ATK" ) )
-        //                 {
-        //                     DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , "WIZARD_ATK" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_ATK );
-        //                 }
-        //                 if( tag_job.Contains( "DEBUFF" ) )
-        //                 {
-        //                     DefaultMake( rd  , grade_bonus , skill , 0 , tag_job , "WIZARD_DEBUFF" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_ATK );
-        //                 }
-
-        //                 if( tag_job.Contains( "HEAL" ) )
-        //                 {
-        //                     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , "WIZARD_HEAL" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL );
-        //                 }
-        //                 if( tag_job.Contains( "BUFF" ) )
-        //                 {
-        //                     DefaultMake( rd  , grade_bonus , skill , 1 , tag_job , "WIZARD_BUFF" , GTF_CSV.csv_Config.makeSkill_BaseVal_WIZARD_HEAL );
-        //                 }
-        //             }
-        //         break;
-
-        //     case JOB_BASE.SUPPORTER:
-        //         {
-        //             // 지원 전용 스킬들. 위력 
-        //             // 지원 스킬 정의 후에 코딩
-        //         }
-        //         break;
-        // }
 
         return skill;
     }

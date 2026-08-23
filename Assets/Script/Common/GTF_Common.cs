@@ -30,7 +30,8 @@ public enum JOB_BASE
     Common = 0,
     FIGHTER , 
     WIZARD , 
-    SUPPORTER
+    SUPPORTER ,
+    MAX 
 }
 
 // PARTNER
