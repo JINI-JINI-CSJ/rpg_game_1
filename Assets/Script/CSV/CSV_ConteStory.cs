@@ -1,34 +1,46 @@
 using UnityEngine;
 
-// 1안
-// 퀘스트 깊이 , 넓이 비율
-// 일단 메인 임무 (마지막 임무)는 1개 , 이 밑으로 어떻게 깊이 및 넓이가 될지 결정.
-// 0 : 완전 수평 , 모든 퀘스트 종속 관계 없음
-// 1 : 완전 수직 , 동시 퀘스트 없음 , 무조건 선후 관계 , 종속관계
-// 0.5 : 정 삼각형에 가까운 종속 배치
-// ShapeRatio
-
-// 2안
-// 단순하게 하위임무가 몇개가 될지 확률 및 깊이
-// 깊이 0 , 하위 확률 갯수 10 : 동시 임무 가능 퀘스트가 1~10 개이고 종속 임무 없음
-// 깊이 n , 하위 확률 갯수 m : n 차 연퀘, 각 퀘마다 종속 갯수 1~m
-// 전역 설정 : 최대 깊이 , 최대 종속 임무 갯수 확률
-
-// 레벨 설정 : 메인 임무 , 최하단 임무 에서 비례 , 래밸 변동 폭 인자 추가
-
-// 스토리 
-// 임무
-// 수행 가능 조건 : 레벨  , 우호도 , 단서 등등
-// 제목 : 
-// 개요 : 
-// 보상 :
-// 
-// 
 
 
 public class CSV_ConteStory : SJ_CSV_BaseObj
 {
+    // ``ID	이름	설명	하위 임무 평균 갯수(최소1)	소문 범위 최대	일반 적군 격파	보스 격파	수집	전달 배달	호위 경호	던전 조사	던전 답사	소문 입수	우호도		
 
+    public int child_num;
+    public int rumor_range;
+
+    public float  per_DefeatEnemyNormal;
+    public float  per_DefeatEnemyBoss;
+    public float  per_GetItem;    
+    public float  per_Delivery;
+    public float  per_Escort;
+    public float  per_DungeonObjCheckUp;
+    public float  per_DungeonConquer;
+    public float  per_GetRumor;
+    public float  per_Affection;
+    public float  per_ManyBattle;
+
+
+
+    public override void OnRead(SJ_CSV_BasePage _par, string[] _strs)
+    {
+        base.OnRead(_par, _strs);
+
+        Next();
+        Next();
+        child_num = Next_Int();
+        rumor_range = Next_Int();
+        per_DefeatEnemyNormal   = Next_Float();
+        per_DefeatEnemyBoss     = Next_Float();
+        per_GetItem             = Next_Float();
+        per_Delivery            = Next_Float();
+        per_Escort              = Next_Float();
+        per_DungeonObjCheckUp   = Next_Float();
+        per_DungeonConquer      = Next_Float();
+        per_GetRumor            = Next_Float();
+        per_Affection           = Next_Float();
+        per_ManyBattle          = Next_Float();
+    }
 }
 
 public class CSV_ConteStoryPage : SJ_CSV_BasePage

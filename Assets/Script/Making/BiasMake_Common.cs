@@ -137,37 +137,37 @@ public class _BIAS_CHAR_STAT : _BIAS_COMMON
     }
 }
 
-//=================================================================================================
-// 임무 성향 
-// 타입별로 확률
-public class _BIAS_MISSION_TYPE : _BIAS_COMMON
-{
-    // DefeatEnemy ,
-    // DungeonConquer , 
-    // GetItem ,
-    // GetRumor ,
-    // Affection ,
+// //=================================================================================================
+// // 임무 성향 
+// // 타입별로 확률
+// public class _BIAS_MISSION_TYPE : _BIAS_COMMON
+// {
+//     // DefeatEnemy ,
+//     // DungeonConquer , 
+//     // GetItem ,
+//     // GetRumor ,
+//     // Affection ,
 
-    public float per_DefeatEnemy = 1;
-    public float per_DungeonConquer = 1;
-    public float per_GetItem = 1;
-    public float per_GetRumor = 1;
-    public float per_Affection = 1;
+//     public float per_DefeatEnemy = 1;
+//     public float per_DungeonConquer = 1;
+//     public float per_GetItem = 1;
+//     public float per_GetRumor = 1;
+//     public float per_Affection = 1;
 
-    override public void OnSetRandom_Init()
-    {
-        AddObj( MISSION_TYPE.DefeatEnemy    , per_DefeatEnemy );
-        AddObj( MISSION_TYPE.DungeonConquer , per_DungeonConquer );
-        AddObj( MISSION_TYPE.GetItem        , per_GetItem );
-        AddObj( MISSION_TYPE.GetRumor       , per_GetRumor );
-        AddObj( MISSION_TYPE.Affection      , per_Affection );
-    }
+//     override public void OnSetRandom_Init()
+//     {
+//         AddObj( MISSION_TYPE.DefeatEnemyNormal    , per_DefeatEnemy );
+//         AddObj( MISSION_TYPE.DungeonConquer , per_DungeonConquer );
+//         AddObj( MISSION_TYPE.GetItem        , per_GetItem );
+//         AddObj( MISSION_TYPE.GetRumor       , per_GetRumor );
+//         AddObj( MISSION_TYPE.Affection      , per_Affection );
+//     }
 
-    public MISSION_TYPE Random_MissionType()
-    {
-        return (MISSION_TYPE)Random();
-    }
-}
+//     public MISSION_TYPE Random_MissionType()
+//     {
+//         return (MISSION_TYPE)Random();
+//     }
+// }
 
 //=================================================================================================
 // 던전 성향

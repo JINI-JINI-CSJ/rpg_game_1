@@ -30,7 +30,7 @@ public class City
     public List<CityPartBase> cityParts = new();
 
     // 의뢰
-    public _BIAS_MISSION_TYPE bias_mission;
+    public _BIAS_MISSION bias_mission;
 
     // 용병 : 직업 경향  , 마법경향 
     // 더 세부적이라면 각 직업들 가중치
