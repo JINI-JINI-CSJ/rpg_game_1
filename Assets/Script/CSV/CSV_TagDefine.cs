@@ -42,4 +42,10 @@ public class CSV_TagDefinePage : SJ_CSV_BasePage
         }
         return lt;
     }
+
+    public string GetTagPart_StrRandom( string part , Mng_X128SS rd )
+    {
+        List<string> lt = GetTagPart_Str( part );
+        return rd.RandomList( lt );
+    }
 }

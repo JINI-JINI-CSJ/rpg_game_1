@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public struct DeterministicRngState
 {
@@ -299,7 +300,7 @@ public class SJ_RANDOM_STEP_DATA
 
     public List<Mng_X128SS._STEP_Val> inf_calc = new();
 
-    public void Clear()
+    virtual public void Clear()
     {
         inf_input.Clear();
         inf_calc.Clear();
@@ -313,7 +314,6 @@ public class SJ_RANDOM_STEP_DATA
         inf_input.Add( sv );
     }
 
-    
     public object Step_Random( float random_val )
     {
         if( inf_input.Count < 1 ) return null;
@@ -348,5 +348,87 @@ public class SJ_RANDOM_STEP_DATA
             }
         }
         return inf_calc[ inf_calc.Count - 1 ].obj;
+    }
+}
+
+// 구간 균등 변동 확률 값
+// 예) 2가지 구간이라면 0.5 기준으로 최대 변동폭 0.5 리면
+// 각 값은 0.25~0.75 값 가능 , 총 합은 1 
+public class SJ_RANDOM_AverageStep
+{
+    static public SJ_RANDOM_AverageStep G;
+
+    public List<Mng_X128SS._STEP_Val> inf_step = new();
+
+    static public SJ_RANDOM_AverageStep GetInst()
+    {
+        if( G == null )
+            G = new();
+        
+        return G;
+    }
+
+    public void _Clear()
+    {
+        inf_step.Clear();
+    }
+
+    static public void Clear()
+    {
+        GetInst()._Clear();
+    }
+
+    static public void Add( object obj )
+    {
+        GetInst()._Add(obj);
+    }
+
+    public void _Add( object obj )
+    {
+        // 값은 최종 계산때 한다.
+        Mng_X128SS._STEP_Val s = new();
+        s.obj = obj;
+        inf_step.Add(s);
+    }
+
+    static public void CalcAverage( Mng_X128SS rd , float total_per = 1.0f , float volatility = 0.5f)
+    {
+        GetInst()._CalcAverage(rd ,total_per , volatility );
+    }
+
+    // 계산 방식
+    // 일단 각 스텝별로 변동계산하고 총합 구해서 나누면 (노멀라이즈) 된다.
+    public void _CalcAverage( Mng_X128SS rd , float total_per = 1.0f , float volatility = 0.5f)
+    {
+        if( inf_step.Count < 1 ) return;
+        float avg = total_per / (float)inf_step.Count;
+        float min = avg - (avg * volatility);
+        float max = avg + (avg * volatility);
+
+        float total_val = 0;
+        foreach( var s in inf_step )
+        {
+            s.val = rd.NextFloat( min , max );
+            total_val += s.val;
+        }
+
+        foreach( var s in inf_step )
+        {
+            s.val = s.val / total_val;
+        }
+    }
+
+    static public float ResultObj( object obj ) 
+    {
+        return GetInst()._ResultObj( obj );
+    }
+
+    public float _ResultObj( object obj )
+    {
+        foreach( var s in inf_step )
+        {
+            if( obj == s.obj ) return s.val;
+        }
+        return 0;
     }
 }
