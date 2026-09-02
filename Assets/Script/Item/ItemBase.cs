@@ -5,10 +5,14 @@ public class ItemBase
 {
     public CSV_Item csv;
 
+    // 
+
     public int count = 1;
 
     // 장비 캐릭터 , 장비 아이템일때만
     public CharBase eq_chr;
+
+
 
     static public ItemBase InstItemBase( int csv_id )
     {

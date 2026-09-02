@@ -45,4 +45,11 @@ public class Making_Item
         return item;
     }
 
+    // 이미 있는 아이템에 보너스 스탯 
+    // 아이템의 파라미터 보너스 점수는 그냥 추가 강화 정도로... 
+    // 이미 품질 강화가 있으니..
+    static public void MakeBonusScore( ItemBase item , int sc_params , int sc_addEff )
+    {
+        
+    }
 }

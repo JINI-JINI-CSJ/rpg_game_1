@@ -141,9 +141,11 @@ public class Mng_X128SS
     }
 
     // 간단 성공 ( 0 ~ 1 )
-    public bool RandomFloat_Per( float val_succ )
+    public bool RandomFloat_Per( float val_succ , float max = 1.0f )
     {
-        if(NextFloat() <= val_succ )
+        float val = NextFloat() * max;
+
+        if( val <= val_succ )
         {
             return true;
         }

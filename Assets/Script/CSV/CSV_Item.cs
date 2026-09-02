@@ -8,6 +8,7 @@ public enum _ITEM_TYPE
     None = 0 ,
     Consume ,   // 소비품
     Equip ,     // 장비품
+    Collections , // 수집
     Unique ,    // 유니크 이벤트 등등
 }
 
@@ -41,6 +42,7 @@ public class CSV_Item : SJ_CSV_BaseObj
     public int useLobby;    // 마을 도시에서 사용가능
     public int useDungeon;  // 던전에서 사용가능
     public int useBattle;   // 전투중에 사용가능
+    public int instanceBattleUse; // 전투중 인스턴스 사용 가능 여부 
     public int grade;
     public string class_name;
     public _EQUIP_CHR_PART eq_part;
@@ -62,6 +64,7 @@ public class CSV_Item : SJ_CSV_BaseObj
         useLobby = Next_Int();
         useDungeon = Next_Int();
         useBattle = Next_Int();
+        instanceBattleUse = Next_Int();
         grade = Next_Int();
         class_name = Next();
         Enum.TryParse( Next() , out eq_part );
