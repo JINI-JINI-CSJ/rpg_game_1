@@ -55,7 +55,9 @@ public class InGame : MonoBehaviour
 
         BattlePartyView_Player.Update_Player();
 
-        DungeonBattleInCounter.G.incount_inf = gTF_TileMap.dungeonInfo.iNCOUNT_INF;
+        //DungeonBattleInCounter.G.incount_inf = gTF_TileMap.dungeonInfo.iNCOUNT_INF;
+
+
         Panel_DungeonMain.OnEnd_PlayerMove();
 
         // 맵 시작 이벤트

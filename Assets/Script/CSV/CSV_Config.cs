@@ -50,10 +50,7 @@ public class CSV_Config : SJ_CSV_BasePage
     // 1 보다 클 수도 있다. 
     public List<float> uniqueObj_per;
 
-    // 
-
     //===========================================
-
     // 캐릭터 메이킹
     // 보너스 점수당 10 퍼센트
     public float makeChar_statAddFix = 0.1f; 
@@ -74,7 +71,21 @@ public class CSV_Config : SJ_CSV_BasePage
     // 예) ~20,~40,~60,~80,~100,~~ 
 
     // 캐릭터 추가 스킬
-    // 예) ~20 , ~60 , ~100 ,~~ 
+    // 예) ~20 , ~40 , ~60 ,
+
+
+    //===========================================
+    // 던전 적군 메이킹
+
+    // 희소 등급별 장비 품질 보너스 
+    // 정예 : 0~2
+    // 희소 : 0~3
+    // 보스 일반 장비 : 0~4
+    // 보스 보너스 장비 : 0~5
+
+    // 인덱스 0 : 정예 , 1 : 희소 , 2 : 보스 일반 , 3 : 보스 보너스
+    public List<int> enemyRarityGrade_EquipBonusMax;
+
 
     public override void Read()
     {
@@ -101,4 +112,12 @@ public class CSV_Config : SJ_CSV_BasePage
 
     public int LevelStepUnique_Total(){return level_max_normal / levelStep_Unique;}
     public int LevelStepUniqueCur( int i ){return i * levelStep_Unique;}
+
+
+    public int GetEnemyRarityGrade_EquipBonusMax( int rarityGradeIdx )
+    {
+        return SJ_CSharpUtil.GetList_IndexSafe( enemyRarityGrade_EquipBonusMax , rarityGradeIdx );
+    }
+
+
 }

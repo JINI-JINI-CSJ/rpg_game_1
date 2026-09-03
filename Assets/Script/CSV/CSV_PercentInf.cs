@@ -18,6 +18,12 @@ public class CSV_PercentInf : SJ_CSV_BaseObj
         per_list = Remain_Data_Float();
     }
 
+    public float GetPer( int idx )
+    {
+        if( per_list.Count <= idx ) return -1;
+        return per_list[idx];
+    }
+
     public int GetPerIndex( Mng_X128SS rd )
     {
         return rd.Step_Random_Idx( per_list );
@@ -45,6 +51,11 @@ public class CSV_PercentInfPage : SJ_CSV_BasePage
     public override SJ_CSV_BaseObj OnAlloc_Obj()
     {
         return new CSV_PercentInf();
+    }
+
+    public CSV_PercentInf GetCSV( string tag )
+    {
+        return Find_Str( tag ) as CSV_PercentInf;
     }
 
     public int GetPerIdx( Mng_X128SS rd , string tag , ref int max_arg )

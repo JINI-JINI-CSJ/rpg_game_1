@@ -2,6 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// 잠정 보류
+/// 단순하게 태그로만 정의하고 실제 게임에선 속성태그에 대한 강,약 으로만 처리 
+/// </summary>
+
 // 마법속성정의
 // ``ID	이름	설명	정의 태그	유리 속성1	유리2	유리3	불리속성1	불리2	불리3																
 public class CSV_MagicPropDefine : SJ_CSV_BaseObj

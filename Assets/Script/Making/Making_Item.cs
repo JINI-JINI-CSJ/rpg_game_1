@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class _BIAS_ITEM : _BIAS_COMMON
@@ -38,6 +39,7 @@ public class _BIAS_ITEM : _BIAS_COMMON
 
 public class Making_Item
 {
+
     
     static public ItemBase MakeEqItem( SJ_ID_INT_Mng idMng , Mng_X128SS _rd , _BIAS_ITEM bias_item , int sc_params , int sc_addEff )
     {
