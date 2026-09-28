@@ -1,18 +1,28 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ItemBase
 {
+    // 기본 데이터
+    public uint ID;
     public CSV_Item csv;
+    //public List<CSV_Skill> lt_csv_skill_addEff = new(); // 추가 효과가 있을경우    
 
+    public SkillBaseGroup skillBaseGroup = new();
+
+    // 인게임
+    public CharPrcValue charPrcValue = new();
+    // 레벨
+    public int LEVEL;
     // 
-
-    public int count = 1;
+    public int cur_count = 1;
 
     // 장비 캐릭터 , 장비 아이템일때만
-    public CharBase eq_chr;
+    public CharBase cur_eq_chr;
 
-
+    // 스킬객체
+    //public List<SkillBase> lt_skill = new();
 
     static public ItemBase InstItemBase( int csv_id )
     {
@@ -39,28 +49,35 @@ public class ItemBase
     public void SetCSV( CSV_Item _csv )
     {
         csv = _csv;
+        charPrcValue.Copy( csv.charPrcValue );
+    }
+
+    public void AddSkillCSV( List<CSV_Skill> cSV_s )
+    {
+        skillBaseGroup.AddCSV( cSV_s );
+        skillBaseGroup.UpdateSkillBase();
     }
 
 
     public void Add_EquipChar( CharBase charBase )
     {
-        this.eq_chr = charBase;
+        this.cur_eq_chr = charBase;
 
-        if( csv.charPrcValue.HP > 0 )               charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.HP            , this , csv.charPrcValue.HP );
-        if( csv.charPrcValue.MP > 0 )               charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.MP            , this , csv.charPrcValue.MP );
-        if( csv.charPrcValue.ACTION_SPEED > 0 )     charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ACTION_SPEED  , this , csv.charPrcValue.ACTION_SPEED );
-        if( csv.charPrcValue.ATK_P > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ATK_P         , this , csv.charPrcValue.ATK_P );
-        if( csv.charPrcValue.DEF_P > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.DEF_P         , this , csv.charPrcValue.DEF_P );
-        if( csv.charPrcValue.HIT_RATE_P > 0 )       charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.HIT_RATE_P    , this , csv.charPrcValue.HIT_RATE_P );
-        if( csv.charPrcValue.EVASION_RATE_P > 0 )   charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.EVASION_RATE_P, this , csv.charPrcValue.EVASION_RATE_P );
-        if( csv.charPrcValue.ATK_M > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ATK_M         , this , csv.charPrcValue.ATK_M );
-        if( csv.charPrcValue.DEF_M > 0 )            charBase.csv.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.DEF_M         , this , csv.charPrcValue.DEF_M );
+        if( charPrcValue.HP > 0 )               charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.HP            , this , charPrcValue.HP );
+        if( charPrcValue.MP > 0 )               charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.MP            , this , charPrcValue.MP );
+        if( charPrcValue.ACTION_SPEED > 0 )     charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ACTION_SPEED  , this , charPrcValue.ACTION_SPEED );
+        if( charPrcValue.ATK_P > 0 )            charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ATK_P         , this , charPrcValue.ATK_P );
+        if( charPrcValue.DEF_P > 0 )            charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.DEF_P         , this , charPrcValue.DEF_P );
+        if( charPrcValue.HIT_RATE_P > 0 )       charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.HIT_RATE_P    , this , charPrcValue.HIT_RATE_P );
+        if( charPrcValue.EVASION_RATE_P > 0 )   charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.EVASION_RATE_P, this , charPrcValue.EVASION_RATE_P );
+        if( charPrcValue.ATK_M > 0 )            charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.ATK_M         , this , charPrcValue.ATK_M );
+        if( charPrcValue.DEF_M > 0 )            charBase.charPrcValue.ADD_VAL_INF( (int)CHAR_STAT.DEF_M         , this , charPrcValue.DEF_M );
     }
 
     public void Remove_EquipChar( CharBase charBase )
     {
-        this.eq_chr = null;
-        charBase.csv.charPrcValue.REMOVE_VAL_INF_RefClass( this );
+        this.cur_eq_chr = null;
+        charBase.charPrcValue.REMOVE_VAL_INF_RefClass( this );
     }
 
 

@@ -58,4 +58,24 @@ public class CSV_SkillPage : SJ_CSV_BasePage
         }
         return lt;
     }
+
+    public CSV_Skill GetTag_Contain_One( Mng_X128SS rd , string tag )
+    {
+        List<CSV_Skill> lt = GetTag_Contain(tag);
+        return rd.RandomList( lt );
+    }
+
+    // 개수만큼 중복되지 않게 여러개 가져오기
+    public List<CSV_Skill> GetTag_Contain_Count( Mng_X128SS rd , string tag , int count )
+    {
+        List<CSV_Skill> lt = GetTag_Contain( tag );
+        List<CSV_Skill> lt_add = new();
+        for( int i = 0 ; i < count ; i++ )
+        {
+            CSV_Skill csv = rd.RandomList(lt);
+            if( csv == null ) return lt_add;
+            lt_add.Add(csv);
+        }
+        return lt_add;
+    }
 }

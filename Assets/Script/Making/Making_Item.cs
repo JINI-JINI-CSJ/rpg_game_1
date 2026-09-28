@@ -8,7 +8,7 @@ public class _BIAS_ITEM : _BIAS_COMMON
     // 3. 각 파트별 태그
     // 다음부턴 메이킹 추가
     // 4. 추가 상승 파라미터
-    // 5. 추가 효과    
+    // 5. 추가 효과
 
     // 각 태그들
     _BIAS_COMMON bias_weapon=new();
@@ -35,6 +35,8 @@ public class _BIAS_ITEM : _BIAS_COMMON
             bias_acc.AddObj( s );
         }
     }
+
+
 }
 
 public class Making_Item
@@ -47,11 +49,28 @@ public class Making_Item
         return item;
     }
 
+    // 레벨 범위로 만들기 , 장비 csv 에서 받아오자.
+    static public ItemBase MakeEqItem( SJ_ID_INT_Mng idMng , Mng_X128SS _rd , int lv_s , int lv_e , int sc_params , int sc_addEff )
+    {
+        CSV_Item csv = GTF_CSV.csv_ItemPage_Equip.GetRangeLevel_One( _rd , lv_s , lv_e );
+        if( csv == null )
+        {
+            Debug.LogError( "MakeEqItem 에러!! : " + lv_s + " : " + lv_e );
+            return null;
+        }
+
+        ItemBase item = ItemBase.InstItemBase( csv );
+        MakeBonusScore( _rd , item , sc_params , sc_addEff );
+        return item;
+    }
+
+
     // 이미 있는 아이템에 보너스 스탯 
     // 아이템의 파라미터 보너스 점수는 그냥 추가 강화 정도로... 
     // 이미 품질 강화가 있으니..
-    static public void MakeBonusScore( ItemBase item , int sc_params , int sc_addEff )
+    static public void MakeBonusScore( Mng_X128SS _rd , ItemBase item , int sc_params , int sc_addEff )
     {
+        item.charPrcValue.RandomStatBonus( _rd , sc_params );
         
     }
 }

@@ -15,6 +15,7 @@ public enum EnemyRarityGrade
 
 // csv 에서 아이템 태그별로 등급을 해놓자.
 // 돈이나 exp 보상은 따로 일괄 계산 , 적군 등급 , 던전 등급 등등
+// 등급은 일단 던전 등급을 참조 
 public class DropItemInfo
 {
     // 100 기준으로 계산한다.
@@ -24,11 +25,30 @@ public class DropItemInfo
         public int      power_step; // 강화 단계 , 밑의 보너스 스탯과 별개
         public float    per;
         public string   tagItem;    // 태그 아이템 중에 한개
-
-        // 등급은 일단 던전 등급을 참조 
-
+        public int      gold;       // 돈 보상
         // 보너스 스탯이 있을경우
         public int      sc_bonus; // 나중에 이걸 다시 추가 강화와 추가 이펙트 수치로 나누기 , 초과 하는건 무시
+
+        public void Save( BinaryWriter bw )
+        {
+            bw.Write( csv_id );
+            bw.Write( power_step );
+            bw.Write( per );
+            bw.Write( tagItem );
+            bw.Write( gold );
+            bw.Write( sc_bonus );
+        }
+
+        public void Load( BinaryReader br )
+        {
+            csv_id = br.ReadInt32();
+            power_step = br.ReadInt32();
+            per = br.ReadSingle();
+            tagItem = br.ReadString();
+            gold = br.ReadInt32();
+            sc_bonus = br.ReadInt32();
+        }
+
     }
     public List<DropPer> dropPers = new();
 
@@ -60,11 +80,7 @@ public class DropItemInfo
         bw.Write( dropPers.Count );
         foreach( var s in dropPers )
         {
-            bw.Write( s.csv_id );
-            bw.Write( s.power_step );
-            bw.Write( s.per );
-            bw.Write( s.tagItem );
-            bw.Write( s.sc_bonus );
+            s.Save(bw);
         }
     }
 
@@ -74,12 +90,7 @@ public class DropItemInfo
         for( int i = 0 ; i < count ; i++ )
         {
             DropPer s = new();
-            s.csv_id = br.ReadInt32();
-            s.power_step = br.ReadInt32();
-            s.per = br.ReadSingle();
-            s.tagItem = br.ReadString();
-            s.sc_bonus = br.ReadInt32();
-
+            s.Load( br );
             dropPers.Add( s );
         }
     }
@@ -94,6 +105,13 @@ public class EnemyDungeonInfo
     public List<string>         tagChrAttrStrong = new();  // 강약 속성 태그
     public List<string>         tagChrAttrWeak = new();    // 강약 속성 태그
     public DropItemInfo         dropItemInfo = new();
+
+    // 적군 정보 있는지 , 둘다 없으면 적군 정보 없음
+    public bool CheckEnemyInf()
+    {
+        if( csv_id != 0 || string.IsNullOrEmpty( tagEnemy ) ) return true;
+        return false;
+    }
 
     public void Save( BinaryWriter bw )
     {
@@ -134,26 +152,79 @@ public class EnemyDungeonInfo
     }
 }
 
+// 필드 아이템 
+// DropItemInfo 를 하나 가지고 있고 , 무조건 이 아이템 획득하기
+public class FieldItem
+{
+    public int field_type; // 일반 보물 상자 , 숨김
+    public int Room_Idx;
+    DropItemInfo.DropPer dropItem = new();
+    public int OpenState;
+
+    public void Save( BinaryWriter bw )
+    {
+        bw.Write(field_type);
+        bw.Write(Room_Idx);
+        dropItem.Save(bw);
+        bw.Write(OpenState);
+    }
+
+    public void Load( BinaryReader br )
+    {
+        field_type  = br.ReadInt32();
+        Room_Idx    = br.ReadInt32();
+        dropItem.Load(br);
+        OpenState   = br.ReadInt32();
+    }
+}
+
+
 // 던전 한개의 계층 정보
 // - 적군 정의 및 등장 확률 
 // - 계층 탐색 완성도
 public class DungeonLayerInfo
 {
     public int layer;
-    public List<EnemyDungeonInfo> enemyDungeonInfos = new();
 
-    // 계층의 규모 정도 , 0~5 정도
+    // 계층의 규모 정도
     public int dungeonSize;
+    // 적군
+    public List<EnemyDungeonInfo> enemy_Normal_Front = new(); // 일반 등급 전열
+    public List<EnemyDungeonInfo> enemy_Normal_Back = new(); // 일반 등급 후열
+    public List<EnemyDungeonInfo> enemy_Elite = new(); // 정예 등급
+    public List<EnemyDungeonInfo> enemy_Rare = new(); // 희소 등급
+    public EnemyDungeonInfo enemy_Boss = new(); // 보스 등급
+    // 필드 아이템
+    public List<FieldItem>  fieldItems = new();
+
+
 
     public float completePer; // 계층 탐색 완성도
 
     public void Save( BinaryWriter bw )
     {
         bw.Write( layer );
-        bw.Write( completePer );
-        bw.Write( dungeonSize );
-        bw.Write( enemyDungeonInfos.Count );
-        foreach( var s in enemyDungeonInfos )
+        bw.Write( dungeonSize );        
+
+        SaveEnemyList( bw, enemy_Normal_Front );
+        SaveEnemyList( bw, enemy_Normal_Back );
+        SaveEnemyList( bw, enemy_Elite );
+        SaveEnemyList( bw, enemy_Rare );
+        enemy_Boss.Save( bw );
+
+        bw.Write( fieldItems.Count );
+        foreach( var s in fieldItems )
+        {
+            s.Save( bw );
+        }
+
+        bw.Write( completePer );        
+    }
+
+    void SaveEnemyList( BinaryWriter bw , List<EnemyDungeonInfo> lt )
+    {
+        bw.Write( lt.Count );
+        foreach( var s in lt )
         {
             s.Save( bw );
         }
@@ -162,14 +233,33 @@ public class DungeonLayerInfo
     public void Load( BinaryReader br )
     {
         layer = br.ReadInt32();
-        completePer = br.ReadSingle();
+
         dungeonSize = br.ReadInt32();
+        LoadEnemyList( br, enemy_Normal_Front );
+        LoadEnemyList( br, enemy_Normal_Back );
+        LoadEnemyList( br, enemy_Elite );
+        LoadEnemyList( br, enemy_Rare );
+        enemy_Boss.Load( br );
+
+        int count = br.ReadInt32();
+        for( int i = 0 ; i < count ; i++ )
+        {
+            FieldItem s = new();
+            s.Load( br );
+            fieldItems.Add( s );
+        }
+
+        completePer = br.ReadSingle();        
+    }
+
+    void LoadEnemyList( BinaryReader br , List<EnemyDungeonInfo> lt )
+    {
         int count = br.ReadInt32();
         for( int i = 0 ; i < count ; i++ )
         {
             EnemyDungeonInfo s = new();
             s.Load( br );
-            enemyDungeonInfos.Add( s );
+            lt.Add( s );
         }
     }
 }

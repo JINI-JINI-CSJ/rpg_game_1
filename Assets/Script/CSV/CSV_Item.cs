@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // 아이템 대분류
@@ -31,7 +32,6 @@ public enum _EQUIP_CHR_PART
 }
 
 
-// ``ID	이름	설명	리소스	등급	클래스 장비-공격력	장비-방어력	인자1	2	3	4	5	
 public class CSV_Item : SJ_CSV_BaseObj
 {
     public string name;
@@ -43,7 +43,8 @@ public class CSV_Item : SJ_CSV_BaseObj
     public int useDungeon;  // 던전에서 사용가능
     public int useBattle;   // 전투중에 사용가능
     public int instanceBattleUse; // 전투중 인스턴스 사용 가능 여부 
-    public int grade;
+    public int level;       // 기본 레벨
+    public int grade;       // 등급
     public string class_name;
     public _EQUIP_CHR_PART eq_part;
     public int need_skill;
@@ -65,6 +66,7 @@ public class CSV_Item : SJ_CSV_BaseObj
         useDungeon = Next_Int();
         useBattle = Next_Int();
         instanceBattleUse = Next_Int();
+        level = Next_Int();
         grade = Next_Int();
         class_name = Next();
         Enum.TryParse( Next() , out eq_part );
@@ -88,6 +90,9 @@ public class CSV_Item : SJ_CSV_BaseObj
         if( this.useLobby == useLobby || this.useDungeon == useDungeon || this.useBattle == useBattle ) return true;
         return false;
     }
+
+    // 월드 메이킹 때 설정한 등급
+    public int making_grade;
 }
 
 public class CSV_ItemPage : SJ_CSV_BasePage
@@ -95,5 +100,21 @@ public class CSV_ItemPage : SJ_CSV_BasePage
     public override SJ_CSV_BaseObj OnAlloc_Obj()
     {
         return new CSV_Item();
+    }
+
+    public List<CSV_Item> GetRangeLevel( int lv_s , int lv_e )
+    {
+        List<CSV_Item> lt = new();
+        foreach( var s in dic_int.Values.Cast<CSV_Item>() )
+        {
+            if( s.level >= lv_s && s.level <= lv_e ) lt.Add(s);
+        }
+        return lt;
+    }
+
+    public CSV_Item GetRangeLevel_One( Mng_X128SS rd , int lv_s , int lv_e )
+    {
+        List<CSV_Item> lt = GetRangeLevel( lv_s , lv_e );
+        return rd.RandomList( lt );
     }
 }

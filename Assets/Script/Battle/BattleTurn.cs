@@ -56,8 +56,8 @@ public class BattleTurn : MonoBehaviour
         char_turn.Sort( 
             (x,y) =>
             {
-                if( x.csv.charPrcValue.ACTION_SPEED > y.csv.charPrcValue.ACTION_SPEED ) return -1;
-                if( x.csv.charPrcValue.ACTION_SPEED < y.csv.charPrcValue.ACTION_SPEED ) return 1;
+                if( x.charPrcValue.ACTION_SPEED > y.charPrcValue.ACTION_SPEED ) return -1;
+                if( x.charPrcValue.ACTION_SPEED < y.charPrcValue.ACTION_SPEED ) return 1;
                 return 0;
             }
         );

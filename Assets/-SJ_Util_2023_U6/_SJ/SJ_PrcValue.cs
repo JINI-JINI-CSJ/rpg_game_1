@@ -165,6 +165,12 @@ public class SJ_PrcValueMng
     // 구독
     public SJ_SubscribeMng sj_SubscribeMng = new SJ_SubscribeMng();
 
+    // 간단 구독 
+    public delegate void Func_UpdateALL();
+
+    public Func_UpdateALL func_UpdateALL;
+
+
     public void     DestroyValue()
     {
         dic_id_SJ_PrcValue.Clear();
@@ -430,11 +436,16 @@ public class SJ_PrcValueMng
         {
             v.Clear_FIX_OBJ();
         }
+        All_ReUpdate();
     }
 
+    // 올 클리어를 제외하고 원하는 업데이트 시점은 유저가 호출하자.
+    // 아이템 장착 , 스킬 버프 등등 
+    // 반드시 할 필요는 없다. 대부분 값이 바로 업데이트 된다.
     public void All_ReUpdate()
     {
         sj_SubscribeMng.Notice();
+        func_UpdateALL?.Invoke();
     }
 
     public void Copy( SJ_PrcValueMng src )

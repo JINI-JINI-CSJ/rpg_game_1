@@ -11,8 +11,12 @@ public class GTF_CSV : SJ_CSV_Mng
     static public CSV_GODPage               csv_GODPage = new();
     static public CSV_EqItemDefinePage      csv_EqItemDefinePage = new();
     static public CSV_MagicPropDefinePage   csv_MagicPropDefinePage = new();
+
+
     static public CSV_SkillPage             csv_SkillPage_NORMAL = new();
     static public CSV_SkillPage             csv_SkillPage_ADD_EFF = new();
+    static public CSV_SkillPage             csv_SkillPage_ALL = new();
+
     static public CSV_CharBaseStatPage      csv_CharPlayer = new(); // 아군 플레이어 정의
     static public CSV_CharBaseStatPage      csv_CharEnemy = new(); // 적군 정의
 
@@ -21,6 +25,7 @@ public class GTF_CSV : SJ_CSV_Mng
     static public CSV_ItemPage              csv_ItemPage_Consume = new();
     static public CSV_ItemPage              csv_ItemPage_Equip = new();
     static public CSV_ItemPage              csv_ItemPage_Unique = new();
+    static public CSV_ItemPage              csv_ItemPage_Collect = new();
 
     static public CSV_ItemPage              csv_ItemPage_ALL = new();
 
@@ -48,6 +53,7 @@ public class GTF_CSV : SJ_CSV_Mng
         Add_CSVName( csv_CharEnemy              , "적군정의"        , false );   
         Add_CSVName( csv_ItemPage_Consume       , "아이템-소비"     , false );   
         Add_CSVName( csv_ItemPage_Equip         , "아이템-장비"     , false );   
+        Add_CSVName( csv_ItemPage_Collect       , "아이템-수집재료" , false );
 
         // 사무실 
         //..
@@ -62,9 +68,23 @@ public class GTF_CSV : SJ_CSV_Mng
         csv_Char_ALL.Add( csv_CharPlayer );
         csv_Char_ALL.Add( csv_CharEnemy );
 
+        csv_SkillPage_ALL.Add( csv_SkillPage_NORMAL );
+        csv_SkillPage_ALL.Add( csv_SkillPage_ADD_EFF );
+
         csv_ItemPage_ALL.Add( csv_ItemPage_Consume );
         csv_ItemPage_ALL.Add( csv_ItemPage_Equip );
         csv_ItemPage_ALL.Add( csv_ItemPage_Unique );
+        csv_ItemPage_ALL.Add( csv_ItemPage_Collect );
+    }
+
+    // 전역 공통 수치 레벨링 계산
+    // 인자 : 1레벨 기준 수치 , 현재 레벨
+    static public int PrcValue_LEVEL( int src , int lv )
+    {
+        // 최대레벨 기준 비율
+        float r_lv = (float)lv / (float)csv_Config.level_max_normal;
+        float max_val = (float)src * csv_Config.level_MAX_Value_per;
+        return (int)(max_val * r_lv);
     }
 
     // 확률표

@@ -78,22 +78,19 @@ namespace WorldForge
             {
                 var c = city.Value;
                 sb.AppendLine($"<b>{c.Name}</b>");
-                string tierName = c.Tier switch
-                {
-                    CityTier.Capital => "★ 수도",
-                    CityTier.Major   => "◆ 대도시",
-                    CityTier.Minor   => "● 중도시",
-                    _                => "· 소도시"
-                };
-                sb.AppendLine(tierName);
+                string tierLabel = "도시";
+                var defs = w.Settings?.CityTierDefs;
+                if (defs != null && c.Tier >= 0 && c.Tier < defs.Count)
+                    tierLabel = (c.Tier == 0 ? "★ " : "◆ ") + defs[c.Tier].Label;
+                sb.AppendLine(tierLabel);
                 if (n >= 0 && n < w.Nations.Count)
                     sb.AppendLine($"◈ {w.Nations[n].Name}");
             }
             else if (spot.HasValue)
             {
                 var s = spot.Value;
-                sb.AppendLine($"<b>{WorldMapRenderer.SpotEmoji(s.Type)} {s.Name}</b>");
-                sb.AppendLine($"{SpotTypeName(s.Type)}");
+                string spotLabel = WorldMapRenderer.SpotLabel(w, s.SpotTypeId);
+                sb.AppendLine($"<b>◈ {spotLabel}</b>");
                 if (n >= 0 && n < w.Nations.Count)
                     sb.AppendLine($"◈ {w.Nations[n].Name}");
             }
@@ -140,17 +137,6 @@ namespace WorldForge
                 }
             return null;
         }
-
-        private static string SpotTypeName(SpotType t) => t switch
-        {
-            SpotType.Dungeon     => "던전",
-            SpotType.AncientRuin => "고대 유적",
-            SpotType.MagicTower  => "마법탑",
-            SpotType.Graveyard   => "묘지",
-            SpotType.Volcano     => "화산",
-            SpotType.DragonLair  => "용의 둥지",
-            _                    => "?"
-        };
 
         // ── 표시/숨김 ──────────────────────────────────────────────
         private void ShowTooltip(Vector2 screenPos)

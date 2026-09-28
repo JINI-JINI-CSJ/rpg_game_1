@@ -32,6 +32,8 @@ public class Skill_MAKE_NormalGrade
     }
 
 
+    // 잠정 보류
+    // 좀더 간단하게 바꿀 예정
     static public void DefaultMake( Mng_X128SS rd , int grade_bonus , SkillBase skill_self , int atk_def , string tag_addEff , 
                                     int base_val )
     {

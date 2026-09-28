@@ -307,30 +307,33 @@ namespace WorldForge
             var nameRng = new Mulberry32(s.Seed ^ 0x9999);
 
             // ── 총 도시 수 기반 글로벌 최소 거리 ─────────────────
-            int totalCities = s.TotalCities;
-            // 육지 타일 수 추정으로 평균 간격 계산
-            int landEst = (int)(W * H * (1f - s.SeaLevel));
+            int totalCities  = s.TotalCities;
+            int landEst      = (int)(W * H * (1f - s.SeaLevel));
             float baseSpacing = MathF.Sqrt((float)landEst / Math.Max(totalCities, 1));
 
-            // 등급별 최소 거리 (수도 > 대도시 > 중도시 > 소도시)
-            float capMinD    = baseSpacing * 3.0f;   // 수도끼리
-            float majorMinD  = baseSpacing * 2.0f;   // 대도시끼리
-            float minorMinD  = baseSpacing * 1.2f;   // 중도시끼리
-            float villageMinD= baseSpacing * 0.8f;   // 소도시끼리
-            // 상위 등급이 하위 등급 배치를 막는 거리
-            float capBlockD  = baseSpacing * 1.8f;   // 수도→대도시/중도시/소도시
-            float majorBlockD= baseSpacing * 1.0f;   // 대도시→중도시/소도시
-            float minorBlockD= baseSpacing * 0.6f;   // 중도시→소도시
+            // 등급(Tier) 수에 맞춰 간격 배율 자동 계산
+            // Tier 0(수도)이 가장 크고, 등급이 올라갈수록 간격 줄어듦
+            int numTiers   = s.CityTierDefs.Count;
+            // selfMinD[tier]: 같은 등급끼리 최소 거리
+            var selfMinD   = new float[numTiers];
+            // blockD[tier]:   Tier 0 기준으로 상위 등급이 이 등급을 막는 거리
+            for (int ti = 0; ti < numTiers; ti++)
+            {
+                // 선형 감소: Tier 0 = 3.0x, 마지막 = 0.7x
+                float ratio = numTiers <= 1 ? 3.0f
+                    : 3.0f - (3.0f - 0.7f) * ti / (numTiers - 1);
+                selfMinD[ti] = baseSpacing * ratio;
+            }
+            // blockMult: 상위 등급이 현재 등급 배치를 막는 배율
+            float blockMult0 = 1.8f; // 수도 → 하위 차단 거리
+            float blockMult1 = 1.0f; // 대도시(Tier 1) → 그 이하 차단
 
-            // ── 1단계: 수도 배치 (국가 수도 = NumNations) ─────────
-            // 국가 중심(캐피탈 포지션)에서 가장 가까운 고점수 타일 선택
+            // ── Tier 0: 수도 배치 ─────────────────────────────────
             var capPositions = new List<(int cx, int cy)>();
-            foreach (var nat in w.Nations)
-                capPositions.Add((nat.CapitalX, nat.CapitalY));
+            foreach (var nat in w.Nations) capPositions.Add((nat.CapitalX, nat.CapitalY));
 
             foreach (var (capX, capY) in capPositions)
             {
-                // 수도 후보: 해당 국가 영토 안, 점수 높은 순
                 int natId = w.NationMap[w.Idx(capX, capY)];
                 (int bx, int by, float bs) = (capX, capY, -1f);
 
@@ -339,18 +342,16 @@ namespace WorldForge
                     int cx = idx % W, cy = idx / W;
                     if (w.NationMap[idx] != natId) continue;
 
-                    // 다른 수도와 최소 거리
                     bool tooClose = false;
                     foreach (var c in w.Cities)
-                        if (c.Tier == CityTier.Capital)
+                        if (c.Tier == 0)
                         {
                             float d2 = (cx-c.X)*(cx-c.X)+(float)(cy-c.Y)*(cy-c.Y);
-                            if (d2 < capMinD * capMinD) { tooClose = true; break; }
+                            if (d2 < selfMinD[0] * selfMinD[0]) { tooClose = true; break; }
                         }
                     if (tooClose) continue;
-
                     if (scores[idx] > bs) { bs = scores[idx]; bx = cx; by = cy; }
-                    if (bs > 0f) break; // 첫 번째 고점수 타일로 충분
+                    if (bs > 0f) break;
                 }
 
                 w.Cities.Add(new CityData
@@ -358,18 +359,15 @@ namespace WorldForge
                     X = bx, Y = by,
                     Name   = RandCityName(nameRng),
                     Nation = w.NationMap[w.Idx(bx, by)],
-                    Tier   = CityTier.Capital,
+                    Tier   = 0,
                     Score  = scores[w.Idx(bx, by)],
                 });
             }
 
-            // ── 공통 배치 함수 ────────────────────────────────────
-            // selfMinD:  같은 등급끼리 최소 거리
-            // blockD:    상위 등급(수도/대도시 등)이 이 등급을 막는 거리 배열
-            void PlaceTier(CityTier tier, int count,
-                           float selfMinD, float[] blockDists, CityTier[] blockTiers)
+            // ── Tier 1~N: 사용자 정의 등급 순서대로 배치 ──────────
+            void PlaceTier(int tier, int count, float selfD)
             {
-                float selfMinD2 = selfMinD * selfMinD;
+                float selfD2 = selfD * selfD;
                 int placed = 0;
 
                 foreach (int idx in allCands)
@@ -381,16 +379,17 @@ namespace WorldForge
                     foreach (var c in w.Cities)
                     {
                         float d2 = (cx-c.X)*(cx-c.X)+(float)(cy-c.Y)*(cy-c.Y);
-
-                        // 같은 등급끼리 간격
-                        if (c.Tier == tier && d2 < selfMinD2)
+                        // 같은 등급끼리
+                        if (c.Tier == tier && d2 < selfD2) { tooClose = true; break; }
+                        // 수도(Tier 0) 차단 거리
+                        if (c.Tier == 0 && d2 < (selfMinD[0] * blockMult0) * (selfMinD[0] * blockMult0))
                             { tooClose = true; break; }
-
-                        // 상위 등급이 막는 거리
-                        for (int bi = 0; bi < blockTiers.Length; bi++)
-                            if (c.Tier == blockTiers[bi] && d2 < blockDists[bi] * blockDists[bi])
-                                { tooClose = true; break; }
-
+                        // Tier 1 차단 거리 (Tier 2 이상부터 적용)
+                        if (tier >= 2 && c.Tier == 1)
+                        {
+                            float bd = selfMinD[1] * blockMult1;
+                            if (d2 < bd * bd) { tooClose = true; break; }
+                        }
                         if (tooClose) break;
                     }
                     if (tooClose) continue;
@@ -407,23 +406,8 @@ namespace WorldForge
                 }
             }
 
-            // ── 2단계: 대도시 ─────────────────────────────────────
-            PlaceTier(CityTier.Major,   s.NumMajorCities,
-                selfMinD:   majorMinD,
-                blockDists: new[]{ capBlockD },
-                blockTiers: new[]{ CityTier.Capital });
-
-            // ── 3단계: 중도시 ─────────────────────────────────────
-            PlaceTier(CityTier.Minor,   s.NumMinorCities,
-                selfMinD:   minorMinD,
-                blockDists: new[]{ capBlockD, majorBlockD },
-                blockTiers: new[]{ CityTier.Capital, CityTier.Major });
-
-            // ── 4단계: 소도시 ─────────────────────────────────────
-            PlaceTier(CityTier.Village, s.NumVillages,
-                selfMinD:   villageMinD,
-                blockDists: new[]{ capBlockD, majorBlockD, minorBlockD },
-                blockTiers: new[]{ CityTier.Capital, CityTier.Major, CityTier.Minor });
+            for (int ti = 1; ti < numTiers; ti++)
+                PlaceTier(ti, s.CityTierDefs[ti].Count, selfMinD[ti]);
         }
 
         // ════════════════════════════════════════════════════════
@@ -431,15 +415,15 @@ namespace WorldForge
         // ════════════════════════════════════════════════════════
         private static void GenerateRoads(WorldData w)
         {
-            int count = w.Cities.Count;
+            int count    = w.Cities.Count;
+            int numTiers = w.Settings.CityTierDefs.Count;
+
             for (int i = 0; i < count; i++)
             {
                 var ci = w.Cities[i];
-                // 등급이 높을수록 더 많은 교역로
-                int kmax = ci.Tier == CityTier.Capital ? 4
-                         : ci.Tier == CityTier.Major   ? 3
-                         : ci.Tier == CityTier.Minor   ? 2
-                                                        : 1;
+                // Tier 0(수도)은 가장 많은 교역로, 낮은 tier일수록 줄어듦
+                int kmax = Math.Max(1, numTiers + 1 - ci.Tier);
+
                 var dists = new List<(int j, float d)>();
                 for (int j = 0; j < count; j++)
                     if (i != j)
@@ -460,7 +444,7 @@ namespace WorldForge
         }
 
         // ════════════════════════════════════════════════════════
-        // STEP 9: 특수 스폿 (5종류 독립 배치)
+        // STEP 9: 특수 스폿 (가변 종류 독립 배치)
         // ════════════════════════════════════════════════════════
         private static void GenerateSpots(WorldData w, WorldGenSettings s, Mulberry32 rng)
         {
@@ -469,117 +453,79 @@ namespace WorldForge
             int W = w.Width, H = w.Height;
             float seaTh = w.SeaThreshold;
 
-            // ── 육지 후보 타일 수집 ───────────────────────────────
             var landCands = new List<(int x, int y)>();
             for (int y = 2; y < H - 2; y++)
                 for (int x = 2; x < W - 2; x++)
                     if (w.HeightMap[w.Idx(x, y)] >= seaTh)
                         landCands.Add((x, y));
-
             if (landCands.Count == 0) return;
 
-            // ── 도시와의 최소 거리 (전역 공통) ───────────────────
             float cityMinD2 = MathF.Pow(
                 (W + H) * 0.5f / Math.Max(s.TotalCities + 1, 4) * 1.2f, 2);
 
-            // ── 종류별 배치 요청 목록 ─────────────────────────────
-            // (SpotType, 개수)
-            var requests = new (SpotType type, int count)[]
-            {
-                (SpotType.Dungeon,     s.NumDungeons),
-                (SpotType.AncientRuin, s.NumRuins),
-                (SpotType.MagicTower,  s.NumMagicTowers),
-                (SpotType.Graveyard,   s.NumGraveyards),
-                (SpotType.Volcano,     s.NumVolcanoes),
-            };
-
             int maxTries = Math.Max(600, landCands.Count / 2);
 
-            foreach (var (spotType, count) in requests)
+            // 종류별 순서대로 배치 (SpotTypeDefs 인덱스 = SpotTypeId)
+            for (int typeId = 0; typeId < s.SpotTypeDefs.Count; typeId++)
             {
+                int count = s.SpotTypeDefs[typeId].Count;
                 if (count <= 0) continue;
 
-                // 이 종류의 스폿끼리 최소 거리
-                // 육지 면적 / 해당 종류 수로 자연스러운 간격 계산
-                float sameMinD2 = MathF.Pow(
+                float sameMinD2  = MathF.Pow(
                     MathF.Sqrt((float)landCands.Count / Math.Max(count, 1)) * 0.65f, 2);
-
-                // 다른 종류 스폿과의 최소 거리 (같은 종류보다 짧게)
                 float otherMinD2 = sameMinD2 * 0.35f;
 
-                int placed = 0;
                 for (int attempt = 0; attempt < count; attempt++)
                 {
                     (int x, int y) best = (-1, -1);
 
-                    // 1차 시도: 도시 거리 + 같은종류 거리 + 다른종류 거리 모두 체크
                     for (int t = 0; t < maxTries; t++)
                     {
                         var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
-                        if (IsTooClose(w, cx, cy, spotType,
-                                cityMinD2, sameMinD2, otherMinD2)) continue;
-                        best = (cx, cy);
-                        break;
+                        if (IsTooClose(w, cx, cy, typeId, cityMinD2, sameMinD2, otherMinD2)) continue;
+                        best = (cx, cy); break;
                     }
-
-                    // 2차 시도: 다른 종류 거리 조건 완화
                     if (best.x < 0)
-                    {
                         for (int t = 0; t < maxTries; t++)
                         {
                             var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
-                            if (IsTooClose(w, cx, cy, spotType,
-                                    cityMinD2, sameMinD2, 0f)) continue;
-                            best = (cx, cy);
-                            break;
+                            if (IsTooClose(w, cx, cy, typeId, cityMinD2, sameMinD2, 0f)) continue;
+                            best = (cx, cy); break;
                         }
-                    }
-
-                    // 3차 시도: 도시 거리만 절반으로 완화
                     if (best.x < 0)
-                    {
                         for (int t = 0; t < maxTries; t++)
                         {
                             var (cx, cy) = landCands[rng.NextInt(landCands.Count)];
-                            if (IsTooClose(w, cx, cy, spotType,
-                                    cityMinD2 * 0.4f, sameMinD2 * 0.5f, 0f)) continue;
-                            best = (cx, cy);
-                            break;
+                            if (IsTooClose(w, cx, cy, typeId, cityMinD2 * 0.4f, sameMinD2 * 0.5f, 0f)) continue;
+                            best = (cx, cy); break;
                         }
-                    }
 
-                    if (best.x < 0) continue; // 배치 불가 → 스킵
+                    if (best.x < 0) continue;
 
                     w.Spots.Add(new SpotData
                     {
-                        X    = best.x,
-                        Y    = best.y,
-                        Type = spotType,
-                        Name = string.Empty,   // 이름 없음
+                        X          = best.x,
+                        Y          = best.y,
+                        SpotTypeId = typeId,
+                        Name       = string.Empty,
                     });
-                    placed++;
                 }
             }
         }
 
-        /// <summary>
-        /// 해당 위치가 도시 / 같은 종류 스폿 / 다른 종류 스폿과 너무 가까운지 체크
-        /// </summary>
-        private static bool IsTooClose(WorldData w, int cx, int cy, SpotType type,
+        private static bool IsTooClose(WorldData w, int cx, int cy, int typeId,
             float cityMinD2, float sameMinD2, float otherMinD2)
         {
-            // 도시와 거리
             foreach (var c in w.Cities)
             {
-                int dx = cx - c.X, dy = cy - c.Y;
-                if ((float)(dx*dx + dy*dy) < cityMinD2) return true;
+                int dx = cx-c.X, dy = cy-c.Y;
+                if ((float)(dx*dx+dy*dy) < cityMinD2) return true;
             }
-            // 기존 스폿과 거리
             foreach (var sp in w.Spots)
             {
-                int dx = cx - sp.X, dy = cy - sp.Y;
-                float d2 = dx*dx + (float)(dy*dy);
-                float minD2 = sp.Type == type ? sameMinD2 : otherMinD2;
+                int dx = cx-sp.X, dy = cy-sp.Y;
+                float d2   = dx*dx+(float)(dy*dy);
+                float minD2 = sp.SpotTypeId == typeId ? sameMinD2 : otherMinD2;
                 if (minD2 > 0f && d2 < minD2) return true;
             }
             return false;

@@ -42,8 +42,8 @@ public class UIItem_BattleChr : MonoBehaviour
 
     public void UpdateUI()
     {
-        gage_HP.SetValue( charBase.cur_HP , charBase.csv.charPrcValue.HP );
-        gage_MP.SetValue( charBase.cur_MP , charBase.csv.charPrcValue.MP );
+        gage_HP.SetValue( charBase.cur_HP , charBase.charPrcValue.HP );
+        gage_MP.SetValue( charBase.cur_MP , charBase.charPrcValue.MP );
     }
 
     // 커맨드 입력 알림

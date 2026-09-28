@@ -45,10 +45,10 @@ public class PlayerInventory
         if( dic_item_consume.TryGetValue( csv_id , out item ) == false )
         {
             item = ItemBase.InstItemBase( csv_id );
-            item.count = 0;
+            item.cur_count = 0;
             dic_item_consume[csv_id] = item;
         }
-        item.count += count;
+        item.cur_count += count;
         return item;
     }
 
@@ -59,9 +59,9 @@ public class PlayerInventory
         {
             return false;
         }
-        if( item.count < count ) return false;
+        if( item.cur_count < count ) return false;
         if( only_check ) return true;
-        item.count -= count;
+        item.cur_count -= count;
         return true;
     }
 

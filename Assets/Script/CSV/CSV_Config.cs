@@ -26,6 +26,8 @@ public class CSV_Config : SJ_CSV_BasePage
     // 유니크 스텝 레벨 , n 레벨클래스 마다 유니크 등급
     public int levelStep_Unique = 20;
 
+    // 기본기준 최대레벨 강함 비율
+    public float level_MAX_Value_per = 10; // 1 레벨 대비 100 레벨은 10배 강하다.
 
     //===========================================
     // 월드 메이킹 
@@ -49,6 +51,15 @@ public class CSV_Config : SJ_CSV_BasePage
     // 유니크 객체 총 비율 (도시 갯수에 비례)
     // 1 보다 클 수도 있다. 
     public List<float> uniqueObj_per;
+
+    //===========================================
+    // 아이템 메이킹
+
+    // 수집품 등급별 퍼센트 , 100 기준으로 인덱스 별로
+    // 80, 15 , 4 , 1 
+    public List<int> making_item_collect_per;
+
+
 
     //===========================================
     // 캐릭터 메이킹
@@ -92,9 +103,8 @@ public class CSV_Config : SJ_CSV_BasePage
         
     }
 
-    public float GetMakeSkill_addPow( int grade ){return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_addPow , grade );}
-    public int GetMakeSkill_MP( int grade ){return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_mp , grade );}
-
+    public float GetMakeSkill_addPow( int grade )       {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_addPow , grade );}
+    public int GetMakeSkill_MP( int grade )             {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_mp , grade );}
     public int Random_WorldNation( Mng_X128SS rd )      {return rd.NextInt( world_nation[0] , world_nation[1] );}
     public int Random_WorldCityMajor( Mng_X128SS rd )   {return rd.NextInt( world_city_Major[0] , world_city_Major[1] );}
     public int Random_WorldCityMinor( Mng_X128SS rd )   {return rd.NextInt( world_city_Minor[0] , world_city_Minor[1] );}

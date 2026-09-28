@@ -5,41 +5,26 @@ namespace WorldForge
 {
     /// <summary>
     /// 런타임 설정 팝업 UI.
-    /// Canvas > Panel 오브젝트에 붙이고 각 Slider/Toggle/Text 를 연결하세요.
+    /// 도시 등급 / 스폿 종류는 WorldGenSettings.CityTierDefs / SpotTypeDefs 를
+    /// 동적으로 읽으므로 가변 설정에 자동 대응합니다.
     ///
-    /// Hierarchy 예시:
-    ///   Canvas
-    ///   └─ WorldForgePanel (이 컴포넌트)
-    ///      ├─ SeedInput      (InputField)
-    ///      ├─ BtnRandomSeed  (Button)
-    ///      ├─ SlNoiseScale   (Slider 0.5~8)
-    ///      ├─ SlOctaves      (Slider 2~9)
-    ///      ├─ SlPersistence  (Slider 0.2~0.8)
-    ///      ├─ SlSeaLevel     (Slider 0.2~0.7)
-    ///      ├─ SlContinentBias(Slider 0~0.8)
-    ///      ├─ SlEdgeFalloff  (Slider 0~1)
-    ///      ├─ SlNumNations   (Slider 2~14)
-    ///      ├─ SlNumCities    (Slider 4~50)
-    ///      ├─ SlNumRivers    (Slider 0~30)
-    ///      ├─ SlNumSpots     (Slider 0~40)
-    ///      ├─ BtnGenerate    (Button)
-    ///      ├─ BtnClose       (Button)
-    ///      ├─ TglNations … TglGrid (Toggle × 7)
-    ///      └─ StatsPanel
-    ///         ├─ TxtStatLand / TxtStatSea / TxtStatNations
-    ///         └─ TxtStatCities / TxtStatSpots / TxtStatRivers
+    /// Inspector 연결 필수:
+    ///   Manager           → WorldForgeManager
+    ///   SeedInput         → InputField
+    ///   BtnRandomSeed     → Button
+    ///   BtnGenerate       → Button
+    ///   BtnClose          → Button
+    ///   (선택) StatusText → Text (상태 메시지)
     /// </summary>
     public class WorldForgePanel : MonoBehaviour
     {
         [Header("Manager")]
         public WorldForgeManager Manager;
 
-        // ── Seed ─────────────────────────────────────────────────
         [Header("Seed")]
         public InputField SeedInput;
         public Button     BtnRandomSeed;
 
-        // ── 지형 슬라이더 ─────────────────────────────────────────
         [Header("Terrain Sliders")]
         public Slider SlNoiseScale;
         public Slider SlOctaves;
@@ -50,18 +35,8 @@ namespace WorldForge
 
         [Header("Feature Sliders")]
         public Slider SlNumNations;
-        public Slider SlNumMajorCities;
-        public Slider SlNumMinorCities;
-        public Slider SlNumVillages;
         public Slider SlNumRivers;
-        // 스폿 5종류
-        public Slider SlNumDungeons;
-        public Slider SlNumRuins;
-        public Slider SlNumMagicTowers;
-        public Slider SlNumGraveyards;
-        public Slider SlNumVolcanoes;
 
-        // ── 레이블 (슬라이더 옆에 현재값 표시) ───────────────────
         [Header("Slider Value Labels")]
         public Text LblNoiseScale;
         public Text LblOctaves;
@@ -70,17 +45,8 @@ namespace WorldForge
         public Text LblContinentBias;
         public Text LblEdgeFalloff;
         public Text LblNumNations;
-        public Text LblNumMajorCities;
-        public Text LblNumMinorCities;
-        public Text LblNumVillages;
         public Text LblNumRivers;
-        public Text LblNumDungeons;
-        public Text LblNumRuins;
-        public Text LblNumMagicTowers;
-        public Text LblNumGraveyards;
-        public Text LblNumVolcanoes;
 
-        // ── 버튼 ─────────────────────────────────────────────────
         [Header("Buttons")]
         public Button BtnGenerate;
         public Button BtnClose;
@@ -88,12 +54,11 @@ namespace WorldForge
         public Button BtnPresetPangaea;
         public Button BtnPresetMountain;
 
-        [Header("Save / Load (QuickSave: persistentDataPath/WorldForge/*.wfd)")]
-        public InputField SaveLoadFileName;   // 비우면 "world" 기본값
+        [Header("Save / Load")]
+        public InputField SaveLoadFileName;
         public Button     BtnQuickSave;
         public Button     BtnQuickLoad;
 
-        // ── 레이어 토글 ───────────────────────────────────────────
         [Header("Layer Toggles")]
         public Toggle TglNations;
         public Toggle TglBorders;
@@ -103,7 +68,6 @@ namespace WorldForge
         public Toggle TglSpots;
         public Toggle TglGrid;
 
-        // ── 통계 텍스트 ───────────────────────────────────────────
         [Header("Stats")]
         public Text TxtStatLand;
         public Text TxtStatSea;
@@ -130,26 +94,17 @@ namespace WorldForge
         {
             var s = Manager ? Manager.Settings : new WorldGenSettings();
 
-            SetSlider(SlNoiseScale,    s.NoiseScale,    0.5f, 8f,   LblNoiseScale,   "F1");
-            SetSlider(SlOctaves,       s.Octaves,       2,    9,    LblOctaves,      "F0");
-            SetSlider(SlPersistence,   s.Persistence,   0.2f, 0.8f, LblPersistence,  "F2");
-            SetSlider(SlSeaLevel,      s.SeaLevel,      0.2f, 0.7f, LblSeaLevel,     "P0");
-            SetSlider(SlContinentBias, s.ContinentBias, 0f,   0.8f, LblContinentBias,"F2");
-            SetSlider(SlEdgeFalloff,   s.EdgeFalloff,   0f,   1f,   LblEdgeFalloff,  "F2");
-            SetSlider(SlNumNations,      s.NumNations,      0, 200,  LblNumNations,      "F0");
-            SetSlider(SlNumMajorCities,  s.NumMajorCities,  0, 500,  LblNumMajorCities,  "F0");
-            SetSlider(SlNumMinorCities,  s.NumMinorCities,  0, 1000, LblNumMinorCities,  "F0");
-            SetSlider(SlNumVillages,     s.NumVillages,     0, 2000, LblNumVillages,     "F0");
-            SetSlider(SlNumRivers,       s.NumRivers,       0, 500,  LblNumRivers,       "F0");
-            SetSlider(SlNumDungeons,     s.NumDungeons,     0, 200,  LblNumDungeons,     "F0");
-            SetSlider(SlNumRuins,        s.NumRuins,        0, 200,  LblNumRuins,        "F0");
-            SetSlider(SlNumMagicTowers,  s.NumMagicTowers,  0, 200,  LblNumMagicTowers,  "F0");
-            SetSlider(SlNumGraveyards,   s.NumGraveyards,   0, 200,  LblNumGraveyards,   "F0");
-            SetSlider(SlNumVolcanoes,    s.NumVolcanoes,    0, 200,  LblNumVolcanoes,    "F0");
+            SetSlider(SlNoiseScale,    s.NoiseScale,    0.5f, 8f,   LblNoiseScale,    "F1");
+            SetSlider(SlOctaves,       s.Octaves,       2,    9,    LblOctaves,       "F0");
+            SetSlider(SlPersistence,   s.Persistence,   0.2f, 0.8f, LblPersistence,   "F2");
+            SetSlider(SlSeaLevel,      s.SeaLevel,      0.2f, 0.7f, LblSeaLevel,      "P0");
+            SetSlider(SlContinentBias, s.ContinentBias, 0f,   0.8f, LblContinentBias, "F2");
+            SetSlider(SlEdgeFalloff,   s.EdgeFalloff,   0f,   1f,   LblEdgeFalloff,   "F2");
+            SetSlider(SlNumNations,    s.NumNations,    2,    100,  LblNumNations,    "F0");
+            SetSlider(SlNumRivers,     s.NumRivers,     0,    200,  LblNumRivers,     "F0");
 
             if (SeedInput) SeedInput.text = s.Seed.ToString();
 
-            // 토글 초기값
             var o = Manager ? Manager.RenderOpts : new RenderOptions();
             SetTgl(TglNations, o.ShowNations);
             SetTgl(TglBorders, o.ShowBorders);
@@ -163,26 +118,23 @@ namespace WorldForge
         // ── 이벤트 바인딩 ─────────────────────────────────────────
         private void BindEvents()
         {
-            // Sliders
             BindSlider(SlNoiseScale,    LblNoiseScale,    "F1", v => Apply(s => s.NoiseScale    = v));
             BindSlider(SlOctaves,       LblOctaves,       "F0", v => Apply(s => s.Octaves       = (int)v));
             BindSlider(SlPersistence,   LblPersistence,   "F2", v => Apply(s => s.Persistence   = v));
             BindSlider(SlSeaLevel,      LblSeaLevel,      "P0", v => Apply(s => s.SeaLevel      = v));
             BindSlider(SlContinentBias, LblContinentBias, "F2", v => Apply(s => s.ContinentBias = v));
             BindSlider(SlEdgeFalloff,   LblEdgeFalloff,   "F2", v => Apply(s => s.EdgeFalloff   = v));
-            BindSlider(SlNumNations,     LblNumNations,     "F0", v => Apply(s => s.NumNations     = (int)v));
-            BindSlider(SlNumMajorCities, LblNumMajorCities, "F0", v => Apply(s => s.NumMajorCities = (int)v));
-            BindSlider(SlNumMinorCities, LblNumMinorCities, "F0", v => Apply(s => s.NumMinorCities = (int)v));
-            BindSlider(SlNumVillages,    LblNumVillages,    "F0", v => Apply(s => s.NumVillages    = (int)v));
-            BindSlider(SlNumRivers,      LblNumRivers,      "F0", v => Apply(s => s.NumRivers      = (int)v));
-            BindSlider(SlNumDungeons,    LblNumDungeons,    "F0", v => Apply(s => s.NumDungeons    = (int)v));
-            BindSlider(SlNumRuins,       LblNumRuins,       "F0", v => Apply(s => s.NumRuins       = (int)v));
-            BindSlider(SlNumMagicTowers, LblNumMagicTowers, "F0", v => Apply(s => s.NumMagicTowers = (int)v));
-            BindSlider(SlNumGraveyards,  LblNumGraveyards,  "F0", v => Apply(s => s.NumGraveyards  = (int)v));
-            BindSlider(SlNumVolcanoes,   LblNumVolcanoes,   "F0", v => Apply(s => s.NumVolcanoes   = (int)v));
+            BindSlider(SlNumNations,    LblNumNations,    "F0", v => Apply(s => s.NumNations    = (int)v));
+            BindSlider(SlNumRivers,     LblNumRivers,     "F0", v => Apply(s => s.NumRivers     = (int)v));
 
-            // Seed
-            if (SeedInput) SeedInput.onEndEdit.AddListener(v => { if (int.TryParse(v, out int sv)) Apply(s => s.Seed = sv); });
+            // 도시 등급 / 스폿 수는 CityTierDefs / SpotTypeDefs 를 직접 편집해야 하므로
+            // 런타임 패널에서는 슬라이더 대신 코드로 직접 설정을 변경하세요.
+            // (게임 내 UI가 필요하면 TierDef 목록을 동적으로 생성하는 별도 패널을 추가하세요)
+
+            if (SeedInput) SeedInput.onEndEdit.AddListener(v =>
+            {
+                if (int.TryParse(v, out int sv)) Apply(s => s.Seed = sv);
+            });
             if (BtnRandomSeed) BtnRandomSeed.onClick.AddListener(() =>
             {
                 int r = UnityEngine.Random.Range(1, 999999);
@@ -190,9 +142,12 @@ namespace WorldForge
                 if (SeedInput) SeedInput.text = r.ToString();
             });
 
-            // Buttons
             if (BtnGenerate) BtnGenerate.onClick.AddListener(() => Manager?.Generate());
             if (BtnClose)    BtnClose.onClick.AddListener(()    => gameObject.SetActive(false));
+
+            if (BtnPresetArchipelago) BtnPresetArchipelago.onClick.AddListener(() => LoadPreset(WorldGenSettings.Archipelago()));
+            if (BtnPresetPangaea)     BtnPresetPangaea.onClick.AddListener(()     => LoadPreset(WorldGenSettings.Pangaea()));
+            if (BtnPresetMountain)    BtnPresetMountain.onClick.AddListener(()    => LoadPreset(WorldGenSettings.Mountainous()));
 
             if (BtnQuickSave) BtnQuickSave.onClick.AddListener(() =>
             {
@@ -205,15 +160,9 @@ namespace WorldForge
                 string name = (SaveLoadFileName && !string.IsNullOrWhiteSpace(SaveLoadFileName.text))
                     ? SaveLoadFileName.text : "world";
                 Manager?.QuickLoad(name);
-                InitSliders(); // 불러온 설정값으로 슬라이더 갱신
+                InitSliders();
             });
 
-            // Presets
-            if (BtnPresetArchipelago) BtnPresetArchipelago.onClick.AddListener(() => LoadPreset(WorldGenSettings.Archipelago()));
-            if (BtnPresetPangaea)     BtnPresetPangaea.onClick.AddListener(()     => LoadPreset(WorldGenSettings.Pangaea()));
-            if (BtnPresetMountain)    BtnPresetMountain.onClick.AddListener(()    => LoadPreset(WorldGenSettings.Mountainous()));
-
-            // Toggles
             BindTgl(TglNations, v => { if(Manager) { Manager.RenderOpts.ShowNations = v; Manager.Redraw(); }});
             BindTgl(TglBorders, v => { if(Manager) { Manager.RenderOpts.ShowBorders = v; Manager.Redraw(); }});
             BindTgl(TglRivers,  v => { if(Manager) { Manager.RenderOpts.ShowRivers  = v; Manager.Redraw(); }});
@@ -223,40 +172,35 @@ namespace WorldForge
             BindTgl(TglGrid,    v => { if(Manager) { Manager.RenderOpts.ShowGrid    = v; Manager.Redraw(); }});
         }
 
-        // ── 통계 업데이트 ─────────────────────────────────────────
+        // ── 통계 업데이트 (가변 등급/종류 대응) ─────────────────────
         private void UpdateStats(WorldData w)
         {
             if (w == null) return;
-            int total = w.Width * w.Height;
-            int land  = 0;
+            int total = w.Width * w.Height, land = 0;
             foreach (var b in w.Biomes) if (BiomeClassifier.IsLand(b)) land++;
 
             SetTxt(TxtStatLand,    $"{land:N0}");
             SetTxt(TxtStatSea,     $"{(total - land):N0}");
             SetTxt(TxtStatNations, $"{w.Nations.Count}");
 
-            int caps=0, maj=0, min=0, vil=0;
+            // 도시: 등급별 집계 → "수도2 대12 중20 소30" 형태
+            var tierCounts = new int[w.Settings.CityTierDefs.Count];
             foreach (var c in w.Cities)
-                switch (c.Tier)
-                {
-                    case CityTier.Capital: caps++; break;
-                    case CityTier.Major:   maj++;  break;
-                    case CityTier.Minor:   min++;  break;
-                    default:               vil++;  break;
-                }
-            SetTxt(TxtStatCities, $"수도{caps} 대{maj} 중{min} 소{vil}");
-            int dungeons=0, ruins=0, towers=0, graves=0, volcs=0;
+                if (c.Tier >= 0 && c.Tier < tierCounts.Length) tierCounts[c.Tier]++;
+            var citySb = new System.Text.StringBuilder();
+            for (int i = 0; i < w.Settings.CityTierDefs.Count; i++)
+                citySb.Append($"{w.Settings.CityTierDefs[i].Label}{tierCounts[i]} ");
+            SetTxt(TxtStatCities, citySb.ToString().TrimEnd());
+
+            // 스폿: 종류별 집계
+            var spotCounts = new int[w.Settings.SpotTypeDefs.Count];
             foreach (var sp in w.Spots)
-                switch (sp.Type)
-                {
-                    case SpotType.Dungeon:     dungeons++; break;
-                    case SpotType.AncientRuin: ruins++;    break;
-                    case SpotType.MagicTower:  towers++;   break;
-                    case SpotType.Graveyard:   graves++;   break;
-                    case SpotType.Volcano:     volcs++;    break;
-                }
-            SetTxt(TxtStatSpots,
-                $"⚔{dungeons} 🏛{ruins} 🗼{towers} 💀{graves} 🌋{volcs}");
+                if (sp.SpotTypeId >= 0 && sp.SpotTypeId < spotCounts.Length) spotCounts[sp.SpotTypeId]++;
+            var spotSb = new System.Text.StringBuilder();
+            for (int i = 0; i < w.Settings.SpotTypeDefs.Count; i++)
+                spotSb.Append($"{w.Settings.SpotTypeDefs[i].Label}{spotCounts[i]} ");
+            SetTxt(TxtStatSpots, spotSb.ToString().TrimEnd());
+
             SetTxt(TxtStatRivers, $"{w.Rivers.Count}");
         }
 
@@ -264,7 +208,7 @@ namespace WorldForge
         private void LoadPreset(WorldGenSettings preset)
         {
             if (!Manager) return;
-            preset.Seed = Manager.Settings.Seed; // seed 유지
+            preset.Seed    = Manager.Settings.Seed;
             Manager.Settings = preset;
             InitSliders();
         }

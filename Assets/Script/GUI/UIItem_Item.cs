@@ -50,6 +50,6 @@ public class UIItem_Item : MonoBehaviour
     public void SetItemBase()
     {
         if( text_Count != null )text_Count.gameObject.SetActive(true);
-        SJ_UnityUI_Util.TextString( text_Count , itemBase.count.ToString() );
+        SJ_UnityUI_Util.TextString( text_Count , itemBase.cur_count.ToString() );
     }
 }

@@ -89,7 +89,7 @@ namespace WorldForge
                 bw.Write(c.Y);
                 WriteString(bw, c.Name);
                 bw.Write(c.Nation);
-                bw.Write((byte)c.Tier);
+                bw.Write(c.Tier);    // int
                 bw.Write(c.Score);
             }
 
@@ -99,7 +99,7 @@ namespace WorldForge
             {
                 bw.Write(sp.X);
                 bw.Write(sp.Y);
-                bw.Write((byte)sp.Type);
+                bw.Write(sp.SpotTypeId);  // int
                 WriteString(bw, sp.Name);
             }
 
@@ -212,7 +212,7 @@ namespace WorldForge
                     Y      = br.ReadInt32(),
                     Name   = ReadString(br),
                     Nation = br.ReadInt32(),
-                    Tier   = (CityTier)br.ReadByte(),
+                    Tier   = br.ReadInt32(),   // int
                     Score  = br.ReadSingle(),
                 };
                 world.Cities.Add(c);
@@ -224,10 +224,10 @@ namespace WorldForge
             {
                 var sp = new SpotData
                 {
-                    X    = br.ReadInt32(),
-                    Y    = br.ReadInt32(),
-                    Type = (SpotType)br.ReadByte(),
-                    Name = ReadString(br),
+                    X          = br.ReadInt32(),
+                    Y          = br.ReadInt32(),
+                    SpotTypeId = br.ReadInt32(),  // int
+                    Name       = ReadString(br),
                 };
                 world.Spots.Add(sp);
             }
@@ -261,7 +261,7 @@ namespace WorldForge
         }
 
         // ════════════════════════════════════════════════════════
-        // Settings 직렬화 (필드 추가에도 안전하도록 명시적으로 기록)
+        // Settings 직렬화 — CityTierDefs / SpotTypeDefs 가변 리스트 포함
         // ════════════════════════════════════════════════════════
         private static void WriteSettings(BinaryWriter bw, WorldGenSettings s)
         {
@@ -276,40 +276,65 @@ namespace WorldForge
             bw.Write(s.SeaLevel);
             bw.Write(s.NumNations);
             bw.Write(s.NumRivers);
-            bw.Write(s.NumMajorCities);
-            bw.Write(s.NumMinorCities);
-            bw.Write(s.NumVillages);
-            bw.Write(s.NumDungeons);
-            bw.Write(s.NumRuins);
-            bw.Write(s.NumMagicTowers);
-            bw.Write(s.NumGraveyards);
-            bw.Write(s.NumVolcanoes);
+
+            // ── 도시 등급 리스트 (가변) ─────────────────────────────
+            bw.Write(s.CityTierDefs.Count);
+            foreach (var d in s.CityTierDefs)
+            {
+                WriteString(bw, d.Label);
+                bw.Write(d.Count);
+                bw.Write(d.ColorR); bw.Write(d.ColorG); bw.Write(d.ColorB);
+                bw.Write(d.IconRadius);
+            }
+
+            // ── 스폿 종류 리스트 (가변) ─────────────────────────────
+            bw.Write(s.SpotTypeDefs.Count);
+            foreach (var d in s.SpotTypeDefs)
+            {
+                WriteString(bw, d.Label);
+                bw.Write(d.Count);
+                bw.Write(d.ColorR); bw.Write(d.ColorG); bw.Write(d.ColorB);
+            }
         }
 
         private static WorldGenSettings ReadSettings(BinaryReader br)
         {
-            return new WorldGenSettings
+            var s = new WorldGenSettings
             {
-                Seed            = br.ReadInt32(),
-                MapWidth        = br.ReadInt32(),
-                MapHeight       = br.ReadInt32(),
-                NoiseScale      = br.ReadSingle(),
-                Octaves         = br.ReadInt32(),
-                Persistence     = br.ReadSingle(),
-                ContinentBias   = br.ReadSingle(),
-                EdgeFalloff     = br.ReadSingle(),
-                SeaLevel        = br.ReadSingle(),
-                NumNations      = br.ReadInt32(),
-                NumRivers       = br.ReadInt32(),
-                NumMajorCities  = br.ReadInt32(),
-                NumMinorCities  = br.ReadInt32(),
-                NumVillages     = br.ReadInt32(),
-                NumDungeons     = br.ReadInt32(),
-                NumRuins        = br.ReadInt32(),
-                NumMagicTowers  = br.ReadInt32(),
-                NumGraveyards   = br.ReadInt32(),
-                NumVolcanoes    = br.ReadInt32(),
+                Seed          = br.ReadInt32(),
+                MapWidth      = br.ReadInt32(),
+                MapHeight     = br.ReadInt32(),
+                NoiseScale    = br.ReadSingle(),
+                Octaves       = br.ReadInt32(),
+                Persistence   = br.ReadSingle(),
+                ContinentBias = br.ReadSingle(),
+                EdgeFalloff   = br.ReadSingle(),
+                SeaLevel      = br.ReadSingle(),
+                NumNations    = br.ReadInt32(),
+                NumRivers     = br.ReadInt32(),
             };
+
+            // ── 도시 등급 리스트 ─────────────────────────────────────
+            int tierCount = br.ReadInt32();
+            s.CityTierDefs = new System.Collections.Generic.List<CityTierDef>(tierCount);
+            for (int i = 0; i < tierCount; i++)
+            {
+                string label  = ReadString(br);
+                int    count  = br.ReadInt32();
+                byte   r      = br.ReadByte(), g = br.ReadByte(), b = br.ReadByte();
+                int    radius = br.ReadInt32();
+                s.CityTierDefs.Add(new CityTierDef(label, count, r, g, b, radius));
+            }
+
+            // ── 스폿 종류 리스트 ─────────────────────────────────────
+            int spotTypeCount = br.ReadInt32();
+            s.SpotTypeDefs = new System.Collections.Generic.List<SpotTypeDef>(spotTypeCount);
+            for (int i = 0; i < spotTypeCount; i++)
+                s.SpotTypeDefs.Add(new SpotTypeDef(
+                    ReadString(br), br.ReadInt32(),
+                    br.ReadByte(), br.ReadByte(), br.ReadByte()));
+
+            return s;
         }
 
         // ════════════════════════════════════════════════════════

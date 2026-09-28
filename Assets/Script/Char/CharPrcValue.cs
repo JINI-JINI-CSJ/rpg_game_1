@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 // 캐릭터 수치
@@ -35,9 +36,28 @@ public class CharPrcValue : SJ_PrcValueMng
         SetValue( (int)CHAR_STAT.DEF_M          , csv.Next_Float() );
     }
 
-    // 보너스 점수로 원본 수치를 바꾼다.
-    public void RandomStatBonus( Mng_X128SS rd , int score , float add_fix )
+    // 다른 CharPrcValue 기준으로 레벨링
+    public void CalcLevel_BySrc( CharPrcValue src , int lv )
     {
+        SetValue( (int)CHAR_STAT.HP             , GTF_CSV.PrcValue_LEVEL( src.HP , lv ) );
+        SetValue( (int)CHAR_STAT.MP             , GTF_CSV.PrcValue_LEVEL( src.MP , lv ) );
+        SetValue( (int)CHAR_STAT.ACTION_SPEED   , GTF_CSV.PrcValue_LEVEL( src.ACTION_SPEED , lv ) );
+        SetValue( (int)CHAR_STAT.ATK_P          , GTF_CSV.PrcValue_LEVEL( src.ATK_P , lv ) );
+        SetValue( (int)CHAR_STAT.DEF_P          , GTF_CSV.PrcValue_LEVEL( src.DEF_P , lv ) );
+        SetValue( (int)CHAR_STAT.HIT_RATE_P     , GTF_CSV.PrcValue_LEVEL( src.HIT_RATE_P , lv ) );
+        SetValue( (int)CHAR_STAT.EVASION_RATE_P , GTF_CSV.PrcValue_LEVEL( src.EVASION_RATE_P , lv ) );
+        SetValue( (int)CHAR_STAT.ATK_M          , GTF_CSV.PrcValue_LEVEL( src.ATK_M , lv ) );
+        SetValue( (int)CHAR_STAT.ATK_M          , GTF_CSV.PrcValue_LEVEL( src.ATK_M , lv ) );
+    }
+
+    // 보너스 점수로 원본 수치를 바꾼다.
+    public void RandomStatBonus( Mng_X128SS rd , int score , float add_fix = -1 )
+    {
+        if( add_fix < 0 )
+        {
+            add_fix = GTF_CSV.csv_Config.makeChar_statAddFix;
+        }
+
         rd.Clear_RandomDivision();
         rd.Add_RandomDivision( CHAR_STAT.HP );
         rd.Add_RandomDivision( CHAR_STAT.MP );
@@ -59,4 +79,6 @@ public class CharPrcValue : SJ_PrcValueMng
             prcValue.LastCal();
         }
     }
+
+
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class SKILL_NORMAL_INF
@@ -27,12 +28,27 @@ public class SkillBase
     public CharBase charHave;
     public int LEVEL;
 
+    static public SkillBase InstSkill( int csv_id , int level = 1 )
+    {
+        CSV_Skill csv = GTF_CSV.csv_SkillPage_ALL.Find_Int( csv_id , true ) as CSV_Skill;
+        if( csv == null )
+        {
+            return null;
+        }
+        return InstSkill( csv , level );
+    }
+
     static public SkillBase InstSkill( CSV_Skill csv , int level = 1 )
     {
         SkillBase inst_skill = null;
         if( string.IsNullOrEmpty( csv.class_name ) == false )
         {
             inst_skill = SJ_CSharpUtil.NewClass_Str( csv.class_name ) as SkillBase;
+            if( inst_skill == null )
+            {
+                Debug.LogError( "에러!!! csv.class_name : " + csv.ID_int );
+                return null;
+            }
         }
         else
         {
@@ -89,4 +105,61 @@ public class SkillBase
 
     // 적군에  스킬 효과 
     virtual public void OnViewEffect_Enemy( GameObject go ){}
+}
+
+
+// 스킬객체 그룹
+// 일단 중복 스킬은 제외하자.
+public class SkillBaseGroup
+{
+    public HashSet<int> hs_csv_id = new();
+    public List<SkillBase> skills = new();
+
+    public void AddCSV( int csv_id )
+    {
+        hs_csv_id.Add(csv_id);
+    }
+
+    public void AddCSV( List<CSV_Skill> csvs )
+    {
+        foreach( var s in csvs )
+        {
+            AddCSV( s.ID_int );
+        }   
+    }
+
+    public void UpdateSkillBase()
+    {
+        foreach( var s in hs_csv_id )
+        {
+            SkillBase skill = skills.Find( x=> x.csv.ID_int == s);
+            if( skill == null )
+            {
+                skill = SkillBase.InstSkill( s );
+                skills.Add(skill);
+            }
+        }
+    }
+
+    public void Read( BinaryReader br )
+    {
+        hs_csv_id.Clear();
+        skills.Clear();
+        int c = br.ReadInt32();
+        for( int i = 0 ; i < c ; i++ )
+        {
+            int csv_id = br.ReadInt32();
+            AddCSV(csv_id);
+        }
+        UpdateSkillBase();
+    }
+
+    public void Write( BinaryWriter bw )
+    {
+        bw.Write( hs_csv_id.Count );
+        foreach( var s in hs_csv_id )
+        {
+            bw.Write( s );
+        }
+    }
 }

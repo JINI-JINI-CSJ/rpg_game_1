@@ -30,7 +30,7 @@ public class Make_WorldMap : MakeBase
     public const string SPOT_BASE = "SPOT_BASE";
 
 
-    public Dictionary<CityTier,List<City>>  dic_tier_city = new();
+    //public Dictionary<CityTier,List<City>>  dic_tier_city = new();
     public Dictionary<int, City>            dic_world_idx_city = new();
     public List<DungeonInfo>                dungeonInfos = new();
     
@@ -84,10 +84,10 @@ public class Make_WorldMap : MakeBase
             CityData s = worldForge.CurrentWorld.Cities[i];
             switch( s.Tier )
             {
-                case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village , i  );break;
-                case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor   , i  );break;
-                case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major   , i  );break;
-                case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital , i  );break;
+                // case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village , i  );break;
+                // case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor   , i  );break;
+                // case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major   , i  );break;
+                // case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital , i  );break;
             }
         } 
 
@@ -106,22 +106,22 @@ public class Make_WorldMap : MakeBase
         city.idx_world_data = idx_world;
         city.cityData = cityData;
         List<City> lt = null;
-        if( dic_tier_city.TryGetValue( cityData.Tier , out lt ) == false )
-        {
-            lt = new();
-            dic_tier_city[cityData.Tier] = lt;
-        }
+        // if( dic_tier_city.TryGetValue( cityData.Tier , out lt ) == false )
+        // {
+        //     lt = new();
+        //     dic_tier_city[cityData.Tier] = lt;
+        // }
         lt.Add( city );
         dic_world_idx_city[idx_world] = city;
         quadTree.Insert( pos , tag_hash , city );
     }
 
-    public List<City> GetCities_Tire( CityTier cityTier )
-    {
-        List<City> lt = null;
-        dic_tier_city.TryGetValue( cityTier , out lt );
-        return lt;
-    }
+    // public List<City> GetCities_Tire( CityTier cityTier )
+    // {
+    //     List<City> lt = null;
+    //     dic_tier_city.TryGetValue( cityTier , out lt );
+    //     return lt;
+    // }
 
     static public City GetCity_WorldIdx(int idx)
     {

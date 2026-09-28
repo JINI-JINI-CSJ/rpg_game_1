@@ -29,28 +29,33 @@ namespace WorldForge
         private static Color NationColor(NationData n) =>
             new Color(n.R / 255f, n.G / 255f, n.B / 255f);
 
-        // ── 스폿 색상 ──────────────────────────────────────────────
-        public static Color SpotColor(SpotType t) => t switch
+        // ── 스폿 색상 (SpotTypeDef 에서 읽음) ────────────────────
+        public static Color SpotColor(WorldData w, int spotTypeId)
         {
-            SpotType.Dungeon     => new Color(0.80f, 0.20f, 0.20f),
-            SpotType.AncientRuin => new Color(0.78f, 0.66f, 0.29f),
-            SpotType.MagicTower  => new Color(0.53f, 0.33f, 0.80f),
-            SpotType.Graveyard   => new Color(0.40f, 0.53f, 0.67f),
-            SpotType.Volcano     => new Color(1.00f, 0.40f, 0.00f),
-            SpotType.DragonLair  => new Color(0.20f, 0.73f, 0.27f),
-            _                    => Color.white
-        };
+            var defs = w.Settings?.SpotTypeDefs;
+            if (defs == null || spotTypeId < 0 || spotTypeId >= defs.Count)
+                return Color.white;
+            var d = defs[spotTypeId];
+            return new Color(d.ColorR / 255f, d.ColorG / 255f, d.ColorB / 255f);
+        }
 
-        public static string SpotEmoji(SpotType t) => t switch
+        public static string SpotLabel(WorldData w, int spotTypeId)
         {
-            SpotType.Dungeon     => "⚔",
-            SpotType.AncientRuin => "🏛",
-            SpotType.MagicTower  => "🗼",
-            SpotType.Graveyard   => "💀",
-            SpotType.Volcano     => "🌋",
-            SpotType.DragonLair  => "🐉",
-            _                    => "?"
-        };
+            var defs = w.Settings?.SpotTypeDefs;
+            if (defs == null || spotTypeId < 0 || spotTypeId >= defs.Count)
+                return "?";
+            return defs[spotTypeId].Label;
+        }
+
+        // ── 도시 색상 (CityTierDef 에서 읽음) ────────────────────
+        private static Color CityTierColor(WorldData w, int tier)
+        {
+            var defs = w.Settings?.CityTierDefs;
+            if (defs == null || tier < 0 || tier >= defs.Count)
+                return new Color(0.8f, 0.5f, 0.1f);
+            var d = defs[tier];
+            return new Color(d.ColorR / 255f, d.ColorG / 255f, d.ColorB / 255f);
+        }
 
         // ════════════════════════════════════════════════════════
         // 메인 렌더 — Texture2D 반환 (1타일 = 1픽셀, GPU 업스케일)
@@ -164,49 +169,27 @@ namespace WorldForge
             // ── 도시 ────────────────────────────────────────────────
             if (opt.ShowCities)
             {
-                // 소도시 → 중도시 → 대도시 → 수도 순으로 그려 위에 덮이게
-                CityTier[] drawOrder = { CityTier.Village, CityTier.Minor,
-                                         CityTier.Major,   CityTier.Capital };
-                foreach (var tier in drawOrder)
+                int numTiers = w.Settings?.CityTierDefs?.Count ?? 1;
+                // 낮은 등급(큰 숫자)부터 먼저 그려 수도가 맨 위에 오게
+                for (int tier = numTiers - 1; tier >= 0; tier--)
                 {
+                    Color col = CityTierColor(w, tier);
+                    // 등급 비율: 0=수도(크게), numTiers-1=최하위(작게)
+                    float t01  = numTiers <= 1 ? 0f : (float)tier / (numTiers - 1);
+                    int   r    = (int)Mathf.Lerp(3, 1, t01);   // 반지름 3→1
+
                     foreach (var c in w.Cities)
                     {
                         if (c.Tier != tier) continue;
 
-                        switch (c.Tier)
-                        {
-                            case CityTier.Capital:
-                                // 수도: 금색 큰 원 + 이중 링
-                                DrawCircle(pixels, W, H, c.X, c.Y, 3,
-                                    new Color(0.97f, 0.85f, 0.20f));
-                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 4,
-                                    new Color(0.97f, 0.85f, 0.20f, 0.90f));
-                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 6,
-                                    new Color(0.97f, 0.85f, 0.20f, 0.45f));
-                                break;
-
-                            case CityTier.Major:
-                                // 대도시: 주황 중간 원 + 외곽 링
-                                DrawCircle(pixels, W, H, c.X, c.Y, 2,
-                                    new Color(0.92f, 0.60f, 0.15f));
-                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 3,
-                                    new Color(0.92f, 0.60f, 0.15f, 0.70f));
-                                break;
-
-                            case CityTier.Minor:
-                                // 중도시: 밝은 갈색 작은 원
-                                DrawCircle(pixels, W, H, c.X, c.Y, 1,
-                                    new Color(0.80f, 0.48f, 0.12f));
-                                DrawCircleOutline(pixels, W, H, c.X, c.Y, 2,
-                                    new Color(0.80f, 0.48f, 0.12f, 0.55f));
-                                break;
-
-                            case CityTier.Village:
-                                // 소도시: 어두운 점 하나
-                                DrawDot(pixels, W, H, c.X, c.Y,
-                                    new Color(0.60f, 0.35f, 0.08f));
-                                break;
-                        }
+                        DrawCircle(pixels, W, H, c.X, c.Y, r, col);
+                        if (r >= 2)
+                            DrawCircleOutline(pixels, W, H, c.X, c.Y, r + 1,
+                                new Color(col.r, col.g, col.b, 0.75f));
+                        // 수도(Tier 0)만 이중 링
+                        if (tier == 0)
+                            DrawCircleOutline(pixels, W, H, c.X, c.Y, r + 3,
+                                new Color(col.r, col.g, col.b, 0.40f));
                     }
                 }
             }
@@ -216,7 +199,7 @@ namespace WorldForge
             {
                 foreach (var sp in w.Spots)
                 {
-                    Color col = SpotColor(sp.Type);
+                    Color col = SpotColor(w, sp.SpotTypeId);
                     DrawCircleOutline(pixels, W, H, sp.X, sp.Y, 2, col);
                     DrawDot(pixels, W, H, sp.X, sp.Y, new Color(0f, 0f, 0f, 0.6f));
                     DrawDot(pixels, W, H, sp.X, sp.Y, col * 0.5f + Color.white * 0.5f);

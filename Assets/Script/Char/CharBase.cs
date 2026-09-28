@@ -17,6 +17,7 @@ public class CharBase
 {
     //===========================================
     // 설정
+    // 원본으로만 가지고 있자. 실제값은 charPrcValue 에서 한다.
     public CSV_CharBaseStat csv;    
     public int GRADE_CLASS;
     public int LEVEL;
@@ -27,6 +28,8 @@ public class CharBase
 
     //===========================================
     // 현재 상태
+    public CharPrcValue     charPrcValue = new();
+
     public int cur_HP;
     public int cur_MP;
 
@@ -59,6 +62,7 @@ public class CharBase
     public CharBase()
     {
         for( int i = 0 ; i < (int)_EQUIP_CHR_PART.MAX ; i++ )items_EQ.Add(null);
+        charPrcValue.func_UpdateALL = OnUpdate_PrcValue;
     }
 
     public SkillBase GetDefaultSkill()
@@ -90,15 +94,33 @@ public class CharBase
     public void Make( CSV_CharBaseStat _csv , int level , _ARMY_FORCE _force )
     {
         SetCSV( _csv );
-        LEVEL = level;
+        Leveling( level );
+
         armyForce = _force;
-        cur_HP = csv.charPrcValue.HP;
-        cur_MP = csv.charPrcValue.MP;
+        cur_HP = charPrcValue.HP;
+        cur_MP = charPrcValue.MP;
         InitSkill_Chr();
     }
+
+
     public void SetCSV( CSV_CharBaseStat _csv )
     {
         csv = _csv.Copy();
+    }
+
+    // 원본 csv 기준으로 다시 계산한다.
+    public void Leveling(int lv)
+    {
+        LEVEL = lv;
+        charPrcValue.CalcLevel_BySrc( csv.charPrcValue , LEVEL );
+    }
+
+    // 아이템이나 상태이상으로 업데이트가 됐다.
+    public void OnUpdate_PrcValue()
+    {
+        // 일단 hp , mp 최대치만 제한하자.
+        if( cur_HP > charPrcValue.HP )cur_HP = charPrcValue.HP;
+        if( cur_MP > charPrcValue.MP )cur_HP = charPrcValue.MP;
     }
 
     //=============================================================================================

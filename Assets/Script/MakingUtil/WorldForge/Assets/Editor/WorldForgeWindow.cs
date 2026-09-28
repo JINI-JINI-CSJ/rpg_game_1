@@ -158,23 +158,18 @@ namespace WorldForge
             _settings.Seed = EditorGUILayout.IntField("Seed", _settings.Seed);
 
             SectionLabel("맵 크기");
-            // 슬라이더(빠른 조작) + IntField(직접 타이핑) 독립 동작
             _settings.MapWidth  = SizeField("Width",  _settings.MapWidth,  64, 4096, 64, 2048);
             _settings.MapHeight = SizeField("Height", _settings.MapHeight, 40, 4096, 40, 1280);
 
-            // 크기 경고
             long tileCount = (long)_settings.MapWidth * _settings.MapHeight;
             if (tileCount > 500_000)
-            {
-                string warn = tileCount > 2_000_000
-                    ? $"⚠ {tileCount:N0} 타일 — 생성에 수 초 걸릴 수 있습니다 (비동기 처리됨)"
-                    : $"ℹ {tileCount:N0} 타일 — 잠시 처리 시간이 필요합니다";
-                EditorGUILayout.HelpBox(warn, tileCount > 2_000_000 ? MessageType.Warning : MessageType.Info);
-            }
+                EditorGUILayout.HelpBox(
+                    tileCount > 2_000_000
+                        ? $"⚠ {tileCount:N0} 타일 — 생성에 수 초 걸릴 수 있습니다 (비동기)"
+                        : $"ℹ {tileCount:N0} 타일",
+                    tileCount > 2_000_000 ? MessageType.Warning : MessageType.Info);
             else
-            {
                 EditorGUILayout.LabelField($"타일 수: {tileCount:N0}", _styleMiniLabel);
-            }
 
             SectionLabel("지형 노이즈");
             _settings.NoiseScale    = EditorGUILayout.Slider("Noise Scale",    _settings.NoiseScale,    0.5f, 8f);
@@ -186,31 +181,26 @@ namespace WorldForge
             SectionLabel("해수면");
             _settings.SeaLevel = EditorGUILayout.Slider("Sea Level %", _settings.SeaLevel, 0.2f, 0.7f);
 
-            SectionLabel("지물 수");
-            FeatureCountField("Nations",   ref _settings.NumNations,      2, 100,  2);
-            FeatureCountField("Rivers",    ref _settings.NumRivers,        0, 200,  0);
+            SectionLabel("국가 / 강");
+            FeatureCountField("Nations", ref _settings.NumNations, 2, 100, 2);
+            FeatureCountField("Rivers",  ref _settings.NumRivers,  0, 200, 0);
 
-            SectionLabel("도시 수 (등급별)");
-            EditorGUILayout.LabelField("수도 (Capital)",
-                $"{_settings.NumNations}  ← 국가 수와 동일", _styleMiniLabel);
-            FeatureCountField("대도시",  ref _settings.NumMajorCities,  0, 500,  0);
-            FeatureCountField("중도시",  ref _settings.NumMinorCities,  0, 1000, 0);
-            FeatureCountField("소도시",  ref _settings.NumVillages,     0, 2000, 0);
+            // ── 도시 등급 (가변) ──────────────────────────────────
+            SectionLabel("도시 등급");
+            EditorGUILayout.LabelField(
+                "Tier 0 = 수도 (수도 수는 Nations 와 동일, Count 무시)", _styleMiniLabel);
+            DrawTierList();
 
-            SectionLabel("스폿 수 (종류별)");
-            FeatureCountField("⚔ 던전",    ref _settings.NumDungeons,    0, 200, 0);
-            FeatureCountField("🏛 유적",    ref _settings.NumRuins,       0, 200, 0);
-            FeatureCountField("🗼 마법탑",  ref _settings.NumMagicTowers, 0, 200, 0);
-            FeatureCountField("💀 묘지",    ref _settings.NumGraveyards,  0, 200, 0);
-            FeatureCountField("🌋 화산",    ref _settings.NumVolcanoes,   0, 200, 0);
+            // ── 스폿 종류 (가변) ──────────────────────────────────
+            SectionLabel("스폿 종류");
+            DrawSpotList();
 
             // 경고
-            long tileCount2  = (long)_settings.MapWidth * _settings.MapHeight;
-            int  landEst     = (int)(tileCount2 * (1f - _settings.SeaLevel));
+            int  landEst      = (int)(tileCount * (1f - _settings.SeaLevel));
             int  totalFeatures = _settings.TotalCities + _settings.TotalSpots;
             if (totalFeatures > landEst / 4)
                 EditorGUILayout.HelpBox(
-                    $"⚠ 지물 합계({totalFeatures})가 추정 육지 타일({landEst:N0})에 비해 많습니다.",
+                    $"⚠ 지물 합계({totalFeatures}) / 추정 육지({landEst:N0})",
                     MessageType.Warning);
 
             GUILayout.Space(10);
@@ -218,6 +208,104 @@ namespace WorldForge
             if (GUILayout.Button("⚑  Generate World", GUILayout.Height(32)))
                 DoGenerate();
             GUI.backgroundColor = Color.white;
+        }
+
+        // ── 도시 등급 리스트 편집 ─────────────────────────────────
+        private void DrawTierList()
+        {
+            var defs = _settings.CityTierDefs;
+            int removeAt = -1;
+
+            for (int i = 0; i < defs.Count; i++)
+            {
+                var d = defs[i];
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                EditorGUILayout.BeginHorizontal();
+
+                // 등급 번호 + 이름
+                EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(24));
+                d.Label = EditorGUILayout.TextField(d.Label, GUILayout.ExpandWidth(true));
+
+                // 색상 박스 (클릭 불가 — 직접 RGB 입력)
+                var col = new UnityEngine.Color(d.ColorR / 255f, d.ColorG / 255f, d.ColorB / 255f);
+                EditorGUI.DrawRect(GUILayoutUtility.GetRect(16, 16, GUILayout.Width(16)), col);
+
+                if (i > 0 && GUILayout.Button("✕", GUILayout.Width(22))) removeAt = i;
+                EditorGUILayout.EndHorizontal();
+
+                // Count (수도 = Tier 0 은 Nations 와 연동이므로 편집 비활성)
+                if (i == 0)
+                    EditorGUILayout.LabelField("Count", $"{_settings.NumNations} (Nations 에 연동)", _styleMiniLabel);
+                else
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Count", GUILayout.Width(46));
+                    d.Count = Mathf.Max(0, EditorGUILayout.IntField(d.Count));
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                // RGB + IconRadius
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("RGB", GUILayout.Width(30));
+                d.ColorR = (byte)Mathf.Clamp(EditorGUILayout.IntField(d.ColorR, GUILayout.Width(38)), 0, 255);
+                d.ColorG = (byte)Mathf.Clamp(EditorGUILayout.IntField(d.ColorG, GUILayout.Width(38)), 0, 255);
+                d.ColorB = (byte)Mathf.Clamp(EditorGUILayout.IntField(d.ColorB, GUILayout.Width(38)), 0, 255);
+                EditorGUILayout.LabelField("R", GUILayout.Width(14));
+                d.IconRadius = Mathf.Clamp(EditorGUILayout.IntField(d.IconRadius, GUILayout.Width(30)), 1, 8);
+                EditorGUILayout.EndHorizontal();
+
+                defs[i] = d;
+                EditorGUILayout.EndVertical();
+            }
+
+            if (removeAt >= 0) defs.RemoveAt(removeAt);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("+ 등급 추가", GUILayout.Height(22)))
+                defs.Add(new CityTierDef($"등급{defs.Count}", 10, 160, 90, 20, 1));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        // ── 스폿 종류 리스트 편집 ─────────────────────────────────
+        private void DrawSpotList()
+        {
+            var defs = _settings.SpotTypeDefs;
+            int removeAt = -1;
+
+            for (int i = 0; i < defs.Count; i++)
+            {
+                var d = defs[i];
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(24));
+                d.Label = EditorGUILayout.TextField(d.Label, GUILayout.ExpandWidth(true));
+
+                var col = new UnityEngine.Color(d.ColorR / 255f, d.ColorG / 255f, d.ColorB / 255f);
+                EditorGUI.DrawRect(GUILayoutUtility.GetRect(16, 16, GUILayout.Width(16)), col);
+
+                if (GUILayout.Button("✕", GUILayout.Width(22))) removeAt = i;
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Count", GUILayout.Width(46));
+                d.Count = Mathf.Max(0, EditorGUILayout.IntField(d.Count));
+                EditorGUILayout.LabelField("RGB", GUILayout.Width(30));
+                d.ColorR = (byte)Mathf.Clamp(EditorGUILayout.IntField(d.ColorR, GUILayout.Width(38)), 0, 255);
+                d.ColorG = (byte)Mathf.Clamp(EditorGUILayout.IntField(d.ColorG, GUILayout.Width(38)), 0, 255);
+                d.ColorB = (byte)Mathf.Clamp(EditorGUILayout.IntField(d.ColorB, GUILayout.Width(38)), 0, 255);
+                EditorGUILayout.EndHorizontal();
+
+                defs[i] = d;
+                EditorGUILayout.EndVertical();
+            }
+
+            if (removeAt >= 0) defs.RemoveAt(removeAt);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("+ 종류 추가", GUILayout.Height(22)))
+                defs.Add(new SpotTypeDef($"스폿{defs.Count}", 3, 150, 150, 150));
+            EditorGUILayout.EndHorizontal();
         }
 
         // ── 레이어 탭 ─────────────────────────────────────────────
@@ -265,38 +353,22 @@ namespace WorldForge
 
             SectionLabel("지물");
             StatRow("국가",      $"{_world.Nations.Count}");
-            // 등급별 도시 수
-            int caps=0, majors=0, minors=0, villages=0;
+
+            // 도시 등급별 집계 (가변)
+            var tierCounts = new int[_world.Settings.CityTierDefs.Count];
             foreach (var c in _world.Cities)
-                switch (c.Tier)
-                {
-                    case CityTier.Capital: caps++;    break;
-                    case CityTier.Major:   majors++;  break;
-                    case CityTier.Minor:   minors++;  break;
-                    default:               villages++; break;
-                }
-            StatRow("수도",      $"{caps}");
-            StatRow("대도시",    $"{majors}");
-            StatRow("중도시",    $"{minors}");
-            StatRow("소도시",    $"{villages}");
+                if (c.Tier >= 0 && c.Tier < tierCounts.Length) tierCounts[c.Tier]++;
+            for (int i = 0; i < _world.Settings.CityTierDefs.Count; i++)
+                StatRow(_world.Settings.CityTierDefs[i].Label, $"{tierCounts[i]}");
             StatRow("도시 합계", $"{_world.Cities.Count}");
             StatRow("강",        $"{_world.Rivers.Count}");
-            // 스폿 종류별 집계
-            int dungeons=0, ruins=0, towers=0, graves=0, volcs=0;
+
+            // 스폿 종류별 집계 (가변)
+            var spotCounts = new int[_world.Settings.SpotTypeDefs.Count];
             foreach (var sp in _world.Spots)
-                switch (sp.Type)
-                {
-                    case SpotType.Dungeon:     dungeons++; break;
-                    case SpotType.AncientRuin: ruins++;    break;
-                    case SpotType.MagicTower:  towers++;   break;
-                    case SpotType.Graveyard:   graves++;   break;
-                    case SpotType.Volcano:     volcs++;    break;
-                }
-            StatRow("⚔ 던전",   $"{dungeons}");
-            StatRow("🏛 유적",   $"{ruins}");
-            StatRow("🗼 마법탑", $"{towers}");
-            StatRow("💀 묘지",   $"{graves}");
-            StatRow("🌋 화산",   $"{volcs}");
+                if (sp.SpotTypeId >= 0 && sp.SpotTypeId < spotCounts.Length) spotCounts[sp.SpotTypeId]++;
+            for (int i = 0; i < _world.Settings.SpotTypeDefs.Count; i++)
+                StatRow(_world.Settings.SpotTypeDefs[i].Label, $"{spotCounts[i]}");
             StatRow("스폿 합계", $"{_world.Spots.Count}");
             StatRow("교역로",    $"{_world.Roads.Count}");
 
@@ -312,8 +384,8 @@ namespace WorldForge
             }
 
             SectionLabel("스폿 목록");
-            foreach (var s in _world.Spots)
-                GUILayout.Label($"{WorldMapRenderer.SpotEmoji(s.Type)} {s.Name}  ({s.X},{s.Y})");
+            // foreach (var s in _world.Spots)
+            //     GUILayout.Label($"{WorldMapRenderer.SpotEmoji(s.Type)} {s.Name}  ({s.X},{s.Y})");
         }
 
         // ── 맵 미리보기 ───────────────────────────────────────────
