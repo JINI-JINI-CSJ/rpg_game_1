@@ -20,6 +20,8 @@ public class CSV_Config : SJ_CSV_BasePage
     // 일반 최대 레벨 
     public int level_max_normal = 100;
 
+    public int grade_by_level_step = 10;    // 클래스 당 레벨 
+
     // 메인 스토리 최대 레벨
     public int level_max_story = 60;
 
@@ -28,6 +30,9 @@ public class CSV_Config : SJ_CSV_BasePage
 
     // 기본기준 최대레벨 강함 비율
     public float level_MAX_Value_per = 10; // 1 레벨 대비 100 레벨은 10배 강하다.
+
+    // 등급(그레이드 최대)
+    public int max_grade = 10;
 
     //===========================================
     // 월드 메이킹 
@@ -55,6 +60,18 @@ public class CSV_Config : SJ_CSV_BasePage
     //===========================================
     // 아이템 메이킹
 
+    // 유니크 아이템
+    // 0 클래스 ~ 10 클래스 ( 1 레벨 ~ 100 레벨 )
+    public List<int> making_unique_item_grade_num;
+
+    // 유니크 아이템 최대 점수
+    // 만들때는 수치 점수랑 , 이펙트 점수를 랜덤으로 분배
+    public int making_unique_item_good_score = 4;
+
+    // 유니크 아이템 수치 점수 퍼센트
+    public float making_item_statFix = 0.15f;
+
+
     // 수집품 등급별 퍼센트 , 100 기준으로 인덱스 별로
     // 80, 15 , 4 , 1 
     public List<int> making_item_collect_per;
@@ -64,7 +81,7 @@ public class CSV_Config : SJ_CSV_BasePage
     //===========================================
     // 캐릭터 메이킹
     // 보너스 점수당 10 퍼센트
-    public float makeChar_statAddFix = 0.1f; 
+    public float makeChar_statFix = 0.1f; 
 
     // 스킬 메이킹
     public int makeSkill_BaseVal_FIGHTER;       // 메이킹 스킬 기본 공격력
@@ -129,5 +146,21 @@ public class CSV_Config : SJ_CSV_BasePage
         return SJ_CSharpUtil.GetList_IndexSafe( enemyRarityGrade_EquipBonusMax , rarityGradeIdx );
     }
 
+    // 등급은 1부터 시작
+    // 여기는 인덱스로 체크
+    public int GetMaking_unique_item_grade_num( int idx )
+    {
+        return SJ_CSharpUtil.GetList_IndexSafe( making_unique_item_grade_num , idx );
+    }
+
+    // 현재 10 단위
+    // 1~10 단위로 등급하자.
+    // 0은 민간인이라는 설정
+    public int GradeToLevel( int grade )
+    {
+        int level = grade * grade_by_level_step;
+        if( level < 1 ) level = 1;
+        return level;
+    }
 
 }

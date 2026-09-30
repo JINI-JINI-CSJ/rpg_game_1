@@ -162,4 +162,25 @@ public class SkillBaseGroup
             bw.Write( s );
         }
     }
+
+    // 메이킹용 추가 스킬들
+    // 추가 효과 스킬들 태그로 한다. 
+    // 여러개를 동시에 할수 있다. pop 액션으로 한다.
+    public void RandomAddEffSkill( Mng_X128SS rd , int total , int good_bad )
+    {
+        if( total < 1 ) return;
+        string tag = "ADD_EFF_GOOD";
+        if( good_bad == -1 ) tag = "ADD_EFF_BAD";
+        List<CSV_Skill> cSV_Skills = GTF_CSV.csv_SkillPage_ADD_EFF.GetTag_Contain( tag );
+        for( int i = 0 ; i < total ; i++ )
+        {
+            if( cSV_Skills.Count < 1 )
+            {
+                Debug.LogError( "추가 이펙트 태그 부족!!! : " + tag + " : " + total );
+                return;
+            }
+            CSV_Skill csv = rd.RandomList( cSV_Skills , true );
+            AddCSV(csv.ID_int);
+        }
+    }
 }

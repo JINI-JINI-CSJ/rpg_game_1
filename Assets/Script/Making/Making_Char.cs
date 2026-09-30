@@ -109,7 +109,7 @@ public class Making_Char
         CharBase charBase = CharBase.InstCharBase_CSV( csv , 1 , _ARMY_FORCE.Player );
 
         // 스탯 보너스
-        charBase.charPrcValue.RandomStatBonus( rd , sc_stat , GTF_CSV.csv_Config.makeChar_statAddFix );
+        charBase.charPrcValue.RandomStatBonus( rd , sc_stat , GTF_CSV.csv_Config.makeChar_statFix );
 
         // 무작위 스킬 
         for( int i = 0 ; i < add_skill ; i++ )

@@ -117,4 +117,20 @@ public class CSV_ItemPage : SJ_CSV_BasePage
         List<CSV_Item> lt = GetRangeLevel( lv_s , lv_e );
         return rd.RandomList( lt );
     }
+
+    public List<CSV_Item> GetTag( string tag )
+    {
+        List<CSV_Item> lt = new();
+        foreach( var s in dic_int.Values.Cast<CSV_Item>() )
+        {
+            if( s.tag.Contains( tag ) ) lt.Add(s);
+        }
+        return lt;
+    }
+
+    public CSV_Item GetTag_One( Mng_X128SS rd , string tag )
+    {
+        List<CSV_Item> lt = GetTag(tag);
+        return rd.RandomList(lt);
+    }
 }

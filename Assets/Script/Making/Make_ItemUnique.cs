@@ -1,8 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CSV_ITEM_PopRefill<CSV_Item> : SJ_ListPopRefill<CSV_Item>
+{
+    public Mng_X128SS rd;
+    public override int OnRandom(int max)
+    {
+        return rd.NextInt(0,max);
+    }
+}
+
+public class ITEMBase_PopRefill<ItemBase> : SJ_ListPopRefill<ItemBase>
 {
     public Mng_X128SS rd;
     public override int OnRandom(int max)
@@ -36,7 +46,8 @@ public class Make_ItemUnique : MakeBase
     public List<CSV_Item> csv_Items_MATTER_DISPENSE = new();
 
 
-    public CSV_ITEM_PopRefill<CSV_Item> iTEM_PopRefill = new();
+    // 등급 , 리필 
+    public Dictionary<int,ITEMBase_PopRefill<ItemBase>> dic_iTEM_PopRefill = new();
 
     public void Make_EqItem()
     {
@@ -56,8 +67,30 @@ public class Make_ItemUnique : MakeBase
         // 많은 단서 입수 ->  이세계 급
 
         // 일단 [전설] -> [신화] -> [이경] 정도로 하자.
-        // 
+        // 각 등급당 개수는 전역으로 정하자.
+
+        for( int i = 0 ; i < GTF_CSV.csv_Config.max_grade; i++ )
+        {
+            int num = GTF_CSV.csv_Config.GetMaking_unique_item_grade_num( i );
+            int grade = i + 1;
+            if( num > 0 )
+            {
+                // MAKE_ITEM_EQ_BASE 기본 베이스 아이템으로 만들기
+                // 좋음 점수만 추가 
+                ItemBase item = Making_Item.MakeEqItem( GTF_Random.rd_make_common , GTF_CSV.csv_Config.GradeToLevel( grade ) , 
+                                        "MAKE_ITEM_EQ_BASE" , GTF_CSV.csv_Config.making_unique_item_good_score , 0 );
+
+                ITEMBase_PopRefill<ItemBase> popRefill = null;
+                if( dic_iTEM_PopRefill.TryGetValue( grade , out popRefill ) == false )
+                {
+                    popRefill = new();
+                    dic_iTEM_PopRefill[grade] = popRefill;
+                }
+                popRefill.AddSrcOne( item );
+            }
+        }
     }
+
 
     public void Load_CollectItem()
     {
@@ -108,6 +141,11 @@ public class Make_ItemUnique : MakeBase
 
 
 
+    }
+
+    public void MakeRecipe()
+    {
+        
     }
 
     public CSV_Item _Get_CollectItem( Mng_X128SS rd )

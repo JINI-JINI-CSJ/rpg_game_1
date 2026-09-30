@@ -40,10 +40,10 @@ public class Make_Global : MakeBase
 
         // 도시 갯수
         // 수도 + 대중소 
-        total_city_Nation = GTF_CSV.csv_Config.Random_WorldNation( GTF_Random.rd_make_world );
-        total_city_Major = GTF_CSV.csv_Config.Random_WorldCityMajor( GTF_Random.rd_make_world );
-        total_city_Minor = GTF_CSV.csv_Config.Random_WorldCityMinor( GTF_Random.rd_make_world );
-        total_city_Village = GTF_CSV.csv_Config.Random_WorldCityVillage( GTF_Random.rd_make_world );
+        total_city_Nation = GTF_CSV.csv_Config.Random_WorldNation( GTF_Random.rd_make_common );
+        total_city_Major = GTF_CSV.csv_Config.Random_WorldCityMajor( GTF_Random.rd_make_common );
+        total_city_Minor = GTF_CSV.csv_Config.Random_WorldCityMinor( GTF_Random.rd_make_common );
+        total_city_Village = GTF_CSV.csv_Config.Random_WorldCityVillage( GTF_Random.rd_make_common );
 
         total_city = total_city_Nation + total_city_Major + total_city_Minor + total_city_Village;
 
@@ -54,13 +54,13 @@ public class Make_Global : MakeBase
         // 각 등급별 갯수 = 각 총 갯수 / 레벨링 스텝        
 
         // 일단 총갯수
-        int total_unique_all = (int)((float)total_city * GTF_CSV.csv_Config.Random_UniqueObjPer( GTF_Random.rd_make_world ));
+        int total_unique_all = (int)((float)total_city * GTF_CSV.csv_Config.Random_UniqueObjPer( GTF_Random.rd_make_common ));
 
         SJ_RANDOM_AverageStep.Clear();
 
         SJ_RANDOM_AverageStep.Add( 1 ); // 캐릭터 
         SJ_RANDOM_AverageStep.Add( 2 ); // 아이템
-        SJ_RANDOM_AverageStep.CalcAverage( GTF_Random.rd_make_world );
+        SJ_RANDOM_AverageStep.CalcAverage( GTF_Random.rd_make_common );
 
         int total_unique_chr = (int)((float)total_unique_all * SJ_RANDOM_AverageStep.ResultObj( 1 ));
         int total_unique_item = (int)((float)total_unique_all * SJ_RANDOM_AverageStep.ResultObj( 2 ));
@@ -72,6 +72,6 @@ public class Make_Global : MakeBase
 
     public float BiasCityNormalSpc()
     {
-        return GTF_CSV.csv_Config.Random_WorldCitySpcPer( GTF_Random.rd_make_world );
+        return GTF_CSV.csv_Config.Random_WorldCitySpcPer( GTF_Random.rd_make_common );
     }
 }

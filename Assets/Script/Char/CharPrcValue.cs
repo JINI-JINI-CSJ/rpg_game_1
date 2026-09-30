@@ -51,11 +51,12 @@ public class CharPrcValue : SJ_PrcValueMng
     }
 
     // 보너스 점수로 원본 수치를 바꾼다.
+    // ChrValue_ScoreFix 대체
     public void RandomStatBonus( Mng_X128SS rd , int score , float add_fix = -1 )
     {
         if( add_fix < 0 )
         {
-            add_fix = GTF_CSV.csv_Config.makeChar_statAddFix;
+            add_fix = GTF_CSV.csv_Config.makeChar_statFix;
         }
 
         rd.Clear_RandomDivision();

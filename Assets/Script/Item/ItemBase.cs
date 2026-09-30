@@ -7,12 +7,26 @@ public class ItemBase
     // 기본 데이터
     public uint ID;
     public CSV_Item csv;
-    //public List<CSV_Skill> lt_csv_skill_addEff = new(); // 추가 효과가 있을경우    
 
+    //==== 
+    // 메이킹
+
+    // 메이킹 추가 점수 
+    public int make_good_charVal;
+    public int make_bad_charVal;
+    public int make_good_effSkill;
+    public int make_bad_effSkill;
+
+
+    // 추가 수치 
+    public ChrValue_ScoreFix chrValue_ScoreFix = new();
+    // 추가 효과 스킬
     public SkillBaseGroup skillBaseGroup = new();
+    //====
 
     // 인게임
     public CharPrcValue charPrcValue = new();
+
     // 레벨
     public int LEVEL;
     // 
@@ -52,12 +66,12 @@ public class ItemBase
         charPrcValue.Copy( csv.charPrcValue );
     }
 
-    public void AddSkillCSV( List<CSV_Skill> cSV_s )
+    // 기존 csv 기준으로 레벨링
+    public void Leveling( int lv )
     {
-        skillBaseGroup.AddCSV( cSV_s );
-        skillBaseGroup.UpdateSkillBase();
+        LEVEL = lv;
+        charPrcValue.CalcLevel_BySrc( csv.charPrcValue , LEVEL );
     }
-
 
     public void Add_EquipChar( CharBase charBase )
     {
@@ -105,3 +119,4 @@ public class ItemBase
 
     virtual public void Action( BATTLE_SEL_GROUP sel_group ){}
 }
+

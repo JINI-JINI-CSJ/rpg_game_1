@@ -10,7 +10,7 @@ public class WORLD_POS
 // 캐릭터 스탯
 public enum CHAR_STAT
 {
-    None = 0 ,
+    None = -1 ,
     HP ,
     MP , 
     ACTION_SPEED ,      // 행동속도   
@@ -21,6 +21,9 @@ public enum CHAR_STAT
     ATK_M ,
     DEF_M , 
     // 마법 명중 회피는 일단 제외 , 무조건 맞는다.
+
+    MAX ,
+
 }
 
 // 직업 큰 분류
@@ -61,5 +64,15 @@ public enum SKILL_ACTIVE_TYPE
 
 public class GTF_Common 
 {
+    // 추가 점수 분배
+    static public void MakeAddScore_ChrVal_EffSk( Mng_X128SS rd , int total , ref int sc_chrVal , ref int sc_effSk )
+    {
+        sc_chrVal = rd.NextInt( 0 , total+1 );
+        sc_effSk = total - sc_chrVal;
+    }
 
+    static public CHAR_STAT Random_Char_Stat( Mng_X128SS rd )
+    {
+        return (CHAR_STAT)rd.NextInt( 0 , (int)CHAR_STAT.MAX );
+    }
 }

@@ -40,7 +40,7 @@ public class Make_City : MakeBase
         // 시작지점 , 소마을 티어중에 한개1
         QuadTree quadTree = Make_WorldMap.G.quadTree;
         List<QTPoint> qTs = quadTree.GetAllPoints( Make_WorldMap.TAG_HASH_CITY_Village() );
-        QTPoint qt_s = GTF_Random.rd_make_world.RandomList( qTs );
+        QTPoint qt_s = GTF_Random.rd_make_common.RandomList( qTs );
         city_Start = (City)qt_s.Data;
 
 
@@ -97,7 +97,7 @@ public class Make_City : MakeBase
 
             City city = city_no_find[0].Item1;
             city.city_find_type = CITY_FIND_TYPE.NO_FIND;
-            city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_world );
+            city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_common );
             city_no_find.RemoveAt(0);
         }
 
