@@ -92,7 +92,7 @@ public class CSV_Item : SJ_CSV_BaseObj
     }
 
     // 월드 메이킹 때 설정한 등급
-    public int making_grade;
+    public int making_grade = -1;
 }
 
 public class CSV_ItemPage : SJ_CSV_BasePage

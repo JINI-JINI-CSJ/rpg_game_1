@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CldTagSystem;
 using UnityEngine;
 
 // 클래스 진화 돌파 등급 , 최대 레벨 상승
@@ -29,10 +30,8 @@ public class CharBase
     //===========================================
     // 현재 상태
     public CharPrcValue     charPrcValue = new();
-
     public int cur_HP;
     public int cur_MP;
-
     // 캐릭터 내장 스킬
     public List<SkillBase> skills_Chr = new();
     // 추가 스킬
@@ -41,9 +40,21 @@ public class CharBase
 
     // 전투에서 공격을 선택했을때 기본 공격
     public SkillBase skillBase_Default;
-
     // 배틀 중 전투 커멘드
     public BattleCommand command;
+
+    // 상태이상 , 각종 버프 디버프 등등
+    public CldTagManager<SkillBase> tagStateObj = new();
+
+    // 상태 태그들
+    public const string TAG_STATE_SKILL         = "TAG_STATE_SKILL"; // 모든 상태 스킬 태그 
+    public const string TAG_STATE_SKILL_GOOD    = "TAG_STATE_SKILL_GOOD";
+    public const string TAG_STATE_SKILL_BAD     = "TAG_STATE_SKILL_BAD";
+
+    // 상태 스킬 등록은 다음과 같이 3파트
+    // <주요> TAG_STATE_SKILL , <보조> TAG_STATE_SKILL_GOOD , <세부> [클래스 이름]
+
+
     //===========================================
 
 
@@ -192,7 +203,6 @@ public class CharBase
 
     //=============================================================================================
     // 장비 아이템
-
     public ItemBase GetEquipItem( _EQUIP_CHR_PART part )
     {
         return items_EQ[(int)part];
@@ -217,10 +227,16 @@ public class CharBase
         }
         return item_recent;
     }
-
     //
     //=============================================================================================
 
+    //=============================================================================================
+    // 상태이상 
+
+
+
+    //
+    //=============================================================================================
 
     public void GetDamage( int damage )
     {

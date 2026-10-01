@@ -36,6 +36,10 @@ public class Make_ItemUnique : MakeBase
         G = this;
     }
 
+    // 유니크 아이템
+    // 등급 , 리필 
+    public Dictionary<int,ITEMBase_PopRefill<ItemBase>> dic_ItemUnique_PopRefill = new();    
+
     // 배분용 컬랙션 아이템
     // 초기화 시점에 csv 에서 읽어온다.
     // 던전이나 적군에서 드랍 아이템을 만들때 배분한다.
@@ -46,8 +50,10 @@ public class Make_ItemUnique : MakeBase
     public List<CSV_Item> csv_Items_MATTER_DISPENSE = new();
 
 
-    // 등급 , 리필 
-    public Dictionary<int,ITEMBase_PopRefill<ItemBase>> dic_iTEM_PopRefill = new();
+    // 재료 희소 등급별로 정리
+    public Dictionary<int,List<CSV_Item>> dic_grade_Items_MATTER_COOKING = new();
+    public Dictionary<int,List<CSV_Item>> dic_grade_Items_MATTER_DISPENSE = new();
+
 
     public void Make_EqItem()
     {
@@ -81,10 +87,10 @@ public class Make_ItemUnique : MakeBase
                                         "MAKE_ITEM_EQ_BASE" , GTF_CSV.csv_Config.making_unique_item_good_score , 0 );
 
                 ITEMBase_PopRefill<ItemBase> popRefill = null;
-                if( dic_iTEM_PopRefill.TryGetValue( grade , out popRefill ) == false )
+                if( dic_ItemUnique_PopRefill.TryGetValue( grade , out popRefill ) == false )
                 {
                     popRefill = new();
-                    dic_iTEM_PopRefill[grade] = popRefill;
+                    dic_ItemUnique_PopRefill[grade] = popRefill;
                 }
                 popRefill.AddSrcOne( item );
             }
@@ -129,18 +135,28 @@ public class Make_ItemUnique : MakeBase
             CSV_Item csv = popRefill.Popup( true );
             if( csv == null ) break;
 
+            // 재료 등급 0 ~ n ( GTF_CSV.csv_Config.making_item_collect_per )
             for( int grade = 0; grade < item_grade_num.Count ; grade++ )
             {
                 if( num_prc <= item_grade_num[grade] )
                 {
                     csv.making_grade = grade;
+
+                    Dictionary<int,List<CSV_Item>> dic_grade = null;
+                    if( csv.tag.Contains( "MATTER_COOKING" ) )  dic_grade = dic_grade_Items_MATTER_COOKING;
+                    else                                        dic_grade = dic_grade_Items_MATTER_DISPENSE;
+
+                    List<CSV_Item> grade_lt = null;
+                    if( dic_grade.TryGetValue( grade , out grade_lt ) == false )
+                    {
+                        grade_lt = new();
+                        dic_grade[grade] = grade_lt;
+                    }
+                    grade_lt.Add( csv );
                 }
             }
             num_prc++;
         }
-
-
-
     }
 
     public void MakeRecipe()

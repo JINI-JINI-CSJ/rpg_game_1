@@ -76,6 +76,16 @@ public class CSV_Config : SJ_CSV_BasePage
     // 80, 15 , 4 , 1 
     public List<int> making_item_collect_per;
 
+    
+    // 레시피 아이템 등급당 개수
+    // 현재 : 총 레시피 등급 ( 4 * 2 - 1 ) = 7 
+    // 한 파트당 : 7 * 20 -> 140 
+    // 음식 , 소모 -> 140 * 2 = 280
+    public int making_recipe_grade_num = 20;
+
+    // 레시피의 재료 최대 개수
+    public int making_recipe_matter_max = 5;
+
 
 
     //===========================================
