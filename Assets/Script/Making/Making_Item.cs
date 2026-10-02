@@ -41,14 +41,6 @@ public class _BIAS_ITEM : _BIAS_COMMON
 
 public class Making_Item
 {
-
-    
-    // static public ItemBase MakeEqItem( SJ_ID_INT_Mng idMng , Mng_X128SS _rd , _BIAS_ITEM bias_item , int sc_params , int sc_addEff )
-    // {
-    //     ItemBase item = new();
-    //     return item;
-    // }
-
     // csv 장비 아이템기반의 레벨 범위로 만들기  
     static public ItemBase MakeEqItem( SJ_ID_INT_Mng idMng , Mng_X128SS _rd , int lv_s , int lv_e , int sc_params , int sc_addEff )
     {

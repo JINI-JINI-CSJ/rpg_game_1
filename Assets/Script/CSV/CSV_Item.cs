@@ -92,7 +92,14 @@ public class CSV_Item : SJ_CSV_BaseObj
     }
 
     // 월드 메이킹 때 설정한 등급
-    public int making_grade = -1;
+    public int matter_grade = -1;
+
+    public int ScoreMatter()
+    {
+        int score = matter_grade * GTF_CSV.csv_Config.making_recipe_matter_grade_score;
+        if( score < 1 ) score = 1;
+        return score;
+    }
 }
 
 public class CSV_ItemPage : SJ_CSV_BasePage

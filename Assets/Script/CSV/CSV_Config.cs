@@ -29,7 +29,8 @@ public class CSV_Config : SJ_CSV_BasePage
     public int levelStep_Unique = 20;
 
     // 기본기준 최대레벨 강함 비율
-    public float level_MAX_Value_per = 10; // 1 레벨 대비 100 레벨은 10배 강하다.
+    // 1 레벨 : 100 레벨의 강함비율
+    public float level_MAX_Value_per = 50; // 50 배 강함
 
     // 등급(그레이드 최대)
     public int max_grade = 10;
@@ -86,7 +87,10 @@ public class CSV_Config : SJ_CSV_BasePage
     // 레시피의 재료 최대 개수
     public int making_recipe_matter_max = 5;
 
-
+    // 레시피 재료 아이템의 등급당 점수
+    // making_item_collect_per 에 연동
+    // 현재 : 1 , 20 , 40 , 60
+    public int making_recipe_matter_grade_score = 20;
 
     //===========================================
     // 캐릭터 메이킹
@@ -171,6 +175,13 @@ public class CSV_Config : SJ_CSV_BasePage
         int level = grade * grade_by_level_step;
         if( level < 1 ) level = 1;
         return level;
+    }
+
+    public int MaxRecipeMatterScore()
+    {
+        // 총등급 * 등급당 점수 * 재료 최대 개수 * 재료 최대 종류
+        // 4 * 20 * 5 * 2
+        return making_item_collect_per.Count * making_recipe_matter_grade_score * making_recipe_matter_max * 2;
     }
 
 }

@@ -75,4 +75,30 @@ public class GTF_Common
     {
         return (CHAR_STAT)rd.NextInt( 0 , (int)CHAR_STAT.MAX );
     }
+
+    // 복수 대상 별 위력
+    // 인자 
+    // 0 : 1인
+    // 1 : 1라인
+    // 2 : 전체
+    static public int CountNum_SelectTarget(int type)
+    {
+        switch( type )
+        {
+            case 0: return 1;
+            case 1: return 3;
+            case 2: return 6;
+        }
+        return -1;
+    }
+
+    static public float PowRatio_SelectTarget( int type ){return 1.0f / CountNum_SelectTarget( type );}
+
+    // static public int CountNum_SelectTarget_ToIdx( BATTLE_ACTION_TARGET btr )
+    // {
+    //     switch( btr )
+    //     {
+    //         case 
+    //     }
+    // }
 }

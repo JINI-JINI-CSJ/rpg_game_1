@@ -30,6 +30,11 @@ public class Recipe
             {
                 return csv_obj.ID_int.ToString() + "_" + num.ToString() + "-";
             }
+
+            public int ScoreMatter()
+            {
+                return csv_obj.matter_grade * GTF_CSV.csv_Config.making_recipe_matter_grade_score * num;
+            }
         }
 
         public List<PairMatter> pairMaters = new();
@@ -74,19 +79,48 @@ public class Recipe
             s.num = rd.NextInt( 1 , max_num );
             pairMaters.Add(s);
         }
+
+        // 점수계산
+        // 전체 레시피 점수 범위
+        // 최소 : 최소 등급재료 2개의 1씩
+        // 최대 : 최대 등급재료 2개의 최대개수 (5)
+        // 등급 재료 점수 : 등급당 n 점수 , 좀 크게 잡는다.
+
+        public int TotalMatterScore()
+        {
+            int t = 0;
+            foreach( var s in pairMaters ) t += s.ScoreMatter();
+            return t;
+        }
+
+        public float TotalMatterScore_Ratio()
+        {
+            return (float)TotalMatterScore() / (float)GTF_CSV.csv_Config.MaxRecipeMatterScore();
+        }
     }
 
     public uint ID;
 
+    // 레시피 등급
+    public int grade_recipe;
+
     // 재료들
     public MatterMixture materMixture;
 
-    RecipeITEMEff_TYPE recipeITEM;
+    public RecipeITEMEff_TYPE recipeITEM;
+
+    public Item_MatterMixture item_MatterMixture;
 
     // 효과 , 아이템을 만들자.
-    public void MakeItem( MatterMixture _materMixture , RecipeITEMEff_TYPE _recipeITEM )
+    // 실제효과는 Item_MaterMixture 에서 하낟.
+    public void MakeItem( Mng_X128SS rd , int _grade_recipe , uint id , MatterMixture _materMixture , RecipeITEMEff_TYPE _recipeITEM )
     {
-        
+        ID = id;
+        grade_recipe = _grade_recipe;
+        materMixture = _materMixture;
+        recipeITEM = _recipeITEM;
+        item_MatterMixture = new();
+        item_MatterMixture.MakeByRecipe( rd , this );
     }
     
 }
@@ -116,19 +150,23 @@ public class RecipeGroupMng
     static public void Make()
     {
         // 음식 , 소모 아이템 2파트 만든다.
-        MakePart( RecipeITEMEff_TYPE.Heal );
-        MakePart( RecipeITEMEff_TYPE.Attack );
+        MakePart( RecipeITEMEff_TYPE.Defense );
+        MakePart( RecipeITEMEff_TYPE.Offense );
+    }
+
+    // 0   1   2   3
+    // 0 1 2 3 4 5 6 
+    // 마지막은 제외
+    static public int Total_RecipeGrade()
+    {
+        return GTF_CSV.csv_Config.making_item_collect_per.Count * MATTER_GRADE_TO_RECIPE_GRADE - 1;
     }
 
     static public void MakePart( RecipeITEMEff_TYPE recipeITEM )
     {
-
-    // public Dictionary<int,List<CSV_Item>> dic_grade_Items_MATTER_COOKING = new();
-    // public Dictionary<int,List<CSV_Item>> dic_grade_Items_MATTER_DISPENSE = new();
-
         Dictionary<int,List<CSV_Item>> dic_matter = null;
 
-        if( recipeITEM == RecipeITEMEff_TYPE.Heal )
+        if( recipeITEM == RecipeITEMEff_TYPE.Defense )
         {
             dic_matter = Make_ItemUnique.G.dic_grade_Items_MATTER_COOKING;
         }
@@ -140,14 +178,13 @@ public class RecipeGroupMng
         // 총 레시피 등급 계산
         // 일단 고정으로 희소등급당 2개 , 일단 고정
         // 현재 재료 희소 등급 4개다.         
-        int grade_matter = GTF_CSV.csv_Config.making_item_collect_per.Count;
-        int total_RecipeGrade = grade_matter * MATTER_GRADE_TO_RECIPE_GRADE;
+        int total_RecipeGrade = Total_RecipeGrade();
 
         // 정등급이면 동등급 재료 , 반 등급이면 양쪽 
         // 0   1   2   3
         // 0 1 2 3 4 5 6 
         // 마지막 등급은 1개 빼기 , 반등급 위가 없게.
-        for( int i = 0 ; i < total_RecipeGrade - 1 ; i++ )
+        for( int i = 0 ; i < total_RecipeGrade  ; i++ )
         {
             Recipe.MatterMixture materMixture = new();
 
@@ -188,9 +225,9 @@ public class RecipeGroupMng
                 }
 
                 Recipe recipe = new();
-                recipe.MakeItem( materMixture , recipeITEM );
+                recipe.MakeItem( GTF_Random.rd_make_common , i , MakingMain.Make_UID( typeof(Recipe) ) , materMixture , recipeITEM );
 
-                dic_Recipe[materMixture.MakeTagEq() ] = recipe;
+                dic_Recipe[materMixture.MakeTagEq()] = recipe;
             }
         }
     }

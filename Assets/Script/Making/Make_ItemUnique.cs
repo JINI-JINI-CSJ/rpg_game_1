@@ -140,7 +140,7 @@ public class Make_ItemUnique : MakeBase
             {
                 if( num_prc <= item_grade_num[grade] )
                 {
-                    csv.making_grade = grade;
+                    csv.matter_grade = grade;
 
                     Dictionary<int,List<CSV_Item>> dic_grade = null;
                     if( csv.tag.Contains( "MATTER_COOKING" ) )  dic_grade = dic_grade_Items_MATTER_COOKING;

@@ -87,6 +87,15 @@ public class GTF_CSV : SJ_CSV_Mng
         return (int)(max_val * r_lv);
     }
 
+    // 레벨링 강함기준만 체크
+    // 0~1 값을 강함 비율로 계산.
+    static public float Calc_LEVEL_Pow( float ratio , float src_min )
+    {
+        float max = src_min * csv_Config.level_MAX_Value_per;
+        return Mathf.Lerp( src_min , max , ratio );
+    }
+
+
     // 확률표
 
     static public int GetPerIdx( Mng_X128SS rd , string tag , ref int max_arg ){return csv_PercentInfPage.GetPerIdx( rd , tag , ref max_arg );}
