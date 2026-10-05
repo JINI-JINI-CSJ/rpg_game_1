@@ -68,12 +68,27 @@ public class CharBase
     public SJ_COMMON.Func_VOID func_ANI_KO;
     public SJ_COMMON.Func_Arg func_RecvSkill;   // 스킬 받기 , 공격 맞기 , 힐받기 , 아이템 사용 대상 등등
 
+
+    // 공통 전달 이벤트
+    public delegate void FuncEventChr(string tag , SJ_DIC<string> dic);
+    public event FuncEventChr evt_Chr;
+
     //===========================================
 
     public CharBase()
     {
         for( int i = 0 ; i < (int)_EQUIP_CHR_PART.MAX ; i++ )items_EQ.Add(null);
         charPrcValue.func_UpdateALL = OnUpdate_PrcValue;
+    }
+
+    public void ClearEventChr()
+    {
+        evt_Chr = null;
+    }
+
+    public void CallEventChr( string tag , SJ_DIC<string> dic )
+    {
+        evt_Chr?.Invoke( tag , dic );
     }
 
     public SkillBase GetDefaultSkill()
