@@ -13,6 +13,7 @@ public class CSV_Skill : SJ_CSV_BaseObj
     public string res3d;
     public string tag;
     public int grade;
+    public int def_atk;
     public SKILL_ACTIVE_TYPE skill_type;
     public string TAG_ITEM;
     public string TAG_MAGIC_PROP;
@@ -30,6 +31,7 @@ public class CSV_Skill : SJ_CSV_BaseObj
         res3d = Next();
         tag = Next();
         grade = Next_Int();
+        def_atk = Next_Int();
         Enum.TryParse( Next() , out skill_type );
         TAG_ITEM = Next();
         TAG_MAGIC_PROP = Next();
@@ -62,7 +64,13 @@ public class CSV_SkillPage : SJ_CSV_BasePage
     public CSV_Skill GetTag_Contain_One( Mng_X128SS rd , string tag )
     {
         List<CSV_Skill> lt = GetTag_Contain(tag);
-        return rd.RandomList( lt );
+        CSV_Skill csv = rd.RandomList( lt );
+        if( csv == null )
+        {
+            Debug.LogError( "GetTag_Contain_One : " + tag );
+            return null;
+        }
+        return csv;
     }
 
     // 개수만큼 중복되지 않게 여러개 가져오기

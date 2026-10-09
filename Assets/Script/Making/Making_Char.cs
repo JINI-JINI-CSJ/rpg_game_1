@@ -88,59 +88,105 @@ public class Making_Char
         bias_job.SetRandom_Init( rd_make , rd_inGame );
     }
 
-    public CharBase Make_Player( int sc_stat = 0 , int add_skill = 0 , int sc_skill = 0 , Mng_X128SS rd = null )
-    {
-        if( rd == null ) rd = bias_job.GetRandomClass();
-        return MakingChr( rd , bias_job.RandomTAG() , 1 , sc_stat , add_skill , sc_skill );
-    }
+    // public CharBase Make_Player( int sc_stat = 0 , int add_skill = 0 , int sc_skill = 0 , Mng_X128SS rd = null )
+    // {
+    //     if( rd == null ) rd = bias_job.GetRandomClass();
+    //     return MakingChr( rd , bias_job.RandomTAG() , 1 , sc_stat , add_skill , sc_skill );
+    // }
 
-    public CharBase Make_Enemy( int sc_stat = 0 , int add_skill = 0 , int sc_skill = 0 , Mng_X128SS rd = null )
-    {
-        if( rd == null ) rd = bias_job.GetRandomClass();
-        return MakingChr( rd , bias_job.RandomTAG() , 2 , sc_stat , add_skill , sc_skill );
-    }
+    // public CharBase Make_Enemy( int sc_stat = 0 , int add_skill = 0 , int sc_skill = 0 , Mng_X128SS rd = null )
+    // {
+    //     if( rd == null ) rd = bias_job.GetRandomClass();
+    //     return MakingChr( rd , bias_job.RandomTAG() , 2 , sc_stat , add_skill , sc_skill );
+    // }
     
+    // // prop_type -> 0 : 방어 속성 안함 , 1 : 마법일 경우 마법 속성 따라감 , 2 : 랜덤(주로 적군들)
+    // static public CharBase MakingChr( Mng_X128SS rd , string tag , int chr_prop_type , int sc_stat , int add_skill , int sc_skill )
+    // {
+    //     // 기본 csv 
+    //     CSV_CharBaseStat csv = GTF_CSV.csv_Char_ALL.GetTag_Contain_Random( rd , tag );
+    //     CharBase charBase = CharBase.InstCharBase_CSV( csv , 1 , _ARMY_FORCE.Player );
+    //     // 스탯 보너스
+    //     charBase.charPrcValue.RandomStatBonus( rd , sc_stat , GTF_CSV.csv_Config.makeChar_statFix );
+    //     // 무작위 스킬 
+    //     for( int i = 0 ; i < add_skill ; i++ )
+    //     {
+    //         SkillBase skill = Skill_MAKE_NormalGrade.Make( tag , sc_skill , rd );
+    //         charBase.AddSkill_ADD( skill );
+    //     }
+    //     // 방어 마법 속성
+    //     switch( chr_prop_type )
+    //     {
+    //         case 0:break;
+    //         case 1:
+    //             {
+    //                 // 선택 케릭터의 웨폰 마스터리를 그대로 따라감 , 보통 마법사 계열 , 없으면 무시
+    //                 CSV_Skill csv_skill = csv.GetWeaponSkill();
+    //                 if( csv_skill != null )
+    //                 {
+    //                     CSV_MagicPropDefine csv_magic_prop = GTF_CSV.csv_MagicPropDefinePage.FindTag( csv_skill.TAG_MAGIC_PROP );
+    //                     charBase.magic_prop = csv_magic_prop;
+    //                 }
+    //             }
+    //             break;
+    //         case 2:
+    //             {
+    //                 // 아무거나 붙이기
+    //                 CSV_MagicPropDefine csv_magic_prop = GTF_CSV.csv_MagicPropDefinePage.GetRandom( rd );
+    //                 charBase.magic_prop = csv_magic_prop;
+    //             }
+    //             break;
+    //     }
+    //     return charBase;
+    // }
 
-    // prop_type -> 0 : 방어 속성 안함 , 1 : 마법일 경우 마법 속성 따라감 , 2 : 랜덤(주로 적군들)
-    static public CharBase MakingChr( Mng_X128SS rd , string tag , int chr_prop_type , int sc_stat , int add_skill , int sc_skill )
+    // CSV_CharUniqueMake 에 의한 메이킹
+    // 수치 보너스 , 일반 스킬 , 궁 스킬
+    // 동급 대비 캐릭터 평가 : 수치 점수 + 추가 스킬 + 궁 개수 
+    // 희소 등급처럼 일반 4 단계 + 전설 신화 재야
+
+    // 클래스등급(레벨)은 여기서 하지 않는다.
+
+    // 각 항목별 태그 존재 가능, 태그가 없다면 완전 랜덤
+    static public CharBase Making( Mng_X128SS rd , string tag_chr , int bonus_val , 
+                                    string tag_skill_nor , int num_skill_nor_tag ,
+                                    string tag_skill_ul , int num_skill_ul )
     {
-        // 기본 csv 
-        CSV_CharBaseStat csv = GTF_CSV.csv_Char_ALL.GetTag_Contain_Random( rd , tag );
-        CharBase charBase = CharBase.InstCharBase_CSV( csv , 1 , _ARMY_FORCE.Player );
+        CharBase charBase = null;
+        
+        if( string.IsNullOrEmpty(tag_chr) == false )
+        {
+            // 캐릭터 csv 에서 관련 태그 항목을 가져오기
+            CSV_CharBaseStat csv = GTF_CSV.csv_Char_ALL.GetTag_Contain_Random( rd , tag_chr );
+            charBase = CharBase.InstCharBase_CSV( csv , 1 , _ARMY_FORCE.Player );
+        }
+        else
+        {
+            // 없으면 완전 랜덤 캐릭터 
+            // 일단 없는 경우는 없게..
+            // 기본 csv 는 무조건 있게 하자.
+        }
 
         // 스탯 보너스
-        charBase.charPrcValue.RandomStatBonus( rd , sc_stat , GTF_CSV.csv_Config.makeChar_statFix );
+        charBase.charPrcValue.RandomStatBonus( rd , bonus_val , GTF_CSV.csv_Config.makeChar_statFix );
 
-        // 무작위 스킬 
-        for( int i = 0 ; i < add_skill ; i++ )
+
+        // 일단 스킬 추가 점수는 나중에 고려
+        // 수치값이나 스킬 갯수로만 캐릭터를 하자.
+        // 스킬 점수는 따로 랜덤 스킬북 같은것만 하는걸로..
+
+        for( int i = 0 ; i < num_skill_nor_tag ; i++ )
         {
-            SkillBase skill = Skill_MAKE_NormalGrade.Make( tag , sc_skill , rd );
+            SkillBase skill = Making_Skill.Making( rd , tag_skill_nor , 0, "" , 0 , 0 , false );
             charBase.AddSkill_ADD( skill );
         }
 
-        // 방어 마법 속성
-        switch( chr_prop_type )
+        for( int i = 0 ; i < num_skill_ul ; i++ )
         {
-            case 0:break;
-            case 1:
-                {
-                    // 선택 케릭터의 웨폰 마스터리를 그대로 따라감 , 보통 마법사 계열 , 없으면 무시
-                    CSV_Skill csv_skill = csv.GetWeaponSkill();
-                    if( csv_skill != null )
-                    {
-                        CSV_MagicPropDefine csv_magic_prop = GTF_CSV.csv_MagicPropDefinePage.FindTag( csv_skill.TAG_MAGIC_PROP );
-                        charBase.magic_prop = csv_magic_prop;
-                    }
-                }
-                break;
-            case 2:
-                {
-                    // 아무거나 붙이기
-                    CSV_MagicPropDefine csv_magic_prop = GTF_CSV.csv_MagicPropDefinePage.GetRandom( rd );
-                    charBase.magic_prop = csv_magic_prop;
-                }
-                break;
+            SkillBase skill = Making_Skill.Making( rd , tag_skill_ul , 0, "" , 0 , 0 , true );
+            charBase.AddSkill_ADD( skill );
         }
+
 
         return charBase;
     }

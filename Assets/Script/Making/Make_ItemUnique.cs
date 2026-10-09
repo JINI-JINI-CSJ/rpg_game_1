@@ -55,6 +55,13 @@ public class Make_ItemUnique : MakeBase
     public Dictionary<int,List<CSV_Item>> dic_grade_Items_MATTER_DISPENSE = new();
 
 
+    override public void OnMake()
+    {
+        Make_EqItem();
+        Load_CollectItem();
+        MakeRecipe();
+    }
+
     public void Make_EqItem()
     {
         // 동급 듭급에서 가장 좋은 장비 아이템
@@ -159,6 +166,9 @@ public class Make_ItemUnique : MakeBase
         }
     }
 
+    /// <summary>
+    /// 레시피 만들기
+    /// </summary>
     public void MakeRecipe()
     {
         

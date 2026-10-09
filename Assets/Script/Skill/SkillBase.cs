@@ -18,15 +18,22 @@ public class SkillBase
 {
     public CSV_Skill csv;    
 
+    // 궁극기 여부
+    // 한번만 사용가능 
+    public bool ULTIMATE; 
+    public bool useAble_ULTIMATE;
+
     // 기본 공격력 이외에 기타 지원 스킬도 참조 할수 있다.
     // 탐문 , 함정 해체 등등  메이킹으로 만들었을 경우 참조하자.
-    public SKILL_NORMAL_INF skill_normal_inf;
+    //public SKILL_NORMAL_INF skill_normal_inf;
+    public COMMON_MAKE_ACT_DATA base_DATA;
 
     // 부가 효과 있을때만.
     public SkillBase skill_addEff; 
 
     public CharBase charHave;
     public int LEVEL;
+
 
     static public SkillBase InstSkill( int csv_id , int level = 1 )
     {
@@ -66,7 +73,7 @@ public class SkillBase
 
     virtual public BATTLE_ACTION_TARGET GetTargetType()
     {
-        if( skill_normal_inf != null ) return skill_normal_inf.target;
+        if( base_DATA != null ) return base_DATA.GetBATTLE_ACTION_TARGET();
         return BATTLE_ACTION_TARGET.One_Opp_Front;
     }
 

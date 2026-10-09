@@ -59,6 +59,15 @@ public class CSV_Config : SJ_CSV_BasePage
     public List<float> uniqueObj_per;
 
     //===========================================
+    // 스킬 메이킹
+    public float makeSkill_addPow = 0.2f;           // 점수당 추가 공격력
+
+    public float makeSkill_UltimateAddPow = 10;     // 궁극기 추가 공격력
+
+    public float makeSkill_addMP = 0.8f;            // 점수당 제곱하는 총 mp , 예) 3 점이리면  0.8 * 0.8 * 0.8 
+
+
+    //===========================================
     // 아이템 메이킹
 
     // 유니크 아이템
@@ -103,10 +112,54 @@ public class CSV_Config : SJ_CSV_BasePage
     public int makeSkill_BaseVal_WIZARD_HEAL;   // 회복 마법 기본 수치
     public int makeSkill_BaseVal_SUPPORTER;     // 지원
 
-    // 위력 강도 목록
-    // 일단 다 같게..
-    public List<float> makeSkill_addPow;
-    public List<int>   makeSkill_mp;
+    // // 위력 강도 목록
+    // // 일단 다 같게..
+    // public List<float> makeSkill_addPow;
+    // public List<int>   makeSkill_mp;
+
+    // 
+
+    // 유니크 메이킹 캐릭터 일반 능력치 추가 점수 
+    //public int makeChar_BonusScore = 4;
+
+    // 유니크 메이킹 캐릭터 추가 무작위 스킬 갯수
+
+    // 캐릭터 보너스 점수 스킬 별도 csv 작성
+
+
+    // 유니크 캐릭터 도시 소속 : 수도 , 대도시의 클래스 등급
+    public List<int>   makeChar_City_Class; // 도시 역등급 순서 -> 수도 , 대도시 ....
+
+    // 유니크 캐릭터 재야 인재 : [ 캐릭터 클래스 등급 , 인원수 , 소문 개수]
+    // 재야 인사
+    public class Chr_UniqueOutSide
+    {
+        public int class_chr;
+        public int chr_num;
+        public int rumor_num;
+
+        // 배열 값을 pop 하면서 읽어본다. 
+        // 모자라면 에러
+        public void ReadArray( List<int> data )
+        {
+            if( PopData(data , ref class_chr ) == false ) return;
+            if( PopData(data , ref chr_num ) == false ) return;
+            if( PopData(data , ref rumor_num ) == false ) return;
+        }
+
+        bool PopData( List<int> data , ref int arg )
+        {
+            if( data.Count < 1 )
+            {
+                Debug.LogError( "Chr_UniqueOutSide : 데이터 부족 " );
+                return false;
+            }
+             return true;
+        }
+    }
+
+    public List<Chr_UniqueOutSide> chr_UniqueOutSides = new();
+
 
     // 캐릭터 추카 스탯 보너스 레벨별  , 인덱스 첫칸 1 부터  , 각 칸은 해당 스탯 보너스의 최대 레벨 
     // 초과시 마지막 인덱스값 + 1
@@ -134,8 +187,8 @@ public class CSV_Config : SJ_CSV_BasePage
         
     }
 
-    public float GetMakeSkill_addPow( int grade )       {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_addPow , grade );}
-    public int GetMakeSkill_MP( int grade )             {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_mp , grade );}
+    //public float GetMakeSkill_addPow( int grade )       {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_addPow , grade );}
+    //public int GetMakeSkill_MP( int grade )             {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_mp , grade );}
     public int Random_WorldNation( Mng_X128SS rd )      {return rd.NextInt( world_nation[0] , world_nation[1] );}
     public int Random_WorldCityMajor( Mng_X128SS rd )   {return rd.NextInt( world_city_Major[0] , world_city_Major[1] );}
     public int Random_WorldCityMinor( Mng_X128SS rd )   {return rd.NextInt( world_city_Minor[0] , world_city_Minor[1] );}

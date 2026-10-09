@@ -135,6 +135,9 @@ public class RecipeGroupMng
     // 주인공의 레시피는 주인공 클래스에 있다.
     static public Dictionary<string , Recipe> dic_Recipe = new();
 
+    // 등급별로 분류
+    static public Dictionary<int , List<Recipe>> dic_grade_Recipe = new();
+
     // 모든 레시피 만들기
     // 현재 수집아이템 희소등급 기준으로 만들기
     // 규칙 1:
@@ -227,7 +230,17 @@ public class RecipeGroupMng
                 Recipe recipe = new();
                 recipe.MakeItem( GTF_Random.rd_make_common , i , MakingMain.Make_UID( typeof(Recipe) ) , materMixture , recipeITEM );
 
+                // 유니크 태그로 정리
                 dic_Recipe[materMixture.MakeTagEq()] = recipe;
+
+                // 등급별로 정리
+                List<Recipe> grade_recipes = null;
+                if( dic_grade_Recipe.TryGetValue( i , out grade_recipes ) == false )
+                {
+                    grade_recipes = new();
+                    dic_grade_Recipe[i] = grade_recipes;
+                }
+                grade_recipes.Add( recipe );
             }
         }
     }
