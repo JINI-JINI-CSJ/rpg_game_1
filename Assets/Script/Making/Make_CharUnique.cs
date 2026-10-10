@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -15,8 +17,49 @@ using UnityEngine;
 /// 																			
 /// 
 /// </summary>
+/// 
+
+public class CharBase_PopRefill<CharBase> : SJ_ListPopRefill<CharBase>
+{
+    public Mng_X128SS rd;
+    public override int OnRandom(int max)
+    {
+        return rd.NextInt(0,max);
+    }
+}
 
 public class Make_CharUnique : MakeBase
 {
-    
+
+    // 유니크 캐릭터
+    // 등급 , 리필 
+    public Dictionary<int,CharBase_PopRefill<CharBase>> dic_ChrUnique_PopRefill = new();    
+
+    public override void OnMake()
+    {
+        // csv 캐릭터유니크메이킹 
+        foreach( var s in GTF_CSV.csv_CharUniqueMakePage.dic_int.Values.Cast<CSV_CharUniqueMake>() )
+        {
+            MakeChrCSV(s);
+        }
+    }
+
+    void MakeChrCSV( CSV_CharUniqueMake csv )
+    {
+        int class_grade = csv.class_grade;
+        for( int i = 0 ; i < csv.making_total ; i++ )
+        {
+            // 캐릭터 직업 태그로 만들기
+            // 태크 정의 csv 에서 랜덤으로 가져오기
+            string tag_job = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "MAKE_CHAR_JOB_TAG" , GTF_Random.rd_make_common );
+            CharBase charBase = Making_Char.Making( GTF_Random.rd_make_common , tag_job , csv.Score_chrVal , "" , csv.Score_SkillNormal , "" , csv.Score_SkillUltimate );
+            CharBase_PopRefill<CharBase> popRefill = null;
+            if( dic_ChrUnique_PopRefill.TryGetValue( class_grade , out popRefill ) == false )
+            {
+                popRefill = new();
+                dic_ChrUnique_PopRefill[class_grade] = popRefill;
+            }
+            popRefill.AddSrcOne( charBase );
+        }
+    }
 }

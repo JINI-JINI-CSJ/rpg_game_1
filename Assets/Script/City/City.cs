@@ -69,6 +69,7 @@ public class City
         return v.sqrMagnitude;
     }
 
+    // 여러 도시중 가장 가까운 도시
     public (City,float) FindNear( List<City> cities )
     {
         if( cities.Count < 1 ) return default;

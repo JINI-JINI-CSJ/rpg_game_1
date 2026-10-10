@@ -35,16 +35,20 @@ public class Make_City : MakeBase
 
     public override void OnMake()
     {
+
         WorldForgeManager worldForge = Make_WorldMap.G.worldForge;
 
         // 시작지점 , 소마을 티어중에 한개1
         QuadTree quadTree = Make_WorldMap.G.quadTree;
-        List<QTPoint> qTs = quadTree.GetAllPoints( Make_WorldMap.TAG_HASH_CITY_Village() );
+
+        // 티어 0 부터 시작 , 가장 작은 마을 티어
+        List<QTPoint> qTs = quadTree.GetAllPoints( 0 );
         QTPoint qt_s = GTF_Random.rd_make_common.RandomList( qTs );
         city_Start = (City)qt_s.Data;
 
 
         // 도시 이웃
+        // 도로 기준으로 연결
         foreach (var (a, b) in worldForge.CurrentWorld.Roads)
         {
             City city_a = Make_WorldMap.GetCity_WorldIdx( a );
@@ -55,52 +59,48 @@ public class Make_City : MakeBase
 
         // 도시 활성 타입
         // 1. 시작점 및 수도권 지역 기본 활성
-        // foreach( var s in Make_WorldMap.G.GetCities_Tire(CityTier.Capital) )
-        // {
-        //     s.SetDepthNeighbor_CITY_ACTIVE_TYPE( CITY_FIND_TYPE.FIND_FIRST , depth_start_active );
-        // }
         city_Start.SetDepthNeighbor_CITY_ACTIVE_TYPE( CITY_FIND_TYPE.FIND_FIRST , depth_start_active );
 
 
         // 2. 일반 도시 및 특수 발견 도시 나누기
         //   - 수도권에서 먼 순서로 정렬하고 , 그중에 비율로 특수 도시
-        //   - 1. 계산 : 가장 가까운 수도건 찾아서 거리 저장
+        //   - 1. 계산 : 가장 가까운 수도권 찾아서 거리 저장
         //   - 2. 정렬 : 장거리 -> 근거리 정렬
         // 후보들 , CITY_ACTIVE_TYPE.FIND_FIRST 아닌 것들 , 소도시만 해당
         List<City> cities_no_FIND_FIRST = new();
-        // foreach( var s in Make_WorldMap.G.dic_world_idx_city.Values )
-        // {
-        //     if( s.city_find_type != CITY_FIND_TYPE.FIND_FIRST && s.cityData.Tier == CityTier.Village )
-        //         cities_no_FIND_FIRST.Add(s);
-        // }
-
-        List<(City,float)> city_no_find = new();
-        // foreach( var s in cities_no_FIND_FIRST )
-        // {
-        //     var near = s.FindNear( Make_WorldMap.G.GetCities_Tire(CityTier.Capital) );
-        //     city_no_find.Add( new( s , near.Item2 ) );
-        // }
-
-        // 가장 먼것이 앞으로
-        city_no_find.Sort( (a,b) => -a.Item2.CompareTo( b.Item2 ) );
-
-        // 1. 비율 분배해서 남은거 특수 도시
-        // 2. 그 외에 특수 퀘스트 및 특수 아이템 등
-        int total_spc_city = (int)((float)city_no_find.Count * Make_Global.G.BiasCityNormalSpc());
-
-        // 총 특수 도시를 다 하거나 , 특수 태그가 다 없어질때까지.
-        // 여기에 해당하는 도시들은 CITY_FIND_TYPE.NO_FIND 이다
-        for( int i = 0 ; i < total_spc_city; i++ )
+        foreach( var s in Make_WorldMap.G.dic_world_idx_city.Values )
         {
-            if( city_no_find.Count < 1 ) break;
-            if( Make_Global.G.stock_CitySpcTag.Count() < 1 ) break;
-
-            City city = city_no_find[0].Item1;
-            city.city_find_type = CITY_FIND_TYPE.NO_FIND;
-            city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_common );
-            city_no_find.RemoveAt(0);
+            if( s.city_find_type != CITY_FIND_TYPE.FIND_FIRST && s.cityData.Tier == 0 )
+                cities_no_FIND_FIRST.Add(s);
         }
 
-        MakingMain.NextMake();
+        List<(City,float)> city_no_find = new();
+        foreach( var s in cities_no_FIND_FIRST )
+        {
+            //var near = s.FindNear( Make_WorldMap.G.GetCities_Tire(CityTier.Capital) );
+            //city_no_find.Add( new( s , near.Item2 ) );
+        }
+
+        // // 가장 먼것이 앞으로
+        // city_no_find.Sort( (a,b) => -a.Item2.CompareTo( b.Item2 ) );
+
+        // // 1. 비율 분배해서 남은거 특수 도시
+        // // 2. 그 외에 특수 퀘스트 및 특수 아이템 등
+        // int total_spc_city = (int)((float)city_no_find.Count * Make_Global.G.BiasCityNormalSpc());
+
+        // // 총 특수 도시를 다 하거나 , 특수 태그가 다 없어질때까지.
+        // // 여기에 해당하는 도시들은 CITY_FIND_TYPE.NO_FIND 이다
+        // for( int i = 0 ; i < total_spc_city; i++ )
+        // {
+        //     if( city_no_find.Count < 1 ) break;
+        //     if( Make_Global.G.stock_CitySpcTag.Count() < 1 ) break;
+
+        //     City city = city_no_find[0].Item1;
+        //     city.city_find_type = CITY_FIND_TYPE.NO_FIND;
+        //     city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_common );
+        //     city_no_find.RemoveAt(0);
+        // }
+
+        // MakingMain.NextMake();
     }
 }

@@ -18,22 +18,21 @@ public class Make_WorldMap : MakeBase
 
     public QuadTree quadTree;
 
-    // 월드 스폿 태그 
-    // 도시 
-    public const string CITY_Village= "CITY_Village";
-    public const string CITY_Minor  = "CITY_Minor";
-    public const string CITY_Major  = "CITY_Major";
-    public const string CITY_Capital= "CITY_Capital";
-
     // 일반 스폿 , 월드 메이커에서는 타입이 있지만 여기서는 통합
     // 일단 던전으로 통합
-    public const string SPOT_BASE = "SPOT_BASE";
+    //public const string SPOT_BASE = "SPOT_BASE";
 
+    // 쿼드트리 해쉬 태그
+    public const int HS_TAG_SPOT = 10000;
 
-    //public Dictionary<CityTier,List<City>>  dic_tier_city = new();
+    // 아이디 , 도시
     public Dictionary<int, City>            dic_world_idx_city = new();
+    // 등급별 정리
+    public Dictionary<int,List<City>>       dic_grade_City = new();
+
     public List<DungeonInfo>                dungeonInfos = new();
     
+
 
     void Awake()
     {
@@ -59,12 +58,6 @@ public class Make_WorldMap : MakeBase
         InitQuadTree();
     }
 
-    static public int TAG_HASH_CITY_Village(){return CITY_Village.GetHashCode();}
-    static public int TAG_HASH_CITY_Minor(){return CITY_Minor.GetHashCode();}
-    static public int TAG_HASH_CITY_Major(){return CITY_Major.GetHashCode();}
-    static public int TAG_HASH_CITY_Capital(){return CITY_Capital.GetHashCode();}
-    static public int TAG_HASH_SPOT_BASE(){return SPOT_BASE.GetHashCode();}
-
     public void InitQuadTree()
     {
         Debug.Log( "월드 : 시티 : " + worldForge.CurrentWorld.Cities.Count + "     던전 스폿 : " + worldForge.CurrentWorld.Spots.Count );
@@ -72,33 +65,24 @@ public class Make_WorldMap : MakeBase
         // 월드 메이커는 0 위치 시작 , 넓이 인자로 되 있다.
         quadTree = new QuadTree( Vector2.zero , new Vector2( worldForge.CurrentWorld.Width , worldForge.CurrentWorld.Height ) );
 
-        int hs_CITY_Village = TAG_HASH_CITY_Village();
-        int hs_CITY_Minor   = TAG_HASH_CITY_Minor();
-        int hs_CITY_Major   = TAG_HASH_CITY_Major();
-        int hs_CITY_Capital = TAG_HASH_CITY_Capital();
-        int hs_SPOT_BASE    = TAG_HASH_SPOT_BASE();
+        //int hs_SPOT_BASE    = TAG_HASH_SPOT_BASE();
 
         // 도시
         for( int i = 0 ; i < worldForge.CurrentWorld.Cities.Count ; i++ )
         {
-            CityData s = worldForge.CurrentWorld.Cities[i];
-            switch( s.Tier )
-            {
-                // case CityTier.Village:  InsertQuad_City( s , hs_CITY_Village , i  );break;
-                // case CityTier.Minor:    InsertQuad_City( s , hs_CITY_Minor   , i  );break;
-                // case CityTier.Major:    InsertQuad_City( s , hs_CITY_Major   , i  );break;
-                // case CityTier.Capital:  InsertQuad_City( s , hs_CITY_Capital , i  );break;
-            }
+            CityData city = worldForge.CurrentWorld.Cities[i];
+            InsertQuad_City( city , i );
         } 
 
         // 던전
         foreach( var s in worldForge.CurrentWorld.Spots )
         {
-            InsertQuad_Spot( s , hs_SPOT_BASE );
+            InsertQuad_Spot( s , HS_TAG_SPOT );
         }
     }
 
-    void InsertQuad_City( CityData cityData , int tag_hash , int idx_world )
+    // 해쉬 태그는 등급으로 넣는다
+    void InsertQuad_City( CityData cityData , int idx_world )
     {
         Vector2 pos = new Vector2( cityData.X , cityData.Y );
         City city = new();
@@ -106,22 +90,16 @@ public class Make_WorldMap : MakeBase
         city.idx_world_data = idx_world;
         city.cityData = cityData;
         List<City> lt = null;
-        // if( dic_tier_city.TryGetValue( cityData.Tier , out lt ) == false )
-        // {
-        //     lt = new();
-        //     dic_tier_city[cityData.Tier] = lt;
-        // }
+        if( dic_grade_City.TryGetValue( cityData.Tier , out lt ) == false )
+        {
+            lt = new();
+            dic_grade_City[cityData.Tier] = lt;
+        }
         lt.Add( city );
         dic_world_idx_city[idx_world] = city;
-        quadTree.Insert( pos , tag_hash , city );
+        quadTree.Insert( pos , cityData.Tier , city );
     }
 
-    // public List<City> GetCities_Tire( CityTier cityTier )
-    // {
-    //     List<City> lt = null;
-    //     dic_tier_city.TryGetValue( cityTier , out lt );
-    //     return lt;
-    // }
 
     static public City GetCity_WorldIdx(int idx)
     {

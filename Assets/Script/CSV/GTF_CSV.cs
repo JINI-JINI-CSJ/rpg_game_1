@@ -7,6 +7,7 @@ public class GTF_CSV : SJ_CSV_Mng
     static public CSV_Config                csv_Config = new();
     static public CSV_PercentInfPage        csv_PercentInfPage = new();
     static public CSV_TagDefinePage         csv_TagDefinePage = new();
+    static public CSV_CharUniqueMakePage    csv_CharUniqueMakePage = new();
     static public CSV_ConteStoryPage        csv_ConteStoryPage = new();
     static public CSV_GODPage               csv_GODPage = new();
     static public CSV_EqItemDefinePage      csv_EqItemDefinePage = new();

@@ -165,10 +165,18 @@ public class Making_Char
             // 없으면 완전 랜덤 캐릭터 
             // 일단 없는 경우는 없게..
             // 기본 csv 는 무조건 있게 하자.
+
+            Debug.LogError( "에러!! 기본 캐릭터 csv 없음 : " + tag_chr );
+            return null;
         }
 
         // 스탯 보너스
         charBase.charPrcValue.RandomStatBonus( rd , bonus_val , GTF_CSV.csv_Config.makeChar_statFix );
+
+        // 스킬 태그가 없으면 캐릭터 태그를 넣는다.
+        if( string.IsNullOrEmpty(tag_skill_nor) )tag_skill_nor = tag_chr;
+        if( string.IsNullOrEmpty(tag_skill_ul) )tag_skill_ul = tag_chr;
+
 
 
         // 일단 스킬 추가 점수는 나중에 고려
@@ -186,8 +194,8 @@ public class Making_Char
             SkillBase skill = Making_Skill.Making( rd , tag_skill_ul , 0, "" , 0 , 0 , true );
             charBase.AddSkill_ADD( skill );
         }
-
-
         return charBase;
     }
+
+
 }
