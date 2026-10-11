@@ -31,8 +31,7 @@ public class Make_City : MakeBase
 
     public City city_Start;
 
-    // 특수 도시 , 
-
+    // 특수 도시 
     public override void OnMake()
     {
 
@@ -57,11 +56,13 @@ public class Make_City : MakeBase
             city_b.AddNeighbor(city_a);
         }
 
+        //---------------------------------------------------------------------
         // 도시 활성 타입
         // 1. 시작점 및 수도권 지역 기본 활성
         city_Start.SetDepthNeighbor_CITY_ACTIVE_TYPE( CITY_FIND_TYPE.FIND_FIRST , depth_start_active );
 
 
+        //---------------------------------------------------------------------
         // 2. 일반 도시 및 특수 발견 도시 나누기
         //   - 수도권에서 먼 순서로 정렬하고 , 그중에 비율로 특수 도시
         //   - 1. 계산 : 가장 가까운 수도권 찾아서 거리 저장
@@ -77,30 +78,39 @@ public class Make_City : MakeBase
         List<(City,float)> city_no_find = new();
         foreach( var s in cities_no_FIND_FIRST )
         {
-            //var near = s.FindNear( Make_WorldMap.G.GetCities_Tire(CityTier.Capital) );
-            //city_no_find.Add( new( s , near.Item2 ) );
+            var near = s.FindNear( Make_WorldMap.GetCities_Tire(Make_WorldMap.HS_TAG_CITY_4) );
+            city_no_find.Add( new( s , near.Item2 ) );
         }
 
-        // // 가장 먼것이 앞으로
-        // city_no_find.Sort( (a,b) => -a.Item2.CompareTo( b.Item2 ) );
+        // 가장 먼것이 앞으로
+        city_no_find.Sort( (a,b) => -a.Item2.CompareTo( b.Item2 ) );
 
-        // // 1. 비율 분배해서 남은거 특수 도시
-        // // 2. 그 외에 특수 퀘스트 및 특수 아이템 등
-        // int total_spc_city = (int)((float)city_no_find.Count * Make_Global.G.BiasCityNormalSpc());
+        // 1. 비율 분배해서 남은거 특수 도시
+        // 2. 그 외에 특수 퀘스트 및 특수 아이템 등
+        int total_spc_city = (int)((float)city_no_find.Count * Make_Global.G.BiasCityNormalSpc());
 
-        // // 총 특수 도시를 다 하거나 , 특수 태그가 다 없어질때까지.
-        // // 여기에 해당하는 도시들은 CITY_FIND_TYPE.NO_FIND 이다
-        // for( int i = 0 ; i < total_spc_city; i++ )
-        // {
-        //     if( city_no_find.Count < 1 ) break;
-        //     if( Make_Global.G.stock_CitySpcTag.Count() < 1 ) break;
+        // 총 특수 도시를 다 하거나 , 특수 태그가 다 없어질때까지.
+        // 여기에 해당하는 도시들은 CITY_FIND_TYPE.NO_FIND 이다
+        for( int i = 0 ; i < total_spc_city; i++ )
+        {
+            if( city_no_find.Count < 1 ) break;
+            if( Make_Global.G.stock_CitySpcTag.Count() < 1 ) break;
 
-        //     City city = city_no_find[0].Item1;
-        //     city.city_find_type = CITY_FIND_TYPE.NO_FIND;
-        //     city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_common );
-        //     city_no_find.RemoveAt(0);
-        // }
+            City city = city_no_find[0].Item1;
+            city.city_find_type = CITY_FIND_TYPE.NO_FIND;
+            city.tag_SpcCity = Make_Global.G.stock_CitySpcTag.RandomPop_Str( GTF_Random.rd_make_common );
+            city_no_find.RemoveAt(0);
+        }
 
-        // MakingMain.NextMake();
+
+        //---------------------------------------------------------------------
+        // 아이템 , 캐릭터 등의 배분
+        // 던전과 도시에 일단 나누기
+        // 기타 이벤트는 나중에..
+        // 루머 , 퀘스트 메이커에서 하자.
+
+
+
+        MakingMain.NextMake();
     }
 }

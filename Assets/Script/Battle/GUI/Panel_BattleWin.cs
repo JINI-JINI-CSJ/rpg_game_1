@@ -38,7 +38,7 @@ public class Panel_BattleWin : MonoBehaviour
 
     public void SetInf()
     {
-        _BATTLE_RESULT_INF bfi = BattleMain.result_inf;
+        RewardInf bfi = BattleMain.result_inf;
         go_Gold.SetActive(true);
         go_Exp.SetActive(true);
         go_GridItem.gameObject.SetActive(true);

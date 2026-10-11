@@ -18,9 +18,16 @@ public class Make_WorldMap : MakeBase
 
     public QuadTree quadTree;
 
+
+    public const int HS_TAG_CITY_0 = 0; // 촌락
+    public const int HS_TAG_CITY_1 = 1; // 소도시
+    public const int HS_TAG_CITY_2 = 2; // 중도시
+    public const int HS_TAG_CITY_3 = 3; // 대도시 
+    public const int HS_TAG_CITY_4 = 4; // 수도
+
+
     // 일반 스폿 , 월드 메이커에서는 타입이 있지만 여기서는 통합
     // 일단 던전으로 통합
-    //public const string SPOT_BASE = "SPOT_BASE";
 
     // 쿼드트리 해쉬 태그
     public const int HS_TAG_SPOT = 10000;
@@ -28,7 +35,7 @@ public class Make_WorldMap : MakeBase
     // 아이디 , 도시
     public Dictionary<int, City>            dic_world_idx_city = new();
     // 등급별 정리
-    public Dictionary<int,List<City>>       dic_grade_City = new();
+    public Dictionary<int,List<City>>       dic_tire_City = new();
 
     public List<DungeonInfo>                dungeonInfos = new();
     
@@ -65,8 +72,6 @@ public class Make_WorldMap : MakeBase
         // 월드 메이커는 0 위치 시작 , 넓이 인자로 되 있다.
         quadTree = new QuadTree( Vector2.zero , new Vector2( worldForge.CurrentWorld.Width , worldForge.CurrentWorld.Height ) );
 
-        //int hs_SPOT_BASE    = TAG_HASH_SPOT_BASE();
-
         // 도시
         for( int i = 0 ; i < worldForge.CurrentWorld.Cities.Count ; i++ )
         {
@@ -90,10 +95,10 @@ public class Make_WorldMap : MakeBase
         city.idx_world_data = idx_world;
         city.cityData = cityData;
         List<City> lt = null;
-        if( dic_grade_City.TryGetValue( cityData.Tier , out lt ) == false )
+        if( dic_tire_City.TryGetValue( cityData.Tier , out lt ) == false )
         {
             lt = new();
-            dic_grade_City[cityData.Tier] = lt;
+            dic_tire_City[cityData.Tier] = lt;
         }
         lt.Add( city );
         dic_world_idx_city[idx_world] = city;
@@ -106,6 +111,13 @@ public class Make_WorldMap : MakeBase
         City city = null;
         G.dic_world_idx_city.TryGetValue( idx , out city );
         return city;
+    }
+
+    static public List<City> GetCities_Tire( int tire )
+    {
+        List<City> cities = null;
+        G.dic_tire_City.TryGetValue( tire , out cities );
+        return cities;
     }
 
     void InsertQuad_Spot( SpotData spotData , int tag_hash )

@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class _BATTLE_RESULT_INF
-{
-    public int gold;
-    public int exp;
-    public List<ItemBase> items = new();
+// public class _BATTLE_RESULT_INF
+// {
+//     public int gold;
+//     public int exp;
+//     public List<ItemBase> items = new();
 
-    public void Clear()
-    {
-        gold = 0;
-        exp = 0;
-        items.Clear();
-    }
-}
+//     public void Clear()
+//     {
+//         gold = 0;
+//         exp = 0;
+//         items.Clear();
+//     }
+// }
 
 
 [System.Serializable]
@@ -51,7 +51,7 @@ public class _ENEMY_BATTLE_INIT
 public class BattleMain : MonoBehaviour
 {
     static public BattleMain G;
-    static public _BATTLE_RESULT_INF result_inf = new();
+    static public RewardInf result_inf = new();
     public GameObject               go_Cam_InputCommand; 
     public GameObject               go_Cam_BattleTurn; 
     public BattlePartyView_Enemy    view_Enemy;
