@@ -60,6 +60,12 @@ public class Making_Item
     // 레벨등으로 강함을 정한다.
     static public ItemBase MakeEqItem( Mng_X128SS _rd , int level , string tag , int sc_add , int sc_minus )
     {
+        // 태그 없으면 랜덤 태그
+        if( string.IsNullOrEmpty( tag ) )
+        {
+            tag = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "TAG_WEAPON_MAIN" , _rd );
+        }
+
         CSV_Item csv = GTF_CSV.csv_ItemPage_Equip.GetTag_One( _rd , tag );
         if( csv == null )
         {
@@ -79,8 +85,6 @@ public class Making_Item
 
         return item;
     }
-
-
 
     static public void PrcBonusScore(  Mng_X128SS _rd , ItemBase item , int score , int good_bad ) // good_bad : 1 좋음 , -1 나쁨
     {

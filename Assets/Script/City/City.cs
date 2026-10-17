@@ -41,6 +41,9 @@ public class City
     // 인물 , 아이템 등등 보상
     public List<MissionBase> mission_Unique;
 
+    // 내장 던전
+    public DungeonInfo dungeonInfo;
+
 
     // 상태
     public bool find_cur;

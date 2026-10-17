@@ -266,14 +266,11 @@ public class DungeonLayerInfo
 
 
 // 던전 전체 정보
-
 [System.Serializable]
 public class DungeonInfo
 {
     public uint ID;
-
     public SpotData spotData;
-
     public int randomSeed = 12345;
     public int grade;
     public int LEVEL;
@@ -288,4 +285,16 @@ public class DungeonInfo
 
     // 초회 심연 탐사 완료 보상
     public DropItemInfo dropItemInfo_DeepComplete = new();
+}
+
+
+// 던전내의 특정 위치 좌표
+public class COORD_IN_DUNGEON
+{
+    // 던전 아이디
+    public uint ID;
+    // 던전 레이어 인덱스
+    public int idx_layer;
+    // 좌표
+    public Vector2Int pos;
 }

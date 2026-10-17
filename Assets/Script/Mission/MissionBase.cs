@@ -63,13 +63,8 @@ public class MissionBase
     //     // 기타 등등
     // }
 
-    public class REWARD_CLEAR
-    {
-        public int gold;
-        public int exp;
-        public List<int> items_id = new();
-    }
 
+    public RewardInf rewardInf = new();
 
     // 
     public int depth;
@@ -86,8 +81,8 @@ public class MissionBase
 
     virtual public void OnComplete(){}
 
-    // 상태 
-    public int state;
+    // 상태 : 0 미수주 , 1 수주 , 2 완료
+    public int cur_state;
 
     // 난이도 , 기타 등등 정보
     public int diff;

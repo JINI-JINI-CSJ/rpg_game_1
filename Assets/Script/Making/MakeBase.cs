@@ -52,7 +52,9 @@ public class StockMakeInf
 }
 
 // 메이크 작업 단위 기본 클래스
-public class MakeBase : MonoBehaviour
+// 여기는 모노로 하지 않고 , 가능하면 csv 로 하자.
+// 정말 필요하면 외부 모노 따로 만들자.
+public class MakeBase
 {
     // 월드 최초 생성 , 게임 시나리오 처음 시작할때만.
     virtual public void OnMake(){}

@@ -96,6 +96,18 @@ public class GTF_CSV : SJ_CSV_Mng
         return Mathf.Lerp( src_min , max , ratio );
     }
 
+    // 레벨 대비 증가 비율
+    // 자원
+    static public float IncRatioLevel_Resource( int lv )
+    {
+        return Mathf.Pow( lv , csv_Config.level_ResourcesArgGlobal );
+    }
+
+    // 강함
+    static public float IncRatioLevel_Pow( int lv )
+    {
+        return Mathf.Pow( lv , csv_Config.level_PowArgGlobal );
+    }
 
     // 확률표
 
@@ -156,5 +168,69 @@ public class GTF_CSV : SJ_CSV_Mng
         return (int)val;
     }
 
-    
+
+
+    // 도시 등급 -> 시작 레벨 , 종료 레벨
+    // 지금은 일단 클래스 등급이랑 같게
+    // 현재 도시등급은 5가지 촌락,소,중,대,수도
+    // 도시 등급 * 10
+
+    // 도시 등급은 역순으로 수도 : 0  , 촌락 : 4
+    // 
+    static public void CityTier_To_Level( int city_tire , ref int level_start , ref int level_end )
+    {
+        // int city_pow = GTF_Define.CITY_TIER_TOTAL - city_tire;
+
+        // int lv = city_tire * 10;
+        // if( lv < 1 ) lv = 1;
+        // return lv;
+
+        switch( city_tire )
+        {
+            // 4 : 촌락 , 1~9
+            case 4:
+                {
+                    level_start = 1;
+                    level_end = 9;
+                }
+                break;
+            case 3:
+                {
+                    level_start = 10;
+                    level_end = 19;
+                }
+                break;
+
+            case 2:
+                {
+                    level_start = 20;
+                    level_end = 29;
+                }
+                break;
+            case 1:
+                {
+                    level_start = 30;
+                    level_end = 39;
+                }
+                break;
+            case 0:
+                {
+                    level_start = 40;
+                    level_end = 49;
+                }
+                break;
+        }
+    }
+
+    // 위 함수의 랜덤 범위 
+    static public int RandomLevel_CityTire( Mng_X128SS rd , int city_tire )
+    {
+        int min_lv = 0; 
+        int max_lv = 0;
+        GTF_CSV.CityTier_To_Level( city_tire , ref min_lv , ref max_lv );
+        return rd.NextInt( min_lv , max_lv );
+    }
+
+    // 레벨 -> 가격 
+    // 
 }

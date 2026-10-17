@@ -16,6 +16,14 @@ public class CSV_Config : SJ_CSV_BasePage
     //===========================================
     // 일반
 
+    // 레벨 -> 비용 비율 계산인자.
+    // 2차 함수 인자
+    // 레벨 ^ level_PowArgGlobal
+    public float level_ResourcesArgGlobal = 1.4f;
+
+    // 레벨 -> 강함 비율
+    public float level_PowArgGlobal = 1.1f;    
+
     // 레벨 제한은 없고 , 대신 일정 레벨 이상이면 아주 느리게 레벨업
     // 일반 최대 레벨 
     public int level_max_normal = 100;
@@ -41,15 +49,22 @@ public class CSV_Config : SJ_CSV_BasePage
     // 실 사이즈
     public int size_world = 2000;
 
-    // 총 국가 최소대
-    public List<int> world_nation;
-    // 총 도시 규모별 최소대
-    public List<int> world_city_Major;
-    public List<int> world_city_Minor;
-    public List<int> world_city_Village;
 
-    // 총 던전
-    public List<int> world_dungeon;
+    // 총 도시개수의 비율로만 하기
+    // 정해진 단계별로 총 개수
+    // 그 후 도시등급개수 및 던전은 비율값으로만
+
+    // 월드 세팅 단계별로 총 개수 : 1 ~ 5 단계 정도
+    public List<int> total_city;
+
+    // 도시의 등급별로 비율 , 현재는 5단계
+    // 수도 제외 , 큰 도시부터 작은 도시 , 클로드 월드 메이킹이랑 순서 맞추기
+    public List<float> cityGrade_ratio;
+
+    // 외부 던전 기본 비율 : 일반 , 숨김 , 인스턴스 , 무한
+    public List<float> dungeon_BaseType_ratio;
+
+
 
     // 특수 도시 비율
     public List<float> world_spc_city_per;
@@ -69,6 +84,9 @@ public class CSV_Config : SJ_CSV_BasePage
 
     //===========================================
     // 아이템 메이킹
+
+    // 메이킹 아이템 가격 최소 기준
+    public int making_unique_item_Price = 1000;
 
     // 유니크 아이템
     // 0 클래스 ~ 10 클래스 ( 1 레벨 ~ 100 레벨 )
@@ -112,23 +130,11 @@ public class CSV_Config : SJ_CSV_BasePage
     public int makeSkill_BaseVal_WIZARD_HEAL;   // 회복 마법 기본 수치
     public int makeSkill_BaseVal_SUPPORTER;     // 지원
 
-    // // 위력 강도 목록
-    // // 일단 다 같게..
-    // public List<float> makeSkill_addPow;
-    // public List<int>   makeSkill_mp;
-
-    // 
-
-    // 유니크 메이킹 캐릭터 일반 능력치 추가 점수 
-    //public int makeChar_BonusScore = 4;
-
-    // 유니크 메이킹 캐릭터 추가 무작위 스킬 갯수
-
-    // 캐릭터 보너스 점수 스킬 별도 csv 작성
-
-
     // 유니크 캐릭터 도시 소속 : 수도 , 대도시의 클래스 등급
     public List<int>   makeChar_City_Class; // 도시 역등급 순서 -> 수도 , 대도시 ....
+
+
+
 
     // 유니크 캐릭터 재야 인재 : [ 캐릭터 클래스 등급 , 인원수 , 소문 개수]
     // 재야 인사
@@ -182,18 +188,62 @@ public class CSV_Config : SJ_CSV_BasePage
     public List<int> enemyRarityGrade_EquipBonusMax;
 
 
+    //===========================================
+    // 행사 모임 관련
+    
+    // 행사 개최 주기 
+    public int gatherings_waitTurn_Min = 20;
+    public int gatherings_waitTurn_Max = 100;
+
+    // 행사 개최 기간
+    public int gatherings_keepUpTurn_Min = 3;
+    public int gatherings_keepUpTurn_Max = 5;
+
+    // 공통 비정규 행사 확률
+    public float gatherings_NotRegular_per = 0.1f;
+
+
+    // 경매장 , 암시장
+
+    // 경매장 암시장 비율
+    public float gatherings_AuctionHouse_BlackMarket_per = 0.8f;// 경매장 확률 
+
+    // 경매장일경우 좋은 효과 점수 , 고정
+    public int gatherings_AuctionHouse_GoodScore = 2;
+
+    // 암시장 일경우 좋은 효과 점수 최대 랜덤 , 0 부터 시작
+    public int gatherings_BlackMarket_GoodScore = 4;
+    // 나쁜 점수
+    public int gatherings_BlackMarket_BadScore = 4;
+
+    // 경매장 가격 배수 최대 , 최소는 1
+    public float gatherings_AuctionHouse_PriceRatio_Max = 2;
+
+    // 암시장 가격 배수 최대
+    public float gatherings_BlackMarket_PriceRatio_Max = 4;
+
+    // 암시장일경우 소문 매물로 나올 확률
+    public float gatherings_BlackMarket_Rumor_Sell_Per = 0.2f;
+
+    // 위의 소문이 진실일 확률
+    public float gatherings_BlackMarket_Rumor_True_Per = 0.3f;
+
     public override void Read()
     {
         
     }
 
-    //public float GetMakeSkill_addPow( int grade )       {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_addPow , grade );}
-    //public int GetMakeSkill_MP( int grade )             {return SJ_CSharpUtil.GetList_IndexSafe( makeSkill_mp , grade );}
-    public int Random_WorldNation( Mng_X128SS rd )      {return rd.NextInt( world_nation[0] , world_nation[1] );}
-    public int Random_WorldCityMajor( Mng_X128SS rd )   {return rd.NextInt( world_city_Major[0] , world_city_Major[1] );}
-    public int Random_WorldCityMinor( Mng_X128SS rd )   {return rd.NextInt( world_city_Minor[0] , world_city_Minor[1] );}
-    public int Random_WorldCityVillage( Mng_X128SS rd ) {return rd.NextInt( world_city_Village[0] , world_city_Village[1] );}
-    public int Random_WorldDungeon( Mng_X128SS rd )     {return rd.NextInt( world_dungeon[0] , world_dungeon[1] );}
+    // public int Random_WorldNation( Mng_X128SS rd )      {return rd.NextInt( world_nation[0] , world_nation[1] );}
+    // public int Random_WorldCityMajor( Mng_X128SS rd )   {return rd.NextInt( world_city_Major[0] , world_city_Major[1] );}
+    // public int Random_WorldCityMinor( Mng_X128SS rd )   {return rd.NextInt( world_city_Minor[0] , world_city_Minor[1] );}
+    // public int Random_WorldCityVillage( Mng_X128SS rd ) {return rd.NextInt( world_city_Village[0] , world_city_Village[1] );}
+    // public int Random_WorldDungeon( Mng_X128SS rd )     {return rd.NextInt( world_dungeon[0] , world_dungeon[1] );}
+
+
+    public int TotalCity( int idx ){return SJ_CSharpUtil.GetList_IndexSafe( total_city , idx );}
+
+
+
     public float Random_WorldCitySpcPer( Mng_X128SS rd ){return rd.NextFloat( world_spc_city_per[0] , world_spc_city_per[1] );}
     public float Random_UniqueObjPer( Mng_X128SS rd )   {return rd.NextFloat( uniqueObj_per[0] , uniqueObj_per[1] );}
 

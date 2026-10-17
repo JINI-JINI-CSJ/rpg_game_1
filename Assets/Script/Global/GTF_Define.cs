@@ -4,8 +4,24 @@ using UnityEngine;
 public class GTF_Define
 {
     //=================================
-    // 일반 
+    // 전역 공통
+
+
+    // 난이도 총 단계
+    public const int DIFFICULT_TOTAL = 5; 
+
+    // 월드 규모 총 단계
+    public const int WORLD_SIZE = 5;
+
+    // 총 도시 티어 단계
+    public const int CITY_TIER_TOTAL = 5;
+
+    
+
+
     //=================================
+    // 일반 
+
 
     // 월드 턴 시작
 
@@ -13,10 +29,16 @@ public class GTF_Define
 
     // 마을 진입
 
+    public const int HS_TAG_CITY_0 = 0; // 수도
+    public const int HS_TAG_CITY_1 = 1; // 대도시
+    public const int HS_TAG_CITY_2 = 2; // 중도시
+    public const int HS_TAG_CITY_3 = 3; // 소도시 
+    public const int HS_TAG_CITY_4 = 4; // 촌락
+
 
     //=================================
     // 던전
-    //=================================
+
 
     // 던전 입장
     public const string DUNGEON_FIRST_ENTER = "DUNGEON_FIRST_ENTER";
@@ -28,7 +50,7 @@ public class GTF_Define
     
     //=================================
     // 전투 
-    //=================================
+
 
     // 전투 인트로
     public const string BATTLE_INTRO = "BATTLE_INTRO";

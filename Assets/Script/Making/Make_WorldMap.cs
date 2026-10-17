@@ -19,35 +19,65 @@ public class Make_WorldMap : MakeBase
     public QuadTree quadTree;
 
 
-    public const int HS_TAG_CITY_0 = 0; // 촌락
-    public const int HS_TAG_CITY_1 = 1; // 소도시
-    public const int HS_TAG_CITY_2 = 2; // 중도시
-    public const int HS_TAG_CITY_3 = 3; // 대도시 
-    public const int HS_TAG_CITY_4 = 4; // 수도
+
 
 
     // 일반 스폿 , 월드 메이커에서는 타입이 있지만 여기서는 통합
     // 일단 던전으로 통합
 
-    // 쿼드트리 해쉬 태그
-    public const int HS_TAG_SPOT = 10000;
+    // 쿼드트리 해쉬 태그 , 기본 수치
+    public const int HS_TAG_SPOT = 1000;
 
     // 아이디 , 도시
     public Dictionary<int, City>            dic_world_idx_city = new();
     // 등급별 정리
     public Dictionary<int,List<City>>       dic_tire_City = new();
 
-    public List<DungeonInfo>                dungeonInfos = new();
-    
+    // 
 
-
-    void Awake()
+    Make_WorldMap()
     {
         G = this;
     }
 
     public override void OnMake()
     {
+        // 계산된 총 개수로 만들기
+        // 유저 초기 메이킹 세팅
+        WorldGenSettings settings =  worldForge.Settings;
+
+        // 월드 맵 사이즈
+        // 일단 고정..
+        settings.MapWidth = GTF_CSV.csv_Config.size_world;
+        settings.MapHeight = GTF_CSV.csv_Config.size_world;
+
+
+        // 국가 수
+        settings.NumNations = GTF_MakeSetting.NumNations;
+
+        // 등급별 도시
+        // 대도시 -> 소도시 순으로. 수도는 0 개 , 클로드 월드 규칙이다.
+        settings.CityTierDefs.Clear();
+        
+        // 수도 
+        settings.CityTierDefs.Add( new CityTierDef( "NationCity"  , 0 , 255,255,255, 2 ) );
+
+        // 도시 티어들
+        List<int> total_city_tier = Make_Global.G.total_city_tier;
+        for( int i = 0 ; i < total_city_tier.Count ; i++ )
+        {
+            string tier = (i+1).ToString();
+            settings.CityTierDefs.Add( new CityTierDef( "City_" + tier , total_city_tier[0] , 255,255,255, 1 ) );
+        }
+
+        // 던전 
+        settings.SpotTypeDefs.Clear();
+        List<int> total_dungeon_type = Make_Global.G.total_dungeon_type;
+        for( int i = 0 ; i < total_dungeon_type.Count ; i++ )
+        {
+            settings.SpotTypeDefs.Add( new SpotTypeDef( "Spot_" + i , total_dungeon_type[0] , 255,255,255 ) );
+        }
+
         worldForge.OnWorldGenerated += OnAfterMakeWorld;
         worldForge.Generate();
 
@@ -69,6 +99,7 @@ public class Make_WorldMap : MakeBase
     {
         Debug.Log( "월드 : 시티 : " + worldForge.CurrentWorld.Cities.Count + "     던전 스폿 : " + worldForge.CurrentWorld.Spots.Count );
 
+
         // 월드 메이커는 0 위치 시작 , 넓이 인자로 되 있다.
         quadTree = new QuadTree( Vector2.zero , new Vector2( worldForge.CurrentWorld.Width , worldForge.CurrentWorld.Height ) );
 
@@ -82,7 +113,7 @@ public class Make_WorldMap : MakeBase
         // 던전
         foreach( var s in worldForge.CurrentWorld.Spots )
         {
-            InsertQuad_Spot( s , HS_TAG_SPOT );
+            InsertQuad_Spot( s );
         }
     }
 
@@ -120,7 +151,7 @@ public class Make_WorldMap : MakeBase
         return cities;
     }
 
-    void InsertQuad_Spot( SpotData spotData , int tag_hash )
+    void InsertQuad_Spot( SpotData spotData )
     {
         Vector2 pos = new Vector2( spotData.X , spotData.Y );
 
@@ -128,7 +159,12 @@ public class Make_WorldMap : MakeBase
         dungeon.ID =  MakingMain.Make_UID( typeof(DungeonInfo) );
         dungeon.spotData = spotData;
 
-        quadTree.Insert( pos , tag_hash , dungeon );
+        // 해시 태그는 기본 수치 + SpotTypeId
+        quadTree.Insert( pos , spotData.SpotTypeId + HS_TAG_SPOT , dungeon );
     }
 
+    static public int Get_HashTag_Spot( DUNGEON_TYPE t )
+    {
+        return HS_TAG_SPOT + (int)t;
+    }
 }

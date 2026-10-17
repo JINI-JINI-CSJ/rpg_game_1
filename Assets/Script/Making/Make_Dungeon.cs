@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using WorldForge;
 
 // 던전 설정들..
 
@@ -32,9 +34,12 @@ using UnityEngine;
 // 일반 , 특수 구분
 // 일단 도시 던전은 모두 일반으로 분류
 // 특수 던전은 독립 좌표로 지정된 던전 , 현재는 클로드 지도 메이킹에서 만든 던전은 모두 해당
+
+// 
 // 일반
 // 일반 던전 계층 개수는 도시 규모에 비례 , 심연은 대도시 이상만?
-// 특수
+
+// 특수 , 잠정 보류 , 도시 던전 행사에만 하는거로
 // 다양한 형식이 있다
 // -일반 + 입장 조건 : 직업 , 인원수 등등 제한
 // -일반 + 심연      : 심연 존재
@@ -42,7 +47,59 @@ using UnityEngine;
 // -무한 계층        : 도전용 
 // 일단 나열된 형식들은 확률로 생성 , 또는 무한 계층은 소수이거나 후반에만...?
 
+// 타입
+// -일반 도시
+// -필드 일반 던전 : 처음부터 보인다. 
+// -필드 숨김 던전 : 소문이나 임무 보상으로 알려짐
+// -인스턴스 던전 : 특정 기간등에만 보임 , 비정규로 보이기
+// -무한던전 : 메인 시나리오 클리어 후 등장 , 층수가 무한하다.
+
+// 일단 심연은 도시 던전에는 없는걸로 
+// 필드 던전에서만 있게 하자.
+
+public enum DUNGEON_TYPE
+{
+    // 외부던전 인덱스를 위해서 "필드 보임" 던전부터 시작
+    None = -1 ,
+    Field_Show = 0 ,    
+    Field_Hide = 1,
+    Instance = 2, 
+    Infinity = 3, 
+    City ,     
+}
+
 public class Make_Dungeon : MakeBase
 {
-    
+    public List<DungeonInfo>                dungeonInfos_All = new();
+
+
+
+    public override void OnMake()
+    {
+        WorldForgeManager worldForge = Make_WorldMap.G.worldForge;
+
+        // 레벨링
+        // 도시 던전은 동일
+
+
+        // 던전 태그에 따라서 객체 만들기
+
+        // 도시 던전 , 도시 객체에 넣는다.
+        // 도시 던전 레벨은 티어 랜덤 레벨
+        foreach( var s in Make_WorldMap.G.dic_world_idx_city )
+        {
+            
+        }
+        
+
+        // 외부 던전형
+        // 외부 던전 타입별로 레벨링
+        // Field_Show : 20 ~ 60
+        // Field_Hide : 30 ~ 70
+        // Instance : 40 ~ 80
+        // Infinity : 60 ~ 무한층
+
+        // 무한을 제외한 외부 던전의 레벨은 
+        // 인덱스로 계산하여 증가하게 하면 된다.        
+    }
 }

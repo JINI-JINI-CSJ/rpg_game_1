@@ -26,10 +26,17 @@ using WorldForge;
 
 public class Make_City : MakeBase
 {
+    static public Make_City G;
+
     // 처음부터 보일 도시들의 깊이 제한
     public int depth_start_active = 2;
 
     public City city_Start;
+
+    Make_City()
+    {
+        G = this;
+    }
 
     // 특수 도시 
     public override void OnMake()
@@ -40,8 +47,8 @@ public class Make_City : MakeBase
         // 시작지점 , 소마을 티어중에 한개1
         QuadTree quadTree = Make_WorldMap.G.quadTree;
 
-        // 티어 0 부터 시작 , 가장 작은 마을 티어
-        List<QTPoint> qTs = quadTree.GetAllPoints( 0 );
+        // 가장 작은 촌락
+        List<QTPoint> qTs = quadTree.GetAllPoints( GTF_Define.HS_TAG_CITY_4 );
         QTPoint qt_s = GTF_Random.rd_make_common.RandomList( qTs );
         city_Start = (City)qt_s.Data;
 
@@ -78,7 +85,7 @@ public class Make_City : MakeBase
         List<(City,float)> city_no_find = new();
         foreach( var s in cities_no_FIND_FIRST )
         {
-            var near = s.FindNear( Make_WorldMap.GetCities_Tire(Make_WorldMap.HS_TAG_CITY_4) );
+            var near = s.FindNear( Make_WorldMap.GetCities_Tire(GTF_Define.HS_TAG_CITY_4) );
             city_no_find.Add( new( s , near.Item2 ) );
         }
 
@@ -105,8 +112,6 @@ public class Make_City : MakeBase
 
         //---------------------------------------------------------------------
         // 아이템 , 캐릭터 등의 배분
-        // 던전과 도시에 일단 나누기
-        // 기타 이벤트는 나중에..
         // 루머 , 퀘스트 메이커에서 하자.
 
 

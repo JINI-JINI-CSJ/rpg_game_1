@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,14 +11,21 @@ public class Make_Global : MakeBase
 
     public int total_city; // 
 
-    public int total_city_Nation;
-    public int total_city_Major;
-    public int total_city_Minor;
-    public int total_city_Village;
+    // 티어 별로 총 도시 계산 , 5단계
+    public List<int> total_city_tier = new();
+
+    // 미리 계산 정규화
+    public List<float> normalize_total_city_ratio = new();
 
     // 도시 특수 태그
     public StockMakeInf stock_CitySpcTag = new();
 
+
+    // 던전 타입별 개수
+    public List<int> total_dungeon_type = new();
+
+    // 정규화
+    public List<float> normalize_total_dungeon_type = new();
 
     //===========================================
     // 유니크 캐릭터 , 총 갯수 등급별 갯수
@@ -29,7 +37,7 @@ public class Make_Global : MakeBase
     public int uniqueStep_GradeItem;
 
 
-    void Awake()
+    Make_Global()
     {
         G = this;
     }
@@ -40,12 +48,44 @@ public class Make_Global : MakeBase
 
         // 도시 갯수
         // 수도 + 대중소 
-        total_city_Nation = GTF_CSV.csv_Config.Random_WorldNation( GTF_Random.rd_make_common );
-        total_city_Major = GTF_CSV.csv_Config.Random_WorldCityMajor( GTF_Random.rd_make_common );
-        total_city_Minor = GTF_CSV.csv_Config.Random_WorldCityMinor( GTF_Random.rd_make_common );
-        total_city_Village = GTF_CSV.csv_Config.Random_WorldCityVillage( GTF_Random.rd_make_common );
+        // total_city_Nation = GTF_CSV.csv_Config.Random_WorldNation( GTF_Random.rd_make_common );
+        // total_city_Major = GTF_CSV.csv_Config.Random_WorldCityMajor( GTF_Random.rd_make_common );
+        // total_city_Minor = GTF_CSV.csv_Config.Random_WorldCityMinor( GTF_Random.rd_make_common );
+        // total_city_Village = GTF_CSV.csv_Config.Random_WorldCityVillage( GTF_Random.rd_make_common );
+        //total_city = total_city_Nation + total_city_Major + total_city_Minor + total_city_Village;
 
-        total_city = total_city_Nation + total_city_Major + total_city_Minor + total_city_Village;
+        // 총 도시 개수 , 유저 세팅 
+        total_city = GTF_CSV.csv_Config.TotalCity( GTF_MakeSetting.world_size );
+
+        // 비율 정규화 및 총 갯수
+        // 도시 티어 등급
+        // 수도 티어 : 0
+        // 대도시 : 1
+        // ...
+        float cityGrade_ratio_total = 0;
+        for( int i = 0 ; i < GTF_CSV.csv_Config.cityGrade_ratio.Count ; i++ ) cityGrade_ratio_total += GTF_CSV.csv_Config.cityGrade_ratio[i];
+        for( int i = 0 ; i < GTF_CSV.csv_Config.cityGrade_ratio.Count ; i++ )
+        {
+            float src = GTF_CSV.csv_Config.cityGrade_ratio[i];
+            float nor_ratio = src / cityGrade_ratio_total;
+            normalize_total_city_ratio.Add( nor_ratio );
+            int total_city_tier_cur = (int)((float)total_city * nor_ratio);
+            total_city_tier.Add(total_city_tier_cur);
+        }
+        
+        // 외부 던전 
+        float dungeon_ratio_total = 0;
+        for( int i = 0 ; i < GTF_CSV.csv_Config.dungeon_BaseType_ratio.Count ; i++ ) dungeon_ratio_total += GTF_CSV.csv_Config.dungeon_BaseType_ratio[i];
+        for( int i = 0 ; i < GTF_CSV.csv_Config.dungeon_BaseType_ratio.Count ; i++ )
+        {
+            float src = GTF_CSV.csv_Config.dungeon_BaseType_ratio[i];
+            float nor_ratio = src / dungeon_ratio_total;
+            normalize_total_dungeon_type.Add( nor_ratio );
+            int total_dungeon_type_cur = (int)((float)total_city * nor_ratio);
+            total_dungeon_type.Add(total_dungeon_type_cur);
+        }
+
+
 
         // 유니크 객체들
         // 다음 항목으로 나눈다.
