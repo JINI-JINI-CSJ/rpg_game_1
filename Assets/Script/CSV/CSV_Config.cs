@@ -134,8 +134,6 @@ public class CSV_Config : SJ_CSV_BasePage
     public List<int>   makeChar_City_Class; // 도시 역등급 순서 -> 수도 , 대도시 ....
 
 
-
-
     // 유니크 캐릭터 재야 인재 : [ 캐릭터 클래스 등급 , 인원수 , 소문 개수]
     // 재야 인사
     public class Chr_UniqueOutSide
@@ -174,6 +172,21 @@ public class CSV_Config : SJ_CSV_BasePage
     // 캐릭터 추가 스킬
     // 예) ~20 , ~40 , ~60 ,
 
+    //===========================================
+    // 던전 메이킹
+
+    // 타입별 던전 레벨링
+
+    public int makeDungeon_Field_Show_LevelStart;
+    public int makeDungeon_Field_Show_LevelEnd;    
+
+    public int makeDungeon_Field_Hide_LevelStart;
+    public int makeDungeon_Field_Hide_LevelEnd;    
+
+    public int makeDungeon_Instance_LevelStart;
+    public int makeDungeon_Instance_LevelEnd;    
+
+    public int makeDungeon_Infinity_LevelStart; // 무한 던전은 시작 레벨만
 
     //===========================================
     // 던전 적군 메이킹

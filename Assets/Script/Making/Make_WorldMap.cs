@@ -12,14 +12,10 @@ using System.Collections.Generic;
 public class Make_WorldMap : MakeBase
 {
     public static Make_WorldMap G;
-
     // 인자들...
     public WorldForgeManager worldForge;
 
     public QuadTree quadTree;
-
-
-
 
 
     // 일반 스폿 , 월드 메이커에서는 타입이 있지만 여기서는 통합
@@ -28,12 +24,15 @@ public class Make_WorldMap : MakeBase
     // 쿼드트리 해쉬 태그 , 기본 수치
     public const int HS_TAG_SPOT = 1000;
 
-    // 아이디 , 도시
+    // 인덱스 , 도시
     public Dictionary<int, City>            dic_world_idx_city = new();
-    // 등급별 정리
+    // 도시 등급별 정리
     public Dictionary<int,List<City>>       dic_tire_City = new();
 
-    // 
+    // 인덱스 , 외부 던전
+    public Dictionary<int, DungeonInfo>     dic_world_idx_dungeon = new();
+    // 던전 형태별 정리
+    public Dictionary<DUNGEON_TYPE,List<DungeonInfo>>       dic_type_dungeon = new();
 
     Make_WorldMap()
     {
@@ -111,9 +110,10 @@ public class Make_WorldMap : MakeBase
         } 
 
         // 던전
-        foreach( var s in worldForge.CurrentWorld.Spots )
+        for( int i = 0 ; i < worldForge.CurrentWorld.Spots.Count ; i++ )
         {
-            InsertQuad_Spot( s );
+            SpotData spot = worldForge.CurrentWorld.Spots[i];
+            InsertQuad_Spot( spot , i );
         }
     }
 
@@ -151,7 +151,7 @@ public class Make_WorldMap : MakeBase
         return cities;
     }
 
-    void InsertQuad_Spot( SpotData spotData )
+    void InsertQuad_Spot( SpotData spotData , int idx_dungeon )
     {
         Vector2 pos = new Vector2( spotData.X , spotData.Y );
 
@@ -161,6 +161,18 @@ public class Make_WorldMap : MakeBase
 
         // 해시 태그는 기본 수치 + SpotTypeId
         quadTree.Insert( pos , spotData.SpotTypeId + HS_TAG_SPOT , dungeon );
+
+        dic_world_idx_dungeon[idx_dungeon] = dungeon;
+        List<DungeonInfo> dungeonInfos = null;
+        DUNGEON_TYPE dUNGEON_TYPE = DUNGEON_TYPE.None;
+        dUNGEON_TYPE = (DUNGEON_TYPE)spotData.SpotTypeId;
+        dungeon.dUNGEON_TYPE = dUNGEON_TYPE;
+        if( dic_type_dungeon.TryGetValue( dUNGEON_TYPE , out dungeonInfos ) == false )
+        {
+            dungeonInfos = new();
+            dic_type_dungeon[dUNGEON_TYPE] = dungeonInfos;
+        }
+        dungeonInfos.Add(dungeon);
     }
 
     static public int Get_HashTag_Spot( DUNGEON_TYPE t )

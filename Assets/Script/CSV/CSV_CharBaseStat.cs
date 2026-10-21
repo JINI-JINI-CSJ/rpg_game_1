@@ -12,6 +12,10 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
     public string res3D;
     public string tag;
     public int grade;
+
+    //전열후열(1전열2후열)	, 0 없음
+    public int line_front_back; 
+    // 던전 희소 등급
     public EnemyRarityGrade rarityGrade;
     public float pow_ratio; // 적군 전용 , 강함 가중치 , 경험치 계산등에 사용한다. 예) 하급고블린 -> 1 , 오우거 -> 2
     public JOB_BASE jOB_BASE;
@@ -33,6 +37,7 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         res3D = Next();
         tag = Next();
         grade = Next_Int();
+        line_front_back = Next_Int();
         Enum.TryParse( Next() , out rarityGrade );
         pow_ratio = Next_Float();
         Enum.TryParse( Next() , out jOB_BASE );
@@ -49,6 +54,8 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
         s.res = res;
         s.res3D = res3D;
         s.grade = grade;
+        s.line_front_back = line_front_back;
+        s.rarityGrade = rarityGrade;
         s.pow_ratio = pow_ratio;
         s.jOB_BASE = jOB_BASE;
         s.Weapon_Skill_ID = Weapon_Skill_ID;
@@ -82,7 +89,8 @@ public class CSV_CharBaseStatPage : SJ_CSV_BasePage
         
     }
 
-    public List<CSV_CharBaseStat> GetTag_Contain( string tag = "" , int grade = -1 , EnemyRarityGrade rarityGrade = EnemyRarityGrade.None )
+    public List<CSV_CharBaseStat> GetTag_Contain( string tag = "" , 
+        int grade = -1 , EnemyRarityGrade rarityGrade = EnemyRarityGrade.None , int line_front_back = -1 )
     {
         List<CSV_CharBaseStat> lt = new();
         foreach( var s in dic_int.Values.Cast<CSV_CharBaseStat>() )
@@ -90,6 +98,7 @@ public class CSV_CharBaseStatPage : SJ_CSV_BasePage
             if( tag != "" && !s.tag.Contains( tag ) ) continue;
             if( grade != -1 && s.grade != grade ) continue;
             if( rarityGrade != EnemyRarityGrade.None && s.rarityGrade != rarityGrade ) continue;
+            if( line_front_back != -1 && s.line_front_back != line_front_back ) continue;
 
             lt.Add(s);
             
@@ -97,10 +106,17 @@ public class CSV_CharBaseStatPage : SJ_CSV_BasePage
         return lt;
     }
 
-    public CSV_CharBaseStat GetTag_Contain_Random( Mng_X128SS rd , string tag = "" , int grade = -1 , EnemyRarityGrade rarityGrade = EnemyRarityGrade.None )
+    public CSV_CharBaseStat GetTag_Contain_Random( Mng_X128SS rd , string tag = "" , int grade = -1 , EnemyRarityGrade rarityGrade = EnemyRarityGrade.None , int line_front_back = -1)
     {
-        List<CSV_CharBaseStat> lt = GetTag_Contain( tag , grade , rarityGrade );
-        return rd.RandomList(lt);
+        List<CSV_CharBaseStat> lt = GetTag_Contain( tag , grade , rarityGrade , line_front_back );
+        CSV_CharBaseStat csv = rd.RandomList(lt);
+        if( csv == null )
+        {
+            Debug.Log( "GetTag_Contain_Random : " + tag + " : " + grade + " : " + rarityGrade + " : " + line_front_back );
+            return null;
+        }
+
+        return csv;
     }
 
 

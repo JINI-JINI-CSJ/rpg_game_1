@@ -70,25 +70,26 @@ public enum DUNGEON_TYPE
 
 public class Make_Dungeon : MakeBase
 {
-    public List<DungeonInfo>                dungeonInfos_All = new();
-
-
 
     public override void OnMake()
     {
         WorldForgeManager worldForge = Make_WorldMap.G.worldForge;
 
-        // 레벨링
-        // 도시 던전은 동일
-
-
         // 던전 태그에 따라서 객체 만들기
 
-        // 도시 던전 , 도시 객체에 넣는다.
-        // 도시 던전 레벨은 티어 랜덤 레벨
-        foreach( var s in Make_WorldMap.G.dic_world_idx_city )
+        // 도시 던전 , 던전 객체 만들어서 도시 객체에 넣는다.
+        foreach( var s in Make_WorldMap.G.dic_world_idx_city.Values )
         {
-            
+            DungeonInfo dungeonInfo = new DungeonInfo();
+
+            // 도시 던전이면 스폿데이터는 없다.
+            dungeonInfo.ID = MakingMain.Make_UID( typeof(DungeonInfo) );
+            // 시드는 메이킹 시드
+            dungeonInfo.randomSeed = GTF_Random.rd_make_common.NextUInt();
+            // 도시 던전 레벨은 티어 랜덤 레벨
+            dungeonInfo.LEVEL = GTF_CSV.RandomLevel_CityTire( GTF_Random.rd_make_common , s.cityData.Tier );
+
+            s.dungeonInfo = dungeonInfo;
         }
         
 
@@ -100,6 +101,80 @@ public class Make_Dungeon : MakeBase
         // Infinity : 60 ~ 무한층
 
         // 무한을 제외한 외부 던전의 레벨은 
-        // 인덱스로 계산하여 증가하게 하면 된다.        
+        // 인덱스로 계산하여 증가하게 하면 된다.      
+
+        // 타입별로 정리
+        foreach( var s in Make_WorldMap.G.dic_type_dungeon )
+        {
+            DUNGEON_TYPE dUNGEON_TYPE = s.Key;
+            List<DungeonInfo> dungeonInfos = s.Value;
+
+            int level_start = 0;
+            int level_end = 0;
+            switch( dUNGEON_TYPE )
+            {
+                case DUNGEON_TYPE.Field_Show:
+                    {
+                        level_start = GTF_CSV.csv_Config.makeDungeon_Field_Show_LevelStart;
+                        level_end   = GTF_CSV.csv_Config.makeDungeon_Field_Show_LevelEnd;
+                    }
+                    break;
+                case DUNGEON_TYPE.Field_Hide:
+                    {
+                        level_start = GTF_CSV.csv_Config.makeDungeon_Field_Hide_LevelStart;
+                        level_end   = GTF_CSV.csv_Config.makeDungeon_Field_Hide_LevelEnd;
+                    }
+                    break;
+                case DUNGEON_TYPE.Instance:
+                    {
+                        level_start = GTF_CSV.csv_Config.makeDungeon_Instance_LevelStart;
+                        level_end   = GTF_CSV.csv_Config.makeDungeon_Instance_LevelEnd;
+                    }
+                    break;
+                case DUNGEON_TYPE.Infinity:
+                    {
+                        // 무한은 똑같음
+                        level_start = GTF_CSV.csv_Config.makeDungeon_Infinity_LevelStart;
+                        level_end   = GTF_CSV.csv_Config.makeDungeon_Infinity_LevelStart;
+                    }
+                    break;
+            }
+            // 인덱스 증가 비례로 레벨
+            for( int i = 0 ; i < dungeonInfos.Count ; i++ )
+            {
+                DungeonInfo dungeon = dungeonInfos[i];
+                dungeon.LEVEL = (int)(Mathf.Lerp( level_start , level_end , (float)i / (float)dungeonInfos.Count ));
+            }
+        }
+
+        // 추가 층수 레이어
+        // 
+        // 1안
+        // 도시 : 최소 또는 없음 , 크기로만 
+        // 외부 보임 : 레벨별 층수
+        // 외부 안보임 : 레벨별 층수 + 심연
+        // 인스턴스 : 심연
+        // 무한 : 심연
+
+        // 2안
+        // 도시 : 중등급 이상부터 층수
+        // 외부 보임 : 층수 + 심연 1층 
+        // 외부 숨김 : 심연 다층
+        // 인스턴스 : 랜덤 심연
+        // 무한 : 무한
+
+        // 3안
+        // 레이어 리소스 형태( 잠정 ) : 현시대 일반 , 현시대 심연 , 백룸 또는 혼돈 세계 , 현 지구 디스토피아
+        // 각 해당되는 태그 리소스중에 랜덤
+        // 던전 맵 리소스 , 적군 리소스 
+        // csv 에서 태그별로 받아오기
+
+        // 메이킹함수는 DungeonInfo 에서 직접하기
+        // 여기서는 각 그룹 층마다( 일반 층 , 심연층 등등 ) 인자만 넘기기?
+        // 던전 리소스는 태그 정의csv 에서 가져오자.
+        // 일단 태그 1개만 가져와서  던전 , 적군 다하자.
+
+
+        // 보상 등 기획 예정         
     }
 }
