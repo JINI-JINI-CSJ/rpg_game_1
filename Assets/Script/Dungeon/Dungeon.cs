@@ -13,57 +13,115 @@ public enum EnemyRarityGrade
     Boss = 4,
 }
 
-// csv 에서 아이템 태그별로 등급을 해놓자.
-// 돈이나 exp 보상은 따로 일괄 계산 , 적군 등급 , 던전 등급 등등
-// 등급은 일단 던전 등급을 참조 
+//=================================================================================================
+/// <summary>
+/// 드롭 확률 
+/// </summary>
 public class DropItemInfo
 {
     // 100 기준으로 계산한다.
     public class DropPer
     {
-        public int      csv_id;     // 지정 csv
-        public int      power_step; // 강화 단계 , 밑의 보너스 스탯과 별개
-        public float    per;
-        public string   tagItem;    // 태그 아이템 중에 한개
-        public int      gold;       // 돈 보상
-        // 보너스 스탯이 있을경우
-        public int      sc_bonus; // 나중에 이걸 다시 추가 강화와 추가 이펙트 수치로 나누기 , 초과 하는건 무시
+        public float    per;   
+
+
+        public ItemBase itemBase;
+
+        public int      eq_sc_add;      // 장비 아이템일때 추가 점수 
+        public int      eq_sc_minus;    // 장비 아이템일때 감점 
+
+
+        // 돈 보상일때만 
+        public int      gold;       // 돈 보상        
+
+        // 소문일때만 
+        public uint     rumor_ID;
+
+        public void Set( float _per , ItemBase item , int _eq_sc_add , int _eq_sc_minus , int _gold , uint _rumor_ID )
+        {
+            per = _per;
+            itemBase = item;
+            eq_sc_add = _eq_sc_add;
+            eq_sc_minus = _eq_sc_minus;
+            gold = _gold;
+            rumor_ID = _rumor_ID;
+        }
+     
 
         public void Save( BinaryWriter bw )
         {
-            bw.Write( csv_id );
-            bw.Write( power_step );
             bw.Write( per );
-            bw.Write( tagItem );
+            ItemBase.SaveItemBase( bw , itemBase );
+
+            bw.Write( eq_sc_add );
+            bw.Write( eq_sc_minus );
             bw.Write( gold );
-            bw.Write( sc_bonus );
+            bw.Write( rumor_ID );
         }
 
         public void Load( BinaryReader br )
         {
-            csv_id = br.ReadInt32();
-            power_step = br.ReadInt32();
             per = br.ReadSingle();
-            tagItem = br.ReadString();
+            byte item_data = br.ReadByte();
+            itemBase = ItemBase.LoadItemBase( br );
+
+            eq_sc_add = br.ReadInt32();
+            eq_sc_minus = br.ReadInt32();
             gold = br.ReadInt32();
-            sc_bonus = br.ReadInt32();
+            rumor_ID = br.ReadUInt32();
         }
+
 
     }
     public List<DropPer> dropPers = new();
 
-    public void AddDropPer( int csv_id , int power_step , float per , string tagItem , int sc_bonus )
+    public void LoadCSV( Mng_X128SS rd , CSV_DropRewardPer csvDropPer , int level , EnemyRarityGrade rarityGrade , string tagItem = "" )
+    {
+        int grade_item = GTF_CSV.LevelToGrade( level );
+
+        // csv 의 목록대로 만들어 본다.
+        // 확률을 랜덤한다.
+        foreach( var s in csvDropPer._DROPs )
+        {
+            // 소문은 드랍csv 가 아니고, 메이킹에서 직접 넣는다.
+
+            float per = rd.NextFloat( s.per_min , s.per_max );
+            if( s.Check_Gold() )
+            {
+                int gold = GTF_CSV.LevelTo_EnemyRewardGold( level , rarityGrade );
+                AddDropPer( per , null , 0 , 0 , gold , 0 );
+                continue;
+            }
+
+            
+            // 여기서는 소모품 , 장비품만 가져오자.
+            // csv 드랍에서는 소모품 장비품만 기록하자.
+            // 수량정해진 아이템은 나중에 배분 클래스에서 한다.
+            // 장비품일 경우 EnemyRarityGrade 에 따라서 보너스 점수를 주자
+            _ITEM_TYPE item_type = s.Get_ITEM_TYPE();
+            if( item_type != _ITEM_TYPE.None )
+            {
+                CSV_Item csv_item = GTF_CSV.csv_ItemPage_ALL.GetItemTypeList_TagGrade_One( rd , item_type , tagItem , grade_item );
+                ItemBase item = ItemBase.InstItemBase( csv_item );
+
+                // 보너스는 일단 적군 등급을 숫자로 변환 
+                AddDropPer( per , item , (int)rarityGrade , 0 , 0 , 0 );
+                continue;
+            }
+        }
+    }
+
+    public void AddDropPer(float per , ItemBase item ,int eq_sc_add, int  eq_sc_minus , int gold , uint rumor_ID )
     {
         DropPer s = new();
-        s.csv_id = csv_id;
-        s.power_step = power_step;
-        s.per = per;
-        s.tagItem = tagItem;
-        s.sc_bonus = sc_bonus;
+
+        s.Set( per , item ,eq_sc_add,  eq_sc_minus , gold , rumor_ID );
 
         dropPers.Add( s );
     }
 
+
+    // 여러개가 나올수도 있다.
     public List<DropPer> PerItemDrop( Mng_X128SS rd )
     {
         // 100 기준 각자 계산한다.
@@ -74,6 +132,7 @@ public class DropItemInfo
         }
         return lt;
     }
+
 
     public void Save( BinaryWriter bw )
     {
@@ -96,7 +155,10 @@ public class DropItemInfo
     }
 }
 
-// 던전의 개별적군 정의
+//=================================================================================================
+/// <summary>
+/// 적군 
+/// </summary>
 public class EnemyDungeonInfo
 {
     public EnemyRarityGrade     rarityGrade;    // 
@@ -118,17 +180,16 @@ public class EnemyDungeonInfo
     // 강약점 , 아이템 
     // 아이템은 레어 등급값으로 연동하자.
 
-    // 적군 태그 파트 , 
-    public void Make( Mng_X128SS rd , string tagPart , EnemyRarityGrade _rarityGrade , int _line_front_back , int num_tagChrAttrStrong , int num_tagChrAttrWeak )
+    // 적군 csv 태그 , 밖에서 적군 태그는 정해서 넘긴다. 중복방지
+
+    // string tagEnemy : 적군 csv 태그 및 csv 
+    public void Make( Mng_X128SS rd , int level , string tagEnemy , CSV_DropRewardPer csv_Drop, EnemyRarityGrade _rarityGrade , int _line_front_back , int num_tagChrAttrStrong , int num_tagChrAttrWeak ,string tagItem )
     {
         // 적군 태그 , 등급 등으로 csv 고르기
         // csv 태그 정의에서 종족 태그
-
-        string tag_enemy = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( tagPart , rd );
-        CSV_CharBaseStat csv = GTF_CSV.csv_CharEnemy.GetTag_Contain_Random( rd , tag_enemy , -1 , _rarityGrade , _line_front_back );
+        CSV_CharBaseStat csv = GTF_CSV.csv_CharEnemy.GetTag_Contain_Random( rd , tagEnemy , -1 , _rarityGrade , _line_front_back );
 
         csv_id = csv.ID_int;
-
         color32.r = (byte)rd.NextInt(0,255);
         color32.g = (byte)rd.NextInt(0,255);
         color32.b = (byte)rd.NextInt(0,255);
@@ -141,9 +202,10 @@ public class EnemyDungeonInfo
         for( int i = 0 ; i < num_tagChrAttrWeak ; i++ )   tagChrAttrWeak.Add( rd.RandomList( tag_chrAttr , true ) );
 
         // 아이템 드랍
-        // EnemyRarityGrade 으로 랜덤 가져오기 , 태그도 할까?
-        // .... 
-
+        // csv 드랍 테이블에서 가져온다. 
+        //CSV_DropRewardPer csv_Drop = GTF_CSV.csv_DropRewardPer.Find_Str( csvIDDropPer ) as CSV_DropRewardPer;
+        
+        dropItemInfo.LoadCSV( rd , csv_Drop , level , _rarityGrade , tagItem );
     }
 
     // 적군 정보 있는지 , 둘다 없으면 적군 정보 없음
@@ -192,20 +254,22 @@ public class EnemyDungeonInfo
     }
 }
 
-// 필드 아이템 
-// DropItemInfo 를 하나 가지고 있고 , 무조건 이 아이템 획득하기
+//=================================================================================================
+/// <summary>
+/// 필드 아이템
+/// </summary>
 public class FieldItem
 {
     public int field_type; // 일반 보물 상자 , 숨김
     public int Room_Idx;
-    DropItemInfo.DropPer dropItem = new();
+    public DropItemInfo         dropItemInfo = new();
     public int OpenState;
 
     public void Save( BinaryWriter bw )
     {
         bw.Write(field_type);
         bw.Write(Room_Idx);
-        dropItem.Save(bw);
+        dropItemInfo.Save(bw);
         bw.Write(OpenState);
     }
 
@@ -213,15 +277,18 @@ public class FieldItem
     {
         field_type  = br.ReadInt32();
         Room_Idx    = br.ReadInt32();
-        dropItem.Load(br);
+        dropItemInfo.Load(br);
         OpenState   = br.ReadInt32();
     }
 }
 
 
+//=================================================================================================
+/// <summary>
 // 던전 한개의 계층 정보
 // - 적군 정의 및 등장 확률 
 // - 계층 탐색 완성도
+/// </summary>
 public class DungeonLayerInfo
 {
     public int idx_layer;
@@ -236,27 +303,95 @@ public class DungeonLayerInfo
     public List<EnemyDungeonInfo> enemy_Elite = new(); // 정예 등급
     public List<EnemyDungeonInfo> enemy_Rare = new(); // 희소 등급
     public EnemyDungeonInfo enemy_Boss = new(); // 보스 등급
-    // 필드 아이템
-    public List<FieldItem>  fieldItems = new();
 
+    // 필드 아이템
+    // 개수를 정해야 하는데 던전 구조를 알아야 한다.
+    // 일단 보류
+    // 그냥 많이 만들고 , 던전 생성시 가져오자.. 남아도 괜찮다.
+    public List<FieldItem>  fieldItems = new();
 
 
     public float completePer; // 계층 탐색 완성도
 
 
-    public void Make( int _idx_layer , Mng_X128SS rd , string tagPart_enemy , bool isBoss )
+    public void Make( int _idx_layer , string _res_dungeon  ,int level , Mng_X128SS rd , string tagPart , bool isBoss , string strCSV_DropPer , string tagItem )
     {
+        idx_layer = _idx_layer;
+
+        res_dungeon_layer = _res_dungeon;
+
+        CSV_DropRewardPer csv_DropPer = GTF_CSV.csv_DropRewardPer.Find_Str(  strCSV_DropPer) as CSV_DropRewardPer;
+
         // 적군들 , 보스 
-
         // 적군 종류개수는 csv 전역에서 하자.
-
         // 일반 전열 , 후열
-        int num_enemy_Normal_Front = 1;
+        int num_enemy_Normal_Front = rd.NextInt( GTF_CSV.csv_Config.makeDungeon_Layer_EnemyNormalFront_Min , GTF_CSV.csv_Config.makeDungeon_Layer_EnemyNormalFront_Max + 1 );
+        int num_enemy_Normal_Back  = rd.NextInt( GTF_CSV.csv_Config.makeDungeon_Layer_EnemyNormalBack_Min  , GTF_CSV.csv_Config.makeDungeon_Layer_EnemyNormalBack_Max + 1 );
+        int num_enemy_Normal_Elite = rd.NextInt( GTF_CSV.csv_Config.makeDungeon_Layer_EnemyElite_Min , GTF_CSV.csv_Config.makeDungeon_Layer_EnemyElite_Max + 1 );
+        int num_enemy_Normal_Rare  = rd.NextInt( GTF_CSV.csv_Config.makeDungeon_Layer_EnemyRare_Min , GTF_CSV.csv_Config.makeDungeon_Layer_EnemyRare_Max + 1 );
 
+        MakeEnemyList( enemy_Normal_Front , rd , level , num_enemy_Normal_Front , tagPart , csv_DropPer , EnemyRarityGrade.Normal , 1 , 
+        0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
+        0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
+        tagItem );
 
-        // 아이템 
+        MakeEnemyList( enemy_Normal_Back , rd , level, num_enemy_Normal_Back , tagPart , csv_DropPer , EnemyRarityGrade.Normal , 2 , 
+        0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
+        0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base , 
+        tagItem);
 
+        MakeEnemyList( enemy_Elite , rd , level, num_enemy_Normal_Elite , tagPart , csv_DropPer , EnemyRarityGrade.Elite , 0 , 
+        GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMin_Elite , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMax_Elite ,
+        GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMin_Elite , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMax_Elite , tagItem);
+
+        MakeEnemyList( enemy_Rare , rd , level, num_enemy_Normal_Rare , tagPart , csv_DropPer , EnemyRarityGrade.Rare , 0 , 
+        0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
+        0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base , tagItem );
+
+        if( isBoss )
+        {
+            string tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( tagPart , rd );
+            enemy_Boss = MakeEnemy( rd , level , tagEnemy , csv_DropPer , EnemyRarityGrade.Boss , 0 , 
+            GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMin_Boss , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMax_Boss , 
+            GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMin_Boss , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMax_Boss  ,tagItem );
+        }
+
+        // 필드 아이템
+        // 그냥 왕창 만들자.
+        for( int i = 0 ; i < 100 ; i++ )
+        {
+            FieldItem fieldItem = new();
+            fieldItem.dropItemInfo.LoadCSV( rd ,csv_DropPer , level , EnemyRarityGrade.Normal , tagItem );
+            fieldItems.Add( fieldItem );
+        }
     }
+
+    void MakeEnemyList( List<EnemyDungeonInfo> lt_enemy , Mng_X128SS rd  , int level , int total_enemy , string tagPart , CSV_DropRewardPer csv_DropPer , EnemyRarityGrade _rarityGrade , int _line_front_back , 
+        int attr_strong_min , int attr_strong_max , int attr_week_min , int attr_week_max , string tagItem)
+    {
+        // 태그 파트 ->  [적군 파트] , [csv드랍확률]
+
+        // 적군 대분류 태그에서 적군 태그 여러게 가져와서 여러개 만들기
+        List<string> lt_tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_Str( tagPart );
+
+        for( int i = 0 ; i < total_enemy ; i++ )
+        {
+            string tagEnemy = rd.RandomList( lt_tagEnemy , true );
+            EnemyDungeonInfo enemy = MakeEnemy( rd , level , tagEnemy , csv_DropPer , _rarityGrade , _line_front_back , attr_strong_min , attr_strong_max , attr_week_min , attr_week_max , tagItem );
+            lt_enemy.Add(enemy);
+        }
+    }
+
+    EnemyDungeonInfo MakeEnemy( Mng_X128SS rd , int level , string tagEnemy , CSV_DropRewardPer csv_DropPer , EnemyRarityGrade _rarityGrade , int _line_front_back , 
+        int attr_strong_min , int attr_strong_max , int attr_week_min , int attr_week_max , string tagItem )
+    {
+        EnemyDungeonInfo enemy = new();
+        int attr_strong = rd.NextInt( attr_strong_min , attr_strong_max + 1 );
+        int attr_week = rd.NextInt( attr_week_min , attr_week_max + 1 );
+        enemy.Make( rd , level , tagEnemy , csv_DropPer , _rarityGrade , _line_front_back , attr_strong , attr_week , tagItem );
+        return enemy;
+    }
+
 
     public void Save( BinaryWriter bw )
     {
@@ -281,10 +416,7 @@ public class DungeonLayerInfo
     void SaveEnemyList( BinaryWriter bw , List<EnemyDungeonInfo> lt )
     {
         bw.Write( lt.Count );
-        foreach( var s in lt )
-        {
-            s.Save( bw );
-        }
+        foreach( var s in lt )s.Save( bw );
     }
 
     public void Load( BinaryReader br )
@@ -322,8 +454,34 @@ public class DungeonLayerInfo
 }
 
 
+//=================================================================================================
+/// <summary>
+// 레이어 그룹
+// 기본 심연 등등 한개의 테마로 한다.
+// 또는 기본인데 테마가 여러게 일수도 있다. 
+/// </summary>
 
+public class DungeonLayerInfo_Group
+{
+    public List<DungeonLayerInfo> dungeonLayers = new();
+
+    public void Make( int total_layer , string _res_dungeon  ,int level_start , int level_end , Mng_X128SS rd , string tagPart , bool isBoss , string strCSV_DropPer , string tagItem)
+    {
+        for( int i = 0 ; i < total_layer ; i++ )
+        {
+            int lv = (int)(Mathf.Lerp( level_start , level_end , (float)i / (float)total_layer ));
+            
+        }
+
+    }
+
+}
+
+
+//=================================================================================================
+/// <summary>
 // 던전 전체 정보
+/// </summary>
 [System.Serializable]
 public class DungeonInfo
 {
@@ -335,61 +493,21 @@ public class DungeonInfo
     public int LEVEL;
     public string res_map;
 
-    // 던전 레이어들 정보
-    public List<DungeonLayerInfo> layerInfos = new();
+    public List<DungeonLayerInfo_Group> layerInfo_Groups = new();
 
 
-    // 초회 기본 탐사 완료 보상
-    // 드랍 클래스로 일단 정의
-    //public DropItemInfo dropItemInfo_BaseComplete = new();
-    // 초회 심연 탐사 완료 보상
-    //public DropItemInfo dropItemInfo_DeepComplete = new();
-    // 보상은 각 층에서 할까?
-
-    // 메이킹
-    // 그룹 레이어 메이킹 정보 , 레벨을 제외하고 메이킹정보
-
-}
-
-public class MAKE_DUNGEON_LAYER_GROUP_INF
-{
-    // 리소스 태그
-    public string tagPart_res_Dungeon;      // 메인 던전 리소스의 대분류 태그 "DUNGEON_RES_NORMAL" 등등
-    public string tagPart_res_Enemy;        // 적군 리소스
-    public string tagPart_res_FieldItem;    // 필드 아이템 리소스
-
-    // 레이어 층수 랜덤 , 같거나 min 만 있으면 그것
-    public int layer_num_random_max;
-
-
-    // 위의 인자들은 미리 세팅하고 함수 호출하자.
-    public List<DungeonLayerInfo> MakingLayers( Mng_X128SS rd )
+    public void AddMakeLayerGroup( Mng_X128SS rd , int total_layer , int level_start , int level_end , string res_dungeon )
     {
-        List<DungeonLayerInfo> layerInfos = new();
 
-        // 레이어 던전 리소스는 같게
-        // csv 태그 정의에서 랜덤
-        string res_dungeon = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( tagPart_res_Dungeon , rd );
-
-        int total_layer = 1;
-        if( layer_num_random_max > 1 )
-        {
-            total_layer = rd.NextInt(1,layer_num_random_max+1);
-        }
-
-        // 레이어 수만큼 만들기
-        // 보스는 마지막 레이어만
-        for( int i = 0 ; i < total_layer ; i++ )
-        {
-            
-        }
-
-        return layerInfos;   
     }
-    
 }
 
 
+//=================================================================================================
+/// <summary>
+// 기타 등등
+/// </summary>
+/// 
 // 던전내의 특정 위치 좌표
 public class COORD_IN_DUNGEON
 {

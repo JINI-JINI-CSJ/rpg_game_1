@@ -175,6 +175,6 @@ public class Make_Dungeon : MakeBase
         // 일단 태그 1개만 가져와서  던전 , 적군 다하자.
 
 
-        // 보상 등 기획 예정         
+        
     }
 }

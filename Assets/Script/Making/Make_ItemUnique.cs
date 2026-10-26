@@ -31,7 +31,7 @@ public class Make_ItemUnique : MakeBase
 {
     static public Make_ItemUnique G;
 
-    void Awake()
+    Make_ItemUnique()
     {
         G = this;
     }
@@ -184,4 +184,23 @@ public class Make_ItemUnique : MakeBase
     {
         return G._Get_CollectItem( rd );
     }
+
+    // // 정의된 소모품 , 장비품만 가져온다.
+    // // 수집품은 따로한다.
+    // static public CSV_Item GetItemCSV_( Mng_X128SS rd , int lv , EnemyRarityGrade rarityGrade , _ITEM_TYPE tYPE , string tag = "" )
+    // {
+        
+    //     switch( tYPE )
+    //     {
+    //         // 소모품 장비품은 기본 csv 에서 가져온다.
+    //         case _ITEM_TYPE.Consume:
+    //         case _ITEM_TYPE.Equip:
+    //             {
+                    
+    //             }
+    //             break;
+    //     }
+
+    //     return null;
+    // }
 }

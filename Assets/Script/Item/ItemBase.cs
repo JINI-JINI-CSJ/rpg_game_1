@@ -1,6 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+
+// public enum ITEM_CLASS_TYPE
+// {
+//     None = 0 ,
+//     ItemBase , 
+//     Item_MatterMixture , 
+// }
 
 public class ItemBase
 {
@@ -35,8 +43,10 @@ public class ItemBase
     // 장비 캐릭터 , 장비 아이템일때만
     public CharBase cur_eq_chr;
 
+
     // 스킬객체
     //public List<SkillBase> lt_skill = new();
+
 
     static public ItemBase InstItemBase( int csv_id )
     {
@@ -118,5 +128,46 @@ public class ItemBase
     }
 
     virtual public void Action( BATTLE_SEL_GROUP sel_group ){}
+
+    public void Save( BinaryWriter bw )
+    {
+        
+    }
+
+
+    public void Load( BinaryReader br )
+    {
+        
+    }
+
+
+
+    static public void SaveItemBase( BinaryWriter bw , ItemBase item )
+    {
+        if( item == null )
+        {
+            bw.Write( (byte)0 );
+            return;
+        }
+        System.Type type = item.GetType();
+        if( type == typeof( ItemBase ) )            bw.Write( (byte)1 );
+        if( type == typeof( Item_MatterMixture ) )  bw.Write( (byte)2 );
+        item.Save(bw);
+    }
+
+    static public ItemBase LoadItemBase( BinaryReader br )
+    {
+        byte head = br.ReadByte();
+        if( head == 0 ) return null;
+        ItemBase item = null;
+        switch( head )
+        {
+            case 1: item = new ItemBase();break;
+            case 2: item = new Item_MatterMixture();break;
+        }
+
+        item.Load(br);
+        return item;
+    }
 }
 

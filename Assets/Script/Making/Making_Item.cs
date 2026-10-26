@@ -39,6 +39,8 @@ public class _BIAS_ITEM : _BIAS_COMMON
 
 }
 
+
+
 public class Making_Item
 {
     // csv 장비 아이템기반의 레벨 범위로 만들기  
@@ -58,6 +60,27 @@ public class Making_Item
     // 공통 csv 아이템 장비로 만들기
     // 예 ) 검 기본 , 창 기본 등등 기본 csv 기반으로 만든다. 
     // 레벨등으로 강함을 정한다.
+
+    static public ItemBase MakeEqItemBase( Mng_X128SS _rd ,CSV_Item csv , int level = 0 , int sc_add = 0 , int sc_minus = 0 )
+    {
+        ItemBase item = ItemBase.InstItemBase( csv );
+
+        // 장비 아이템이 아니라면 다음 과정을 안한다.
+        if( csv.item_type != _ITEM_TYPE.Equip ) return item;
+
+        item.ID = MakingMain.Make_UID( typeof( ItemBase ) );
+
+
+
+        // 아이템 수치 레벨링
+        item.Leveling( level );
+        // sc_add 만큼 좋은 효과들
+        // sc_minus 만큼 나쁜 효과들
+        PrcBonusScore( _rd , item , sc_add , 1 );
+        PrcBonusScore( _rd , item , sc_minus , -1 );
+        return item;
+    }
+
     static public ItemBase MakeEqItem( Mng_X128SS _rd , int level , string tag , int sc_add , int sc_minus )
     {
         // 태그 없으면 랜덤 태그
@@ -65,26 +88,31 @@ public class Making_Item
         {
             tag = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "TAG_WEAPON_MAIN" , _rd );
         }
-
         CSV_Item csv = GTF_CSV.csv_ItemPage_Equip.GetTag_One( _rd , tag );
         if( csv == null )
         {
             Debug.LogError( "MakeEqItem 에러!! : " + tag );
             return null;
         }
-        ItemBase item = ItemBase.InstItemBase( csv );
-        item.ID = MakingMain.Make_UID( typeof( ItemBase ) );
 
-        // 아이템 수치 레벨링
-        item.Leveling( level );
-
-        // sc_add 만큼 좋은 효과들
-        // sc_minus 만큼 나쁜 효과들
-        PrcBonusScore( _rd , item , sc_add , 1 );
-        PrcBonusScore( _rd , item , sc_minus , -1 );
-
-        return item;
+        return MakeEqItemBase( _rd , csv , level , sc_add , sc_minus );
     }
+
+
+
+    // csv 를 정하고 만들기 , 장비 아이템이 아니라면 레벨과 점수는 무시된다.
+    static public ItemBase MakeEqItem_CSV( Mng_X128SS _rd ,int csv_id , int level = 0 , int sc_add = 0 , int sc_minus = 0 )
+    {
+        CSV_Item csv = GTF_CSV.csv_ItemPage_ALL.Find_Int( csv_id ) as CSV_Item;
+        if( csv == null )
+        {
+            Debug.LogError( "MakeEqItem 에러!! : " + csv_id );
+            return null;
+        }
+
+        return MakeEqItemBase( _rd , csv , level , sc_add , sc_minus );
+    }
+
 
     static public void PrcBonusScore(  Mng_X128SS _rd , ItemBase item , int score , int good_bad ) // good_bad : 1 좋음 , -1 나쁨
     {
@@ -102,7 +130,7 @@ public class Making_Item
     }
 
 
-
+    
 }
 
 

@@ -7,10 +7,10 @@ using UnityEngine;
 public enum _ITEM_TYPE
 {
     None = 0 ,
-    Consume ,   // 소비품
-    Equip ,     // 장비품
-    Collections , // 수집
-    Unique ,    // 유니크 이벤트 등등
+    Consume ,       // 소비품
+    Equip ,         // 장비품
+    Collections ,   // 수집
+    Unique ,        // 유니크 이벤트 등등
 }
 
 
@@ -104,9 +104,25 @@ public class CSV_Item : SJ_CSV_BaseObj
 
 public class CSV_ItemPage : SJ_CSV_BasePage
 {
+    public Dictionary<_ITEM_TYPE , List<CSV_Item>> dic_itemType = new();
+
     public override SJ_CSV_BaseObj OnAlloc_Obj()
     {
         return new CSV_Item();
+    }
+
+    public override void LoadAfter()
+    {
+        foreach( var s in dic_int.Values.Cast<CSV_Item>() )
+        {
+            List<CSV_Item> lt_type = null;
+            if( dic_itemType.TryGetValue( s.item_type , out lt_type ) == false )
+            {
+                lt_type = new();
+                dic_itemType[s.item_type] = lt_type;
+            }
+            lt_type.Add(s);
+        }
     }
 
     public List<CSV_Item> GetRangeLevel( int lv_s , int lv_e )
@@ -139,5 +155,50 @@ public class CSV_ItemPage : SJ_CSV_BasePage
     {
         List<CSV_Item> lt = GetTag(tag);
         return rd.RandomList(lt);
+    }
+
+    public List<CSV_Item> GetItemTypeList( _ITEM_TYPE tYPE )
+    {
+        List<CSV_Item> items = null;
+        dic_itemType.TryGetValue( tYPE , out items );
+        return items;
+    }
+
+    public List<CSV_Item> GetItemTypeList_Tag( _ITEM_TYPE tYPE , string tag )
+    {
+        List<CSV_Item> items_tag = new();
+        List<CSV_Item> items = GetItemTypeList( tYPE );
+
+        if( string.IsNullOrEmpty( tag ) )
+        {
+            return items;
+        }
+
+        if( items != null )
+        {
+            foreach( var s in items )
+            {
+                if( s.tag.Contains( tag ) ) items_tag.Add( s );
+            }
+        }
+        return items_tag;
+    } 
+
+    public List<CSV_Item> GetItemTypeList_TagGrade( _ITEM_TYPE tYPE , string tag , int grade )
+    {
+        List<CSV_Item> items_tag = GetItemTypeList_Tag(tYPE , tag );
+        List<CSV_Item> items = new();
+
+        foreach( var s in items_tag )
+        {
+            if( grade == s.grade ) items.Add( s );
+        }
+        return items;
+    }
+
+    public CSV_Item GetItemTypeList_TagGrade_One( Mng_X128SS rd , _ITEM_TYPE tYPE , string tag , int grade )
+    {
+        List<CSV_Item> items = GetItemTypeList_TagGrade( tYPE , tag , grade );
+        return rd.RandomList( items );
     }
 }

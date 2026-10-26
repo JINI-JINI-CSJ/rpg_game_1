@@ -21,6 +21,8 @@ public class GTF_CSV : SJ_CSV_Mng
     static public CSV_CharBaseStatPage      csv_CharPlayer = new(); // 아군 플레이어 정의
     static public CSV_CharBaseStatPage      csv_CharEnemy = new(); // 적군 정의
 
+    static public CSV_DropRewardPerPage     csv_DropRewardPer = new();
+
     static public CSV_CharBaseStatPage      csv_Char_ALL = new();
 
     static public CSV_ItemPage              csv_ItemPage_Consume = new();
@@ -168,6 +170,14 @@ public class GTF_CSV : SJ_CSV_Mng
         return (int)val;
     }
 
+    // 10으로 나누고 +1
+    // 레벨1 :  1 
+    // 10 : 2
+    // 20 : 3
+    static public int LevelToGrade( int lv )
+    {
+        return lv / 10 + 1;
+    }
 
 
     // 도시 등급 -> 시작 레벨 , 종료 레벨
@@ -179,12 +189,6 @@ public class GTF_CSV : SJ_CSV_Mng
     // 
     static public void CityTier_To_Level( int city_tire , ref int level_start , ref int level_end )
     {
-        // int city_pow = GTF_Define.CITY_TIER_TOTAL - city_tire;
-
-        // int lv = city_tire * 10;
-        // if( lv < 1 ) lv = 1;
-        // return lv;
-
         switch( city_tire )
         {
             // 4 : 촌락 , 1~9
@@ -232,5 +236,10 @@ public class GTF_CSV : SJ_CSV_Mng
     }
 
     // 레벨 -> 가격 
-    // 
+    
+    // 레벨 -> 적군 보상 가격
+    static public int LevelTo_EnemyRewardGold( int lv , EnemyRarityGrade rarityGrade )
+    {
+        return 0;
+    }
 }

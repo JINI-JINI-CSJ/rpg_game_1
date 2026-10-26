@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// ``ID	이름	태그	등급1	등급2	3	4	5	6	7	8	9	10	
+// ``ID	이름 설명 	태그	등급1	등급2	3	4	5	6	7	8	9	10	
 public class CSV_PercentInf : SJ_CSV_BaseObj
 {
     public string name;
+
     public string TAG;
 
     public List<float> per_list;
@@ -14,6 +15,7 @@ public class CSV_PercentInf : SJ_CSV_BaseObj
         base.OnRead(_par, _strs);
 
         name = Next();
+        Next();
         TAG = Next();
         per_list = Remain_Data_Float();
     }

@@ -191,6 +191,39 @@ public class CSV_Config : SJ_CSV_BasePage
     //===========================================
     // 던전 적군 메이킹
 
+    // 던전 레이어 당 적군 종류 생성 개수
+    public int makeDungeon_Layer_EnemyNormalFront_Min = 1;
+    public int makeDungeon_Layer_EnemyNormalFront_Max = 5;
+
+    public int makeDungeon_Layer_EnemyNormalBack_Min = 1;
+    public int makeDungeon_Layer_EnemyNormalBack_Max = 5;
+
+    public int makeDungeon_Layer_EnemyElite_Min = 1;
+    public int makeDungeon_Layer_EnemyElite_Max = 3;
+
+    public int makeDungeon_Layer_EnemyRare_Min = 1;
+    public int makeDungeon_Layer_EnemyRare_Max = 3;
+
+    // 걍약 태그 개수
+    // 일반 및 레어 : 동등 점수 
+    // 엘리트 : 강함이 좀더 많게 
+    // 보스 : 약함 없거나 1개 , 강함 많음
+
+    public int makeDungeon_EnemyChrAttr_Normal_Base = 2;
+
+    public int makeDungeon_EnemyChrAttr_StrongMin_Elite = 2;
+    public int makeDungeon_EnemyChrAttr_StrongMax_Elite = 3;
+    public int makeDungeon_EnemyChrAttr_WeekMin_Elite = 1;
+    public int makeDungeon_EnemyChrAttr_WeekMax_Elite = 2;
+
+    public int makeDungeon_EnemyChrAttr_StrongMin_Boss = 3;
+    public int makeDungeon_EnemyChrAttr_StrongMax_Boss = 4;
+    public int makeDungeon_EnemyChrAttr_WeekMin_Boss = 0;
+    public int makeDungeon_EnemyChrAttr_WeekMax_Boss = 1;
+
+
+
+
     // 희소 등급별 장비 품질 보너스 
     // 정예 : 0~2
     // 희소 : 0~3
@@ -199,6 +232,8 @@ public class CSV_Config : SJ_CSV_BasePage
 
     // 인덱스 0 : 정예 , 1 : 희소 , 2 : 보스 일반 , 3 : 보스 보너스
     public List<int> enemyRarityGrade_EquipBonusMax;
+
+
 
 
     //===========================================
