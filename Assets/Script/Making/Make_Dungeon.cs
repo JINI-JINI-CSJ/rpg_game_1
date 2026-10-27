@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using WorldForge;
 
@@ -93,15 +94,68 @@ public class Make_Dungeon : MakeBase
         }
         
 
-        // 외부 던전형
-        // 외부 던전 타입별로 레벨링
-        // Field_Show : 20 ~ 60
-        // Field_Hide : 30 ~ 70
-        // Instance : 40 ~ 80
-        // Infinity : 60 ~ 무한층
 
-        // 무한을 제외한 외부 던전의 레벨은 
-        // 인덱스로 계산하여 증가하게 하면 된다.      
+        // 추가 층수 레이어
+
+        // 3안
+        // 레이어 리소스 형태( 잠정 ) : 현시대 일반 , 현시대 심연 , 백룸 또는 혼돈 세계 , 현 지구 디스토피아
+        // 각 해당되는 태그 리소스중에 랜덤
+        // 던전 맵 리소스 , 적군 리소스  csv 에서 태그별로 받아오기
+
+        // 메이킹함수는 DungeonInfo 에서 직접하기
+        // 던전 리소스는 태그 정의csv 에서 가져오자.
+        // 일단 태그 1개만 가져와서  던전 , 적군 다하자.
+
+
+        // == 도시 던전 == 
+        // 시작 도시 레벨은 1 고정
+        // 1~9 레벨 (1등급) 던전은 보스가 없다. 1층만 있다.
+        // 2등급부터는 보스가 있다.
+        // 던전 레이어 그룹은 무조건 1개 , 심연 같은거 없다.
+        // 적군태그 : 일반 랜덤
+        // 아이템 태그 : 일반 랜덤
+
+        // 시작도시만 레벨 다시
+        City city_Start = Make_City.G.city_Start;
+        city_Start.dungeonInfo.LEVEL = 1;   
+
+        foreach( var s in Make_WorldMap.G.dic_world_idx_city.Values )
+        {
+            DungeonInfo dungeonInfo = s.dungeonInfo;
+
+            string res_dungeon = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_NORMAL" , GTF_Random.rd_make_common );
+            string tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_NORMAL" , GTF_Random.rd_make_common );
+            string tagItem = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_DROP_PER_NORMAL" , GTF_Random.rd_make_common );
+
+            bool makeBoss = true;
+            if( dungeonInfo.LEVEL < 10 ) makeBoss = false;
+
+            int grade = GTF_CSV.LevelToGrade( dungeonInfo.LEVEL );
+
+            // 층수 , 일단 등급 / 2 정도 하자.
+            int total_layer = grade / 2 + 1;
+
+            dungeonInfo.AddMakeLayerGroup( total_layer , res_dungeon , dungeonInfo.LEVEL , dungeonInfo.LEVEL + 5 , GTF_Random.rd_make_common , 
+            tagEnemy , makeBoss , "DUNGEON_NORMAL_" , tagItem );
+        }
+
+     
+
+        // == 외부 던전 ==
+
+        // -외부 던전 타입별로 레벨링
+        //  Field_Show : 20 ~ 60
+        //  Field_Hide : 30 ~ 70
+        //  Instance : 40 ~ 80
+        //  Infinity : 60 ~ 무한층
+        //  무한을 제외한 외부 던전의 레벨은 
+        //  인덱스로 계산하여 증가하게 하면 된다.      
+
+        // -레이어 그룹 및 층수
+        //  Field_Show : 등급 / 2 , 일반 -> 심연
+        //  Field_Hide : 등급 , 일반 -> 심 -> 혼
+        //  Instance : 등급 , 매 입장마다 랜덤 , 실시간 랜덤시드로 입장마다 Make 한다.
+        //  Infinity : 무한 , 현재 디스 또는 올 랜덤 , 10 층마다 보스 같은 컨텐츠 추가하자.
 
         // 타입별로 정리
         foreach( var s in Make_WorldMap.G.dic_type_dungeon )
@@ -110,25 +164,90 @@ public class Make_Dungeon : MakeBase
             List<DungeonInfo> dungeonInfos = s.Value;
 
             int level_start = 0;
-            int level_end = 0;
+            int level_end = 0;       
+                      
+
             switch( dUNGEON_TYPE )
             {
                 case DUNGEON_TYPE.Field_Show:
                     {
                         level_start = GTF_CSV.csv_Config.makeDungeon_Field_Show_LevelStart;
                         level_end   = GTF_CSV.csv_Config.makeDungeon_Field_Show_LevelEnd;
+
+                        for( int i = 0 ; i < dungeonInfos.Count ; i++ )
+                        {
+                            DungeonInfo dungeon = dungeonInfos[i];
+                            dungeon.LEVEL = (int)(Mathf.Lerp( level_start , level_end , (float)i / (float)dungeonInfos.Count ));
+
+                            int grade =  GTF_CSV.LevelToGrade( dungeon.LEVEL );
+                            int total_layer =  grade / 2 + 1;                               
+
+
+                            // 일반 
+                            string res_dungeon_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_NORMAL" , GTF_Random.rd_make_common );
+                            string tagEnemy_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_NORMAL" , GTF_Random.rd_make_common );
+                            string tagItem_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_DROP_PER_NORMAL" , GTF_Random.rd_make_common );      
+
+                            dungeon.AddMakeLayerGroup( total_layer , res_dungeon_normal , dungeon.LEVEL , dungeon.LEVEL + 5 , GTF_Random.rd_make_common , 
+                            tagEnemy_normal , true , "DUNGEON_NORMAL_" , tagItem_normal );
+
+                            // 심연
+                            string res_dungeon_deep = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_DEEP" , GTF_Random.rd_make_common );
+                            string tagEnemy_deep = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_DEEP" , GTF_Random.rd_make_common );
+                            string tagItem_deep = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_DROP_PER_DEEP" , GTF_Random.rd_make_common );  
+
+                            dungeon.AddMakeLayerGroup( total_layer , res_dungeon_deep , dungeon.LEVEL , dungeon.LEVEL + 5 , GTF_Random.rd_make_common , 
+                            tagEnemy_deep , true , "DUNGEON_DEEP_" , tagItem_deep );
+                        }
                     }
                     break;
                 case DUNGEON_TYPE.Field_Hide:
                     {
                         level_start = GTF_CSV.csv_Config.makeDungeon_Field_Hide_LevelStart;
                         level_end   = GTF_CSV.csv_Config.makeDungeon_Field_Hide_LevelEnd;
+
+                        for( int i = 0 ; i < dungeonInfos.Count ; i++ )
+                        {
+                            DungeonInfo dungeon = dungeonInfos[i];
+                            dungeon.LEVEL = (int)(Mathf.Lerp( level_start , level_end , (float)i / (float)dungeonInfos.Count ));
+
+                            int grade =  GTF_CSV.LevelToGrade( dungeon.LEVEL );
+                            int total_layer =  grade / 2 + 1;                               
+
+
+                            // 일반 
+                            string res_dungeon_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_NORMAL" , GTF_Random.rd_make_common );
+                            string tagEnemy_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_NORMAL" , GTF_Random.rd_make_common );
+                            string tagItem_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_DROP_PER_NORMAL" , GTF_Random.rd_make_common );      
+
+                            dungeon.AddMakeLayerGroup( total_layer , res_dungeon_normal , dungeon.LEVEL , dungeon.LEVEL + 5 , GTF_Random.rd_make_common , 
+                            tagEnemy_normal , true , "DUNGEON_NORMAL_" , tagItem_normal );
+
+                            // 심연
+                            string res_dungeon_deep = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_DEEP" , GTF_Random.rd_make_common );
+                            string tagEnemy_deep = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_DEEP" , GTF_Random.rd_make_common );
+                            string tagItem_deep = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_DROP_PER_DEEP" , GTF_Random.rd_make_common );  
+
+                            dungeon.AddMakeLayerGroup( total_layer , res_dungeon_deep , dungeon.LEVEL , dungeon.LEVEL + 5 , GTF_Random.rd_make_common , 
+                            tagEnemy_deep , true , "DUNGEON_DEEP_" , tagItem_deep );
+
+                            // 혼돈
+                            string res_dungeon_chaos = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_CHAOS" , GTF_Random.rd_make_common );
+                            string tagEnemy_chaos = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_CHAOS" , GTF_Random.rd_make_common );
+                            string tagItem_chaos = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_DROP_PER_CHAOS" , GTF_Random.rd_make_common );  
+
+                            dungeon.AddMakeLayerGroup( total_layer , res_dungeon_chaos , dungeon.LEVEL , dungeon.LEVEL + 5 , GTF_Random.rd_make_common , 
+                            tagEnemy_chaos , true , "DUNGEON_CHAOS_" , tagItem_chaos );
+                        }
+
                     }
                     break;
                 case DUNGEON_TYPE.Instance:
                     {
                         level_start = GTF_CSV.csv_Config.makeDungeon_Instance_LevelStart;
                         level_end   = GTF_CSV.csv_Config.makeDungeon_Instance_LevelEnd;
+
+                        
                     }
                     break;
                 case DUNGEON_TYPE.Infinity:
@@ -139,42 +258,10 @@ public class Make_Dungeon : MakeBase
                     }
                     break;
             }
-            // 인덱스 증가 비례로 레벨
-            for( int i = 0 ; i < dungeonInfos.Count ; i++ )
-            {
-                DungeonInfo dungeon = dungeonInfos[i];
-                dungeon.LEVEL = (int)(Mathf.Lerp( level_start , level_end , (float)i / (float)dungeonInfos.Count ));
-            }
-        }
-
-        // 추가 층수 레이어
-        // 
-        // 1안
-        // 도시 : 최소 또는 없음 , 크기로만 
-        // 외부 보임 : 레벨별 층수
-        // 외부 안보임 : 레벨별 층수 + 심연
-        // 인스턴스 : 심연
-        // 무한 : 심연
-
-        // 2안
-        // 도시 : 중등급 이상부터 층수
-        // 외부 보임 : 층수 + 심연 1층 
-        // 외부 숨김 : 심연 다층
-        // 인스턴스 : 랜덤 심연
-        // 무한 : 무한
-
-        // 3안
-        // 레이어 리소스 형태( 잠정 ) : 현시대 일반 , 현시대 심연 , 백룸 또는 혼돈 세계 , 현 지구 디스토피아
-        // 각 해당되는 태그 리소스중에 랜덤
-        // 던전 맵 리소스 , 적군 리소스 
-        // csv 에서 태그별로 받아오기
-
-        // 메이킹함수는 DungeonInfo 에서 직접하기
-        // 여기서는 각 그룹 층마다( 일반 층 , 심연층 등등 ) 인자만 넘기기?
-        // 던전 리소스는 태그 정의csv 에서 가져오자.
-        // 일단 태그 1개만 가져와서  던전 , 적군 다하자.
 
 
-        
+
+
+        }        
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using WorldForge;
 
@@ -314,7 +315,7 @@ public class DungeonLayerInfo
     public float completePer; // 계층 탐색 완성도
 
 
-    public void Make( int _idx_layer , string _res_dungeon  ,int level , Mng_X128SS rd , string tagPart , bool isBoss , string strCSV_DropPer , string tagItem )
+    public void Make( int _idx_layer , string _res_dungeon  ,int level , Mng_X128SS rd , string tagPartEnemy , bool isBoss , string strCSV_DropPer , string tagItem )
     {
         idx_layer = _idx_layer;
 
@@ -330,27 +331,27 @@ public class DungeonLayerInfo
         int num_enemy_Normal_Elite = rd.NextInt( GTF_CSV.csv_Config.makeDungeon_Layer_EnemyElite_Min , GTF_CSV.csv_Config.makeDungeon_Layer_EnemyElite_Max + 1 );
         int num_enemy_Normal_Rare  = rd.NextInt( GTF_CSV.csv_Config.makeDungeon_Layer_EnemyRare_Min , GTF_CSV.csv_Config.makeDungeon_Layer_EnemyRare_Max + 1 );
 
-        MakeEnemyList( enemy_Normal_Front , rd , level , num_enemy_Normal_Front , tagPart , csv_DropPer , EnemyRarityGrade.Normal , 1 , 
+        MakeEnemyList( enemy_Normal_Front , rd , level , num_enemy_Normal_Front , tagPartEnemy , csv_DropPer , EnemyRarityGrade.Normal , 1 , 
         0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
         0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
         tagItem );
 
-        MakeEnemyList( enemy_Normal_Back , rd , level, num_enemy_Normal_Back , tagPart , csv_DropPer , EnemyRarityGrade.Normal , 2 , 
+        MakeEnemyList( enemy_Normal_Back , rd , level, num_enemy_Normal_Back , tagPartEnemy , csv_DropPer , EnemyRarityGrade.Normal , 2 , 
         0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
         0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base , 
         tagItem);
 
-        MakeEnemyList( enemy_Elite , rd , level, num_enemy_Normal_Elite , tagPart , csv_DropPer , EnemyRarityGrade.Elite , 0 , 
+        MakeEnemyList( enemy_Elite , rd , level, num_enemy_Normal_Elite , tagPartEnemy , csv_DropPer , EnemyRarityGrade.Elite , 0 , 
         GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMin_Elite , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMax_Elite ,
         GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMin_Elite , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMax_Elite , tagItem);
 
-        MakeEnemyList( enemy_Rare , rd , level, num_enemy_Normal_Rare , tagPart , csv_DropPer , EnemyRarityGrade.Rare , 0 , 
+        MakeEnemyList( enemy_Rare , rd , level, num_enemy_Normal_Rare , tagPartEnemy , csv_DropPer , EnemyRarityGrade.Rare , 0 , 
         0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base ,
         0 , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_Normal_Base , tagItem );
 
         if( isBoss )
         {
-            string tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( tagPart , rd );
+            string tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( tagPartEnemy , rd );
             enemy_Boss = MakeEnemy( rd , level , tagEnemy , csv_DropPer , EnemyRarityGrade.Boss , 0 , 
             GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMin_Boss , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_StrongMax_Boss , 
             GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMin_Boss , GTF_CSV.csv_Config.makeDungeon_EnemyChrAttr_WeekMax_Boss  ,tagItem );
@@ -366,13 +367,13 @@ public class DungeonLayerInfo
         }
     }
 
-    void MakeEnemyList( List<EnemyDungeonInfo> lt_enemy , Mng_X128SS rd  , int level , int total_enemy , string tagPart , CSV_DropRewardPer csv_DropPer , EnemyRarityGrade _rarityGrade , int _line_front_back , 
+    void MakeEnemyList( List<EnemyDungeonInfo> lt_enemy , Mng_X128SS rd  , int level , int total_enemy , string tagPartEnemy , CSV_DropRewardPer csv_DropPer , EnemyRarityGrade _rarityGrade , int _line_front_back , 
         int attr_strong_min , int attr_strong_max , int attr_week_min , int attr_week_max , string tagItem)
     {
         // 태그 파트 ->  [적군 파트] , [csv드랍확률]
 
         // 적군 대분류 태그에서 적군 태그 여러게 가져와서 여러개 만들기
-        List<string> lt_tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_Str( tagPart );
+        List<string> lt_tagEnemy = GTF_CSV.csv_TagDefinePage.GetTagPart_Str( tagPartEnemy );
 
         for( int i = 0 ; i < total_enemy ; i++ )
         {
@@ -465,14 +466,23 @@ public class DungeonLayerInfo_Group
 {
     public List<DungeonLayerInfo> dungeonLayers = new();
 
-    public void Make( int total_layer , string _res_dungeon  ,int level_start , int level_end , Mng_X128SS rd , string tagPart , bool isBoss , string strCSV_DropPer , string tagItem)
+    public void Make( int total_layer , string _res_dungeon  ,int level_start , int level_end , Mng_X128SS rd , string tagPartEnemy , bool isBoss , string strCSV_DropPer , string tagItem)
     {
         for( int i = 0 ; i < total_layer ; i++ )
         {
             int lv = (int)(Mathf.Lerp( level_start , level_end , (float)i / (float)total_layer ));
-            
-        }
+            DungeonLayerInfo layerInfo = new();
 
+            bool makeBoss = false;
+            if( isBoss && i == (total_layer-1) )
+            {
+                // 보스 존재 및 마지막 레이어라면 보스 메이킹
+                makeBoss = true;
+            }
+
+            layerInfo.Make( i , _res_dungeon , lv , rd , tagPartEnemy , makeBoss , strCSV_DropPer , tagItem);
+            dungeonLayers.Add( layerInfo );
+        }
     }
 
 }
@@ -495,10 +505,22 @@ public class DungeonInfo
 
     public List<DungeonLayerInfo_Group> layerInfo_Groups = new();
 
-
-    public void AddMakeLayerGroup( Mng_X128SS rd , int total_layer , int level_start , int level_end , string res_dungeon )
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="total_layer">총 레이어</param>
+    /// <param name="_res_dungeon">던전 리소스</param>
+    /// <param name="level_start">레벨 시작</param>
+    /// <param name="level_end">레벨 종료</param>
+    /// <param name="rd">랜덤</param>
+    /// <param name="tagPartEnemy">적군태그</param>
+    /// <param name="isBoss">보스 여부</param>
+    /// <param name="strCSV_DropPer">드랍 확률 정의 태그</param>
+    /// <param name="tagItem">아이템 태그</param>
+    public void AddMakeLayerGroup(  int total_layer , string _res_dungeon  ,int level_start , int level_end , Mng_X128SS rd , string tagPartEnemy , bool isBoss , string strCSV_DropPer , string tagItem )
     {
-
+        DungeonLayerInfo_Group  layerInfo_Group = new();
+        layerInfo_Group.Make( total_layer , _res_dungeon  ,level_start , level_end , rd , tagPartEnemy , isBoss , strCSV_DropPer , tagItem );
     }
 }
 

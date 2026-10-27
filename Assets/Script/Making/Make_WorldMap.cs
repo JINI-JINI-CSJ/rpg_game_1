@@ -157,6 +157,7 @@ public class Make_WorldMap : MakeBase
 
         DungeonInfo dungeon = new();
         dungeon.ID =  MakingMain.Make_UID( typeof(DungeonInfo) );
+        dungeon.randomSeed = GTF_Random.rd_make_common.NextUInt();
         dungeon.spotData = spotData;
 
         // 해시 태그는 기본 수치 + SpotTypeId
