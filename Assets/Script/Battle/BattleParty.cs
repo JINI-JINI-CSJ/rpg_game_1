@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Converters;
 using UnityEngine;
 
 // 배틀 파티 구성
@@ -8,6 +10,8 @@ public class BattleParty
 {
     public CharBase[] chars_Front;
     public CharBase[] chars_Back;
+
+    public bool Alloc_Chars; // 캐릭터 객체 여기 클래스에 직접 할당한건지.. 파티단위로 저장하는 것 ( 무투회 등등 )
 
     public const int BATTLE_LINE_NUM = 3;
 
@@ -127,13 +131,13 @@ public class BattleParty
 
     public bool CheckLiveALL()
     {
-        // foreach( var s in GetALL() )
-        // {
-        //     if( s != null && s.IsLive() ) return true;
-        // }
-        //return false;
         if( GetALL().Count > 0 ) return true;
         return false;
+    }
+
+    public int CountLiveALL()
+    {
+        return GetALL().Count;
     }
 
     // 랜덤으로 전열 , 후열에서 1캐릭 선택
@@ -149,4 +153,14 @@ public class BattleParty
         return null;
     }
     
+    public void Save( BinaryWriter bw )
+    {
+        // 직접 할당이면 캐릭터 객체 전부 저장
+        // 아니면 유니크 아이디만 저장
+    }
+
+    public void Load( BinaryReader br )
+    {
+        
+    }
 }

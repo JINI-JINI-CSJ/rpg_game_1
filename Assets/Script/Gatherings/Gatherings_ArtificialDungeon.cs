@@ -10,5 +10,5 @@ public class Gatherings_ArtificialDungeon : GatheringsBase
 {
     // 던전 제한 타입
 
-
+    
 }

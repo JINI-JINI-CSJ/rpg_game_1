@@ -33,6 +33,11 @@ public class CSV_TagDefinePage : SJ_CSV_BasePage
         return lt;
     }
 
+    public int GetTagPart_Total( string part )
+    {
+        return GetTagPart( part ).Count;
+    }
+
     public List<string> GetTagPart_Str( string part )
     {
         List<string> lt = new();

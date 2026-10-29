@@ -41,8 +41,11 @@ public class City
     // 인물 , 아이템 등등 보상
     public List<MissionBase> mission_Unique;
 
-    // 내장 던전
+    // 내장 던전 , 항상 있다.
     public DungeonInfo dungeonInfo;
+
+    // 모임 행사
+    public List<GatheringsBase> gatherings = new();
 
 
     // 상태

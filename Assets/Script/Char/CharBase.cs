@@ -81,6 +81,28 @@ public class CharBase
         charPrcValue.func_UpdateALL = OnUpdate_PrcValue;
     }
 
+    public bool Check_JOB_BASE( JOB_BASE job_base )
+    {
+        if( csv.jOB_BASE == job_base ) return true;
+        return false;
+    }
+
+    public bool Check_JOB_TAG( string tag )
+    {
+        if( csv.tag.Contains( tag ) ) return true;
+        return false;
+    }
+
+
+    public bool Check_JOB_TAG_List( List<string> lt )
+    {
+        foreach( var s in lt )
+        {
+            if( Check_JOB_TAG(s) ) return true;
+        }
+        return false;
+    }
+
     public void ClearEventChr()
     {
         evt_Chr = null;

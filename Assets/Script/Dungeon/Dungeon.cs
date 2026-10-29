@@ -492,6 +492,10 @@ public class DungeonLayerInfo_Group
 /// <summary>
 // 던전 전체 정보
 /// </summary>
+/// 
+
+// 던전 입장 제한 조건 소스 파일을 따로 둔다.
+
 [System.Serializable]
 public class DungeonInfo
 {
@@ -504,6 +508,10 @@ public class DungeonInfo
     public string res_map;
 
     public List<DungeonLayerInfo_Group> layerInfo_Groups = new();
+
+
+    // 입장 제한
+    public DungeonEnterLimit enterLimit = new();
 
     /// <summary>
     /// 

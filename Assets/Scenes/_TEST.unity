@@ -2521460,15 +2521460,11 @@ MonoBehaviour:
   mapEvent: {fileID: 0}
   dungeonInfo:
     ID: 0
+    dUNGEON_TYPE: 0
     randomSeed: 0
+    grade: 0
     LEVEL: 0
     res_map: 
-    iNCOUNT_INF:
-      NoInCountALL: 1
-      NoCount_Move: 10
-      AddPer_OneMove: 0.5
-      MaxPer: 30
-    MAX_LAYER: 0
 --- !u!114 &1485920670
 MonoBehaviour:
   m_ObjectHideFlags: 0

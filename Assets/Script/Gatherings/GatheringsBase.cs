@@ -46,14 +46,17 @@ public class GatheringsBase
         MakeWaitTurn();
 
         // 랜덤 행사인지.
-        NotRegular = rd_self.RandomFloat_Per( GTF_CSV.csv_Config.gatherings_NotRegular_per );
+        // 각자 행사에서 하자.
+        //NotRegular = rd_self.RandomFloat_Per( GTF_CSV.csv_Config.gatherings_NotRegular_per );
 
         OnMake();
     }
 
     public void MakeWaitTurn()
     {
-        
+        // 현재는 도시 등급으로만 하자.
+        waitTurn = GTF_CSV.csv_Config.Random_gatherings_ListTier_waitTurn( rd_self , city.cityData.Tier );
+        keepUpTurn = GTF_CSV.csv_Config.Random_gatherings_ListTier_KeepUpTurn( rd_self , city.cityData.Tier );
     }
 
     // 월드 턴 증가후 호출 
