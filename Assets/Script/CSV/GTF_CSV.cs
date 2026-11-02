@@ -192,32 +192,32 @@ public class GTF_CSV : SJ_CSV_Mng
         switch( city_tire )
         {
             // 4 : 촌락 , 1~9
-            case 4:
+            case GTF_Define.CITY_TIER_VILLAGE:
                 {
                     level_start = 1;
                     level_end = 9;
                 }
                 break;
-            case 3:
+            case GTF_Define.CITY_TIER_SMALL:
                 {
                     level_start = 10;
                     level_end = 19;
                 }
                 break;
 
-            case 2:
+            case GTF_Define.CITY_TIER_MID:
                 {
                     level_start = 20;
                     level_end = 29;
                 }
                 break;
-            case 1:
+            case GTF_Define.CITY_TIER_BIG:
                 {
                     level_start = 30;
                     level_end = 39;
                 }
                 break;
-            case 0:
+            case GTF_Define.CITY_TIER_CAPITAL:
                 {
                     level_start = 40;
                     level_end = 49;
@@ -225,6 +225,19 @@ public class GTF_CSV : SJ_CSV_Mng
                 break;
         }
     }
+
+    // 도시 등급 -> 강함 등급 
+    // 가장 작은 촌락 1 ~~~ 가장 큰 수도 5 
+    // 촌락 : 1 등급 , 4
+    // 소 : 2 , 3
+    // 중 : 3 , 2
+    // 대 : 4 , 1
+    // 수도 : 5 , 클로드 생성 0 
+    static public int CityTier_To_Grade( int city_tier )
+    {
+        return GTF_Define.CITY_TIER_TOTAL - city_tier;
+    }
+
 
     // 위 함수의 랜덤 범위 
     static public int RandomLevel_CityTire( Mng_X128SS rd , int city_tire )
@@ -242,4 +255,7 @@ public class GTF_CSV : SJ_CSV_Mng
     {
         return 0;
     }
+
+
+
 }

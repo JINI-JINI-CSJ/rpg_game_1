@@ -89,5 +89,13 @@ public class City
         return lt[0];
     }
 
+    public void CityTier_To_Level( ref int lv_s , ref int lv_e )
+    {
+        GTF_CSV.CityTier_To_Level( cityData.Tier , ref lv_s , ref lv_e );
+    }
 
+    public int RandomLevel_CityTire( Mng_X128SS rd )
+    {
+        return GTF_CSV.RandomLevel_CityTire( rd , cityData.Tier );
+    }
 }

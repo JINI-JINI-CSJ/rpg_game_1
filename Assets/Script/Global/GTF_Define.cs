@@ -16,6 +16,7 @@ public class GTF_Define
     // 총 도시 티어 단계
     public const int CITY_TIER_TOTAL = 5;
 
+    public const int BATTLE_LINE_NUM = 3;
     
 
 
@@ -29,11 +30,12 @@ public class GTF_Define
 
     // 마을 진입
 
-    public const int HS_TAG_CITY_0 = 0; // 수도
-    public const int HS_TAG_CITY_1 = 1; // 대도시
-    public const int HS_TAG_CITY_2 = 2; // 중도시
-    public const int HS_TAG_CITY_3 = 3; // 소도시 
-    public const int HS_TAG_CITY_4 = 4; // 촌락
+    public const int CITY_TIER_CAPITAL = 0; // 수도
+    public const int CITY_TIER_BIG = 1; // 대도시
+    public const int CITY_TIER_MID = 2; // 중도시
+    public const int CITY_TIER_SMALL = 3; // 소도시 
+    public const int CITY_TIER_VILLAGE = 4; // 촌락
+
 
 
     //=================================

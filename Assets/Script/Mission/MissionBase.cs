@@ -45,24 +45,19 @@ public enum MISSION_TYPE
 public class MissionBase 
 {
     public uint ID;
-
     public MissionBase root_mission;
+
+    public CSV_StoryTemplate csv_StoryTemplate;
+
+    // 연퀘가 있을 경우 다음 퀘스트
+    // 다음 항목 하위 항목과 별개이다.
+    public MissionBase next_mission;
+
+
+    // 하위 임무가 있을때만.    
     public MissionBase par_mission;
     // 충족해야할 미션 완료들 , 하위 미션들 , 단일 미션이면 없다.
     public List<MissionBase> child_missions = new();
-
-    // // 일단 보류 , 자동 생성시 복잡
-    // // 위의 조건 미션만 해도 충분할수도.
-    // public class _CONDITION_ACCEPT
-    // {
-    //     // 최소 레벨
-    //     // 명성
-    //     // 우호도 
-    //     // 아이템 소지
-    //     // 동료 포함
-    //     // 기타 등등
-    // }
-
 
     public RewardInf rewardInf = new();
 

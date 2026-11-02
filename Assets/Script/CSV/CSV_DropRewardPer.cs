@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -87,6 +88,20 @@ public class CSV_DropRewardPerPage : SJ_CSV_BasePage
     public override SJ_CSV_BaseObj OnAlloc_Obj()
     {
         return new CSV_DropRewardPer();
+    }
+
+    // 아이디로 찾아보고 없으면 태그 문자열
+    public CSV_DropRewardPer GetID_StrContain( string tagID )
+    {
+        CSV_DropRewardPer csv = Find_Str( tagID ) as CSV_DropRewardPer;
+        if( csv == null )
+        {
+            foreach( var s in dic_str.Values.Cast<CSV_DropRewardPer>() )
+            {
+                if( s.tag.Contains( tagID ) ) return s;
+            }
+        }
+        return null;
     }
 
 }

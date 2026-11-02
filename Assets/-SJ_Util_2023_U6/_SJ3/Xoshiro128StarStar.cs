@@ -66,6 +66,8 @@ public class Xoshiro128StarStar
 
     public int NextInt(int min, int max)
     {
+        if( (max - min) == 0 ) return 0;
+
         return (int)(NextUInt() % (uint)(max - min)) + min;
     }
 

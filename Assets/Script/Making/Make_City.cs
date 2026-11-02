@@ -48,7 +48,7 @@ public class Make_City : MakeBase
         QuadTree quadTree = Make_WorldMap.G.quadTree;
 
         // 가장 작은 촌락
-        List<QTPoint> qTs = quadTree.GetAllPoints( GTF_Define.HS_TAG_CITY_4 );
+        List<QTPoint> qTs = quadTree.GetAllPoints( GTF_Define.CITY_TIER_VILLAGE );
         QTPoint qt_s = GTF_Random.rd_make_common.RandomList( qTs );
         city_Start = (City)qt_s.Data;
 
@@ -85,7 +85,7 @@ public class Make_City : MakeBase
         List<(City,float)> city_no_find = new();
         foreach( var s in cities_no_FIND_FIRST )
         {
-            var near = s.FindNear( Make_WorldMap.GetCities_Tire(GTF_Define.HS_TAG_CITY_4) );
+            var near = s.FindNear( Make_WorldMap.GetCities_Tire(GTF_Define.CITY_TIER_VILLAGE) );
             city_no_find.Add( new( s , near.Item2 ) );
         }
 

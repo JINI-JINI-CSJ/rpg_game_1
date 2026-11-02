@@ -27,10 +27,12 @@ public class Make_Gatherings : MakeBase
     {
         // 수도 : 거의 모든 행사 다 만들기
         List<City> cities_nations = Make_WorldMap.GetCities_Tire( 0 );
-
         foreach( var s in cities_nations )
         {
             
         }
+
+        // 그외 행사들
+        // 각각에 특성에 맞게 생성 및 배치
     }
 }

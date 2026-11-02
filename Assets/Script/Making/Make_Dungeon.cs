@@ -156,6 +156,9 @@ public class Make_Dungeon : MakeBase
         //  Instance : 등급 , 매 입장마다 랜덤 , 실시간 랜덤시드로 입장마다 Make 한다.
         //  Infinity : 무한 , 현재 디스 또는 올 랜덤 , 10 층마다 보스 같은 컨텐츠 추가하자.
 
+
+        
+
         // 타입별로 정리
         foreach( var s in Make_WorldMap.G.dic_type_dungeon )
         {
@@ -181,7 +184,7 @@ public class Make_Dungeon : MakeBase
                             int grade =  GTF_CSV.LevelToGrade( dungeon.LEVEL );
                             int total_layer =  grade / 2 + 1;                               
 
-
+                            // 1개 태그 테마 글자로 할 예정
                             // 일반 
                             string res_dungeon_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_RES_NORMAL" , GTF_Random.rd_make_common );
                             string tagEnemy_normal = GTF_CSV.csv_TagDefinePage.GetTagPart_StrRandom( "DUNGEON_ENEMY_NORMAL" , GTF_Random.rd_make_common );
