@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -39,8 +40,8 @@ using UnityEngine;
 // 이것들을 묶는 그룹이 따로 있다.
 public class CSV_StoryTemplate : SJ_CSV_BaseObj
 {
-    // 이름
-    // 개요
+    // 이름 , 개요
+    //..
 
     // 템플릿 아이디 또는 태그 
     // 같은 스토리는 똑같은 태그 아이디
@@ -50,17 +51,12 @@ public class CSV_StoryTemplate : SJ_CSV_BaseObj
     // 반드시 순차대로 해야 한다.!!!!
     // csv 순서도 위에서 아래로 순서대로 하자.
     public int      indexRatio;
-
     // 미션 타입 , 또는 태그 
     public string   tagMissionType;    
-
     // 제목 : 현지화 아이디 
     public string   titleLANG_ID;
-
     // 개요
     public string   descLANG_ID;
-
-
 
     public override void OnRead(SJ_CSV_BasePage _par, string[] _strs)
     {
@@ -80,16 +76,20 @@ public class CSV_StoryTemplate : SJ_CSV_BaseObj
 // 같은 템플릿 아이디끼리 묶은거
 public class CSV_StoryTemplate_Group
 {
+    public string   tagIDStroy;
     public List<CSV_StoryTemplate> cSV_s = new();
-
-    public void Add( CSV_StoryTemplate csv )
+    public bool Add( CSV_StoryTemplate csv )
     {
-        cSV_s.Add(csv);
+        if( csv.tagIDStroy == tagIDStroy )
+        {
+            cSV_s.Add(csv);
+            return true;
+        }
+        return false;
     }
 
     // 진행 비율로 반환
     // 인자로 받은 비율값보다 바로 이전 같거나 작은값의 인덱스
-
     public CSV_StoryTemplate GetByRatio( float ratio )
     {
         // 살짝 크게 해서 이전 인덱스가 나오도록
@@ -105,5 +105,32 @@ public class CSV_StoryTemplate_Group
             }
         }
         return cSV_s[cSV_s.Count-1];
+    }
+}
+
+
+public class CSV_StoryTemplatePage : SJ_CSV_BasePage
+{
+    public Dictionary<string,CSV_StoryTemplate_Group> dic_csvGroup = new();
+
+    public override SJ_CSV_BaseObj OnAlloc_Obj()
+    {
+        return new CSV_StoryTemplate();
+    }
+
+    public override void LoadAfter()
+    {
+        foreach( var s in dic_int.Values.Cast<CSV_StoryTemplate>() )
+        {
+            CSV_StoryTemplate_Group group = null;
+            if( dic_csvGroup.TryGetValue( s.tagIDStroy , out group ) == false )
+            {
+                group = new();
+                group.tagIDStroy = s.tagIDStroy;
+                dic_csvGroup[s.tagIDStroy] = group;
+            }
+            group.Add(s);
+        }
+
     }
 }

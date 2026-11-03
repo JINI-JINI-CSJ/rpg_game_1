@@ -25,5 +25,29 @@ using UnityEngine;
 
 public class Make_ConteMission : MakeBase
 {
-    
+    public override void OnMake()
+    {
+
+        
+
+    }
+
+    public void Make_MainStory()
+    {
+        // 메인 스토리 퀘스트
+        // 전용 스토리 csv 템플릿이 있다.
+        // "여신의 부탁" 
+        
+        // 대략 각 도시 등급마다 1~3 개정도 도시 던전
+        // 중반부에는 외부 보임 던전
+        // 후반부는 외부 숨김 던전         
+
+        // 도시 던전 : 일반 괴물형 보스
+        // 외부 보임 던전 : 덩치 호장형 인간 보스
+        // 외부 숨김 던전 : 냉정 , 지적 , 세련 인간 보스
+        // 마지막 보스 : 흑막 신 대리자? 등등
+        // 진 엔딩 보스 : 여신 적대적인 남신
+    }
+
+
 }

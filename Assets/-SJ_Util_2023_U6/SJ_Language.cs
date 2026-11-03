@@ -241,12 +241,13 @@ public class SJ_Language
 		return str;
 	}
 
-	// [#1] , [#2] .... 순서대로 가변 인자.
+	// 0 부터 시작이다!!!!
+	// [#0] , [#1] , [#2] .... 순서대로 가변 인자.
 	static public string  STR_ReplaceParams( string msg , params string[] args_rp  )
 	{
         for( int i = 0 ; i < args_rp.Length ; i++ )
         {
-            string mark_rp = "[#" + (i+1).ToString() + "]";
+            string mark_rp = "[#" + i.ToString() + "]";
             msg = msg.Replace( mark_rp , args_rp[i] );
         }
 		return msg;

@@ -45,8 +45,12 @@ public enum MISSION_TYPE
 public class MissionBase 
 {
     public uint ID;
-    public MissionBase root_mission;
 
+    // 연퀘일 경우 가장 처음 임무
+    public MissionBase first_mission;
+
+    // 루트에는 거의 무조건 존재하게 하자.
+    // 연퀘나 다중퀘에는 루트에 한개가 기준이지만 특별한 경우 임무 객체마다 있을수 있다.
     public CSV_StoryTemplate csv_StoryTemplate;
 
     // 연퀘가 있을 경우 다음 퀘스트
@@ -55,26 +59,84 @@ public class MissionBase
 
 
     // 하위 임무가 있을때만.    
+    public int depth;
+    // 다중퀘 일경우 루트 노드
+    public MissionBase root_mission;    
     public MissionBase par_mission;
     // 충족해야할 미션 완료들 , 하위 미션들 , 단일 미션이면 없다.
     public List<MissionBase> child_missions = new();
-
+    // 보상
     public RewardInf rewardInf = new();
-
-    // 
-    public int depth;
-
     public int LEVEL;
 
-    // 템플릿 1 종류 
-    public int title_Template_1;
-    // 템플릿 2 내용
-    public int title_Template_2;
-    virtual public string GetTitle(){return "제목";}
+
+    // 대표 단어들 
+    // 고정 인덱스 
+    // 0 : 가장 대표 단어 ( 듀랜달 )
+    // 1 : 구체적 종류 ( 검 , 창 )
+    // 2 : 대략 좁은 범위 ( 유물 , 소비아이템  )
+    // 3 : 대략 넓은 범위
+    // 4 : 늦은
+    // 5 ~ 10 : 잠정 예약 
+    // 11 ~ 최대 : 각 미션마다 정의
+
+
+    public const int MAX_MISSION_WORD = 30;
+    public string[] strs_word = new string[MAX_MISSION_WORD];
+
+    // 임무 내용을 대표단어들과 조합해서 전달
+    // 제목이나 , 개요 내용을 받고 strs_word 단어들로 대체
+    public string GetTextLang( string strs )
+    {
+        // 일단 그냥 간단하게 MAX_MISSION_WORD 만큼 한다.
+        return SJ_Language.STR_ReplaceParams( strs , strs_word );
+    }
 
     virtual public void OnEvent( string evt_name , string obj , SJ_DIC<string> _dic ){}
 
     virtual public void OnComplete(){}
+
+    // 현재 임무의 완료 비율 
+    // 하위 미션이 없다면 현재 미션만 체크 0 또는 1 이다.
+    // 하위 미션이 있다면 본인 빼고 하위 미션만 체크한다.
+    public float CurCompletePer_Local()
+    {
+        if( child_missions.Count < 1 )
+        {
+            if( cur_state == 2 ) return 1;
+            return 0;
+        }
+        else
+        {
+            float child_total = 0;
+            foreach( var s in child_missions )
+            {
+                child_total += s.CurCompletePer_Local();
+            }
+            return child_total / (float)child_missions.Count;
+        }
+        return 0;
+    }
+
+    // 대표 임무의 총 완료 비율
+    // 무조건 first_mission 만 한다.
+    public float CurCompletePer_TotalALL()
+    {
+        // first_mission 
+
+        float total_per = 0;
+        MissionBase ms = first_mission;
+        int total_num = 1;
+        
+        while( true )
+        {
+            total_per += ms.CurCompletePer_Local();
+            if( ms.next_mission == null ) break;
+            ms = ms.next_mission;
+            total_num++;
+        }
+        return total_per / (float)total_num;
+    }
 
     // 상태 : 0 미수주 , 1 수주 , 2 완료
     public int cur_state;
@@ -149,8 +211,8 @@ public class MissionBase
     virtual public void OnCreateMission(){}
     virtual public void OnLoad( BinaryReader br ){}
     virtual public void OnSave( BinaryWriter bw ){}
-
     virtual public void OnAfterLoad(){}
 
     
+
 }
