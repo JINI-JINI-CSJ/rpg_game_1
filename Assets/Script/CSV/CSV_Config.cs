@@ -236,7 +236,8 @@ public class CSV_Config : SJ_CSV_BasePage
 
 
 
-    //===========================================
+    //=============================================================================================
+    //---------------------------------------------------------------------------------------------
     // 행사 모임 관련
     
     // 개수 비율
@@ -252,25 +253,16 @@ public class CSV_Config : SJ_CSV_BasePage
     public float gatherings_CityTier12_per = 0.2f;
 
 
-
-
-    // 턴 관련은 일단 각자 설정
-    // // 행사 개최 주기 
-    // public int gatherings_waitTurn_Min = 20;
-    // public int gatherings_waitTurn_Max = 100;
-    // // 행사 개최 기간
-    // public int gatherings_keepUpTurn_Min = 3;
-    // public int gatherings_keepUpTurn_Max = 5;
-
-    // 일단 도시 규모 별로 턴 범위를 정하자.
-    // 티어 배열별 2개씩 , 0 티어 (수도) 부터 시작
-    // 0 티어 min max , 1 티어 min max ~~~~~
-
-    // 대기 턴
+    // 대기 턴 , min max 범위 2개씩 페어
     public List<int> gatherings_ListTier_waitTurn = new();
 
-    // 행사 기간
+    // 행사 기간 , min max 범위 2개씩 페어
     public List<int> gatherings_ListTier_KeepUpTurn = new();
+
+    // 일반적인 행사 / 도시 비율  , min max 범위 2개씩 페어
+    public List<float> gatherings_ListTier_CityPer = new();
+
+
 
     // 공통 비정규 행사 확률
     public float gatherings_NotRegular_per = 0.1f;
@@ -354,29 +346,36 @@ public class CSV_Config : SJ_CSV_BasePage
 
     // public List<int> gatherings_ListTier_waitTurn = new();
 
-    public int Random_gatherings_ListTier_waitTurn( Mng_X128SS rd , int city_tier )
+    static public int Random_List2PairInt( Mng_X128SS rd , int idx_pair , List<int> list )
     {
-        int idx_s = city_tier * 2;
+        int idx_s = idx_pair * 2;
         int idx_e = idx_s + 1;
-        if( gatherings_ListTier_waitTurn.Count <= idx_e )
+        if( list.Count <= idx_e )
         {
-            Debug.LogError( "Random_gatherings_ListTier_waitTurn : " + city_tier );
+            Debug.LogError( "list : " + idx_pair );
             return -1;
         }
-        return rd.NextInt( gatherings_ListTier_waitTurn[idx_s] , gatherings_ListTier_waitTurn[idx_e] );
+        return rd.NextInt( list[idx_s] , list[idx_e] );
     }
 
-    // // 행사 기간
-    // public List<int> gatherings_ListTier_KeepUpTurn = new();
-    public int Random_gatherings_ListTier_KeepUpTurn( Mng_X128SS rd , int city_tier )
+    static public float Random_List2PairFloat( Mng_X128SS rd , int idx_pair , List<float> list )
     {
-        int idx_s = city_tier * 2;
+        int idx_s = idx_pair * 2;
         int idx_e = idx_s + 1;
-        if( gatherings_ListTier_KeepUpTurn.Count <= idx_e )
+        if( list.Count <= idx_e )
         {
-            Debug.LogError( "Random_gatherings_ListTier_KeepUpTurn : " + city_tier );
+            Debug.LogError( "list : " + idx_pair );
             return -1;
         }
-        return rd.NextInt( gatherings_ListTier_KeepUpTurn[idx_s] , gatherings_ListTier_KeepUpTurn[idx_e] );
+        return rd.NextFloat( list[idx_s] , list[idx_e] );
     }
+
+    // 행사 대기 , min max
+    public int Random_gatherings_ListTier_waitTurn( Mng_X128SS rd , int city_tier ){return Random_List2PairInt( rd , city_tier , gatherings_ListTier_waitTurn );}
+    
+    // // 행사 기간 , min max
+    public int Random_gatherings_ListTier_KeepUpTurn( Mng_X128SS rd , int city_tier ){return Random_List2PairInt( rd , city_tier , gatherings_ListTier_KeepUpTurn );}
+
+    // 행사 도시 비율 
+    public float Random_gatherings_ListTier_CityPer( Mng_X128SS rd , int city_tier ){ return Random_List2PairFloat(rd , city_tier , gatherings_ListTier_CityPer ); }
 }

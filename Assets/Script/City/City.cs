@@ -48,6 +48,7 @@ public class City
     public List<GatheringsBase> gatherings = new();
 
 
+
     // 상태
     public bool find_cur;
     

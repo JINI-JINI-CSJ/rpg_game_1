@@ -10,23 +10,18 @@ public class GatheringsBase
 {
     // 전용 생성 랜덤
     public Mng_X128SS rd_self;
-
-    // 
     public City city;
-
-
     // 행사 주기 : 대기 턴 , 지속 턴
     public int waitTurn = 10;
     public int keepUpTurn = 1;
-    public bool NotRegular;  // 비 정기 행사 , 행사 종료 시  다음 예약 만들기
 
+    public bool NotRegular;             // 비 정기 행사 , 행사 종료 시  다음 예약 만들기
 
+    // 비정기 일경우 턴 대기 랜덤 범위
+    // 유지는 일단 위의 변수로 하자.
+    public int NotRegular_waitTurn_Min;     
+    public int NotRegular_waitTurn_Max;      
 
-
-    // 참여 횟수 
-    public int cur_participate;
-    // 완료 횟수
-    public int cur_complete;
 
     // 최초 완료 보상 , 이후 완료 보상
     public RewardInf rewardInf_First;
@@ -35,51 +30,65 @@ public class GatheringsBase
     // 확률 보상 , 여러개 일수 있으니 목록으로 하자.
     public List<RewardInf> lt_rewardInf_Per = new();
 
+
+
+    //=========================================================================
+    // 상태 저장
+
+    // 남은 턴
+    public int cur_waitTurn;
+    public int cur_keepTurn;
+
+    // 참여 횟수 
+    public int cur_participate;
+    // 완료 횟수
+    public int cur_complete;
+
+
+
     public void Make( uint random_seed , City _city  )
     {
+        cur_keepTurn = 0;
         rd_self = new Mng_X128SS( random_seed );
         city = _city;
 
-        // 턴 정하기
-        // 일단 랜덤으로 하자.
-        // 행사 개최 주기 
-        MakeWaitTurn();
+        city.gatherings.Add( this );
 
-        // 랜덤 행사인지.
-        // 각자 행사에서 하자.
-        //NotRegular = rd_self.RandomFloat_Per( GTF_CSV.csv_Config.gatherings_NotRegular_per );
+        Make_NotRegular_Turn();
 
         OnMake();
     }
 
-    public void MakeWaitTurn()
+
+    // 비정기일경우
+    public void Make_NotRegular_Turn()
     {
-        // 현재는 도시 등급으로만 하자.
-        waitTurn = GTF_CSV.csv_Config.Random_gatherings_ListTier_waitTurn( rd_self , city.cityData.Tier );
-        keepUpTurn = GTF_CSV.csv_Config.Random_gatherings_ListTier_KeepUpTurn( rd_self , city.cityData.Tier );
+        if( NotRegular == false ) return;
+        cur_waitTurn = rd_self.NextInt( NotRegular_waitTurn_Min , NotRegular_waitTurn_Max );
     }
 
     // 월드 턴 증가후 호출 
     public void TurnPrc()
     {
-        int r_turn = WorldMain.TURN % waitTurn;
+        int r_turn = cur_waitTurn--;
 
-        if( r_turn == 0 )
+        if( r_turn < 1 )
         {
+            cur_keepTurn = keepUpTurn;
             OnStartTurn();
         }
 
-        if( r_turn < keepUpTurn )
+        if( cur_keepTurn > 0 )
         {
             OnKeepUpTurn();
-        }  
+            cur_keepTurn--;
+            if( cur_keepTurn < 1 )
+            {
+                OnStopTurn();
 
-        if( r_turn == keepUpTurn )
-        {
-            OnStopTurn();
-
-            // 비 정규 행사이면 다음 행사 기간 다시 계산
-            if( NotRegular ) MakeWaitTurn();
+                // 비 정규 행사이면 다음 행사 기간 다시 계산
+                Make_NotRegular_Turn();
+            }              
         }  
     }
 

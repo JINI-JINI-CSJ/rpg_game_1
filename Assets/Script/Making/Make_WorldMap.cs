@@ -151,6 +151,12 @@ public class Make_WorldMap : MakeBase
         return cities;
     }
 
+    static public List<City> GetCities_Tire_Copy( int tire )
+    {
+        List<City> lt = GetCities_Tire( tire );
+        return new List<City>( lt );
+    }
+
     void InsertQuad_Spot( SpotData spotData , int idx_dungeon )
     {
         Vector2 pos = new Vector2( spotData.X , spotData.Y );
