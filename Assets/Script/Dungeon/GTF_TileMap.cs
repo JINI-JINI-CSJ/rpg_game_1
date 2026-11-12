@@ -1,25 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 맵 한장 기본 단위
+/// 리소스는 이 객체에 등록하자. 던전 정보의 res 
+/// 맵을 불러오거나 , 자동으로 만들기
+/// </summary>
+
 // 타일맵 
 // 기존 타일 뷰어에서 레이어 1이상 데이터를 가져온다.
-
 // 레이어 0 : 지형 : 타일 0 만 사용
 // 레이어 1 : 포털 등등 중요 객체 , 타일 1~10
 // 레이어 2 : 이벤트 11~20
 
-
 public class GTF_TileMap : SJ_MapTileViewer_claude
 {
     static public GTF_TileMap G;
-
     public MapEventPlayer mapEvent;
-
     public DungeonInfo dungeonInfo = new();
-
-    
     public Mng_X128SS random_dungeon;
-
     void Awake()
     {
         G = this;
@@ -39,12 +38,7 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
 
     static public void LoadMap()
     {
-        if( G == null )
-        {
-            Debug.LogError( "주 타일맵 없음" );
-            return;
-        }
-        G._LoadMap();
+        G?._LoadMap();
     }
 
     public void _LoadMap()

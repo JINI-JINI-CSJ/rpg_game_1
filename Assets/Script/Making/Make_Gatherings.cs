@@ -59,16 +59,55 @@ public class Make_Gatherings : MakeBase
 
 
         // 암시장 , 완전 랜덤 
+        // 대략 전체 도시의 20퍼
+        Make_Common_IrregularList( typeof( Gatherings_BlackMarket ) , 0 , 4 , 200 , 500 , 5 , 0.2f );
 
+        // 전쟁 
+        // 이건 다른 시스템으로 할까나?
 
-
+        // 그 외 행사 
+        // 클래스 추가 될때마다 추가하자.
     }
 
     // 완전 랜덤
-    // 
-    void Make_Common_Irregular(System.Type type_gathering , int wait_min , int wait_max  , int keep )
+    // 도시를 한번에 다 가져오자
+    void Make_Common_IrregularList(System.Type type_gathering , int city_tier_start , int city_tier_end , int wait_min , int wait_max  , int keep_turn , float city_ratio = 1.0f )
     {
-        
+        Mng_X128SS rd = GTF_Random.rd_make_common;  
+        List<City> cities = new();
+
+        for( int i = city_tier_start ; i < city_tier_end + 1 ; i++ )
+        {
+            List<City> cities_cp = Make_WorldMap.GetCities_Tire_Copy( i );
+            cities.AddRange( cities_cp );
+        }
+
+        int total_city = cities.Count;
+        int idx = 0;
+
+        while( true )
+        {
+            if( cities.Count < 1 )break;
+            City city = rd.RandomList( cities , true );
+            GatheringsBase gatherings = SJ_CSharpUtil.NewClass_Type( type_gathering ) as GatheringsBase;
+            gatherings.Make( rd.NextUInt() , city );
+
+            gatherings.keepUpTurn = keep_turn;
+            gatherings.NotRegular_waitTurn_Min = wait_min;
+            gatherings.NotRegular_waitTurn_Max = wait_max;
+
+            gatherings.cur_waitTurn = rd.NextInt( 1 , wait_max );
+
+            idx++;
+
+            // 행사 / 도시 비율 넘어가면 중지
+            if( (int)city_ratio != 1 )
+            {
+                float cur_per = (float)idx / (float)total_city;
+                if( cur_per >= city_ratio ) break;
+            }
+        }
+
     }
 
     // 도시 등급 범위로 목록 만들기 , csv 참고하여 만들기
@@ -112,11 +151,8 @@ public class Make_Gatherings : MakeBase
         int idx = 0;
         while( true )
         {
-            if( cities_cp.Count < 1 )
-            {
-                break;
-            }
-
+            if( cities_cp.Count < 1 )break;
+            
             City city = rd.RandomList( cities_cp , true );
             GatheringsBase gatherings = SJ_CSharpUtil.NewClass_Type( type_gathering ) as GatheringsBase;
             gatherings.Make( rd.NextUInt() , city );

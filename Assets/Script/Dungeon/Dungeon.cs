@@ -167,7 +167,6 @@ public class ENEMY_INFO
     public EnemyRarityGrade     rarityGrade;    // 
     public int                  line_front_back;  
     public int                  level;
-    //public string               tagEnemy;       // 종족 태그    
     public int                  csv_id;         // 지정 csv  
     public List<string>         tagChrAttrStrong = new();  // 강약 속성 태그
     public List<string>         tagChrAttrWeak = new();    // 강약 속성 태그
@@ -521,9 +520,7 @@ public class DungeonInfo
     public int grade;
     public int LEVEL;
     public string res_map;
-
     public List<DungeonLayerInfo_Group> layerInfo_Groups = new();
-
 
     // 입장 제한
     public DungeonEnterLimit enterLimit = new();

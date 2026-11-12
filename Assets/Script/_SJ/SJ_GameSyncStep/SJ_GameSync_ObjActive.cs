@@ -26,6 +26,8 @@ public class SJ_GameSync_ObjActive : SJ_GameSyncStepBase
     {
         foreach( var s in obj_show ) s.SetActive( show );
         foreach( var s in obj_hide ) s.SetActive( hide );
+
+        
         SJ_SimpleSyncMono.NextPlaySelf();
     }
 }

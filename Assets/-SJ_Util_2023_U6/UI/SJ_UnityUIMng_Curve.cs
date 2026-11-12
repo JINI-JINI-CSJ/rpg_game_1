@@ -13,6 +13,8 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
 
     public SJ_DlgFuncSync funcSync = new();
 
+    public bool startHideAll;
+
     public class _STOCK_INF
     {
         public string panel_name;
@@ -31,7 +33,10 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        if( startHideAll )
+        {
+            SJ_Unity.Active_Child( transform , 0 );
+        }
     }
 
     // Update is called once per frame
@@ -80,6 +85,12 @@ public class SJ_UnityUIMng_Curve : MonoBehaviour
         if( tr == null )
         {
             Debug.LogError( "에러 : " + cur_stock.panel_name );
+            return;
+        }
+
+        // 이미 열린건가?
+        if( tr.gameObject.activeSelf )
+        {
             return;
         }
 

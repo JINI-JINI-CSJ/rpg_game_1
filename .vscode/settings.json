@@ -76,6 +76,7 @@
         "INCOUNT",
         "JRPG",
         "sqlen",
+        "Tilemap",
         "Typer",
         "Xoshiro"
     ]

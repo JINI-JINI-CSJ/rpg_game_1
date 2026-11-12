@@ -17,6 +17,8 @@ public enum _DIR_NEWS
 // SJ_MapTileViewer 위에서 작동하는 이동 객체
 public class SJ_MapTileMover : MonoBehaviour
 {
+    
+
     // 필수
     public SJ_MapTileViewer sJ_MapTile;
 
@@ -24,10 +26,8 @@ public class SJ_MapTileMover : MonoBehaviour
     // 현재 컴포넌트에 붙이자
     // 이동 회전 커브
     public SJ_Curve_TransObjToggle curve_trans;
-
     public _DIR_NEWS        cur_dir;
     public Vector2Int       cur_pos;
-
     public PlayerInput      playerInput;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

@@ -17,12 +17,12 @@ public class Player
     {
         if( loaded )return;
         loaded = true;
-        saveFile.Load();
+        saveFile._Load();
     }
 
     static public void SaveUserFile()
     {
-        saveFile.Save();
+        saveFile._Save();
     }
 
     // 최초 인트로 씬에서 실행

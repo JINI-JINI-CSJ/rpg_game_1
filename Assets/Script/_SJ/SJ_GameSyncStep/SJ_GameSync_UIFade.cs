@@ -21,6 +21,8 @@ public class SJ_GameSync_UIFade : SJ_GameSyncStepBase
 
     public Image image;
 
+    //public SJ_COMMON.Func_VOID func_end;
+
     public void PlayStep()
     {
         if( image == null)
@@ -34,13 +36,11 @@ public class SJ_GameSync_UIFade : SJ_GameSyncStepBase
             image = SJ_UnityUIMng_Curve.G.curve_Black.image_Color;
         }
 
-
-
         if( PlayColor )
         {
             image.color = color;
             image.gameObject.SetActive( colorObjShow );
-            SJ_SimpleSyncMono.NextPlaySelf();
+            OnEndFunc();
             return;
         }
 
@@ -68,8 +68,8 @@ public class SJ_GameSync_UIFade : SJ_GameSyncStepBase
     }
 
     public void OnEndCurve()
-    {
-        SJ_SimpleSyncMono.NextPlay();
+    {     
+        OnEndFunc();
     }
 
     public void EndStep()
@@ -79,6 +79,15 @@ public class SJ_GameSync_UIFade : SJ_GameSyncStepBase
         {
             image.gameObject.SetActive( false );
         }
+    }
+
+    // fade_in_out : true 
+    public void StartFadeAni( bool fade_in_out )
+    {
+        PlayColor = false;
+        PlayFadeAni = true;
+        FadeIn = fade_in_out;
+        PlayStep();
     }
 
 

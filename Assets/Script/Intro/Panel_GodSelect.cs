@@ -85,7 +85,7 @@ public class Panel_GodSelect : MonoBehaviour
     {
         SJ_UnityUIMng_Curve.CloseOne( OnCloseAniEnd );
 
-        Player.saveFile.SetFirstPlay_Step(1);
+        Player.saveFile._SetFirstPlay_Step(1);
         Player.SaveUserFile();
     }
 

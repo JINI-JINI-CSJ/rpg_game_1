@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class SJ_UnityUI_Util : SJ_Singleton_Mono
+public class SJ_UnityUI_Util //: SJ_Singleton_Mono
 {
     static public   List<object>    ListArgToListT<T>( List<T> lt_T )
     {

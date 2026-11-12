@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class GTF_Global : MonoBehaviour
 {
     static public GTF_Global G;
-
     public Image    img_FirstBlack;
 
     void Awake()
@@ -25,9 +24,19 @@ public class GTF_Global : MonoBehaviour
         
     }
 
+    // 플레이어 던전 이동 여부
+    // gui 입력 여부
     static public void PlayerInputAble( bool player_move , bool ui )
     {
         PlayerMover.G.SetInputAble( player_move );
         SJ_UnityUIMng_Curve.SetBlockInput( !ui );
+    }
+
+
+    // 
+    static public SJ_UIGameTalkChr OpenUI_TalkChr()
+    {
+        GameObject go = SJ_UnityUIMng_Curve.Open( "PanelPopup_TalkChrImg" );
+        return go.GetComponent<SJ_UIGameTalkChr>();
     }
 }

@@ -30,9 +30,29 @@ public class SJ_Language
 	// 파트 , 워드 , 데이터
 	static  public Dictionary<string, Dictionary< string , List<string>>>	dic_Data_str = new Dictionary<string, Dictionary<string, List<string>>>();
 
+
+	public class META_DATA
+	{
+		public string meta_1;
+		public string meta_2;
+		public string meta_3;
+
+		public void SetMeta( string m1 , string m2 , string m3 )
+		{
+			meta_1 = m1;
+			meta_2 = m2;
+			meta_3 = m3;
+		}
+
+		public void Debug_Meta()
+		{
+			Debug.Log( "META_DATA : " + meta_1 + " : " + meta_2 + " : " + meta_3 );
+		}
+	}
+
 	// 메타 데이터
-	static public Dictionary<string , Dictionary<int,string> > dic_Data_int_meta = new Dictionary<string, Dictionary<int, string>>();
-	static public Dictionary<string , Dictionary<string,string> > dic_Data_str_meta = new Dictionary<string, Dictionary<string, string>>();
+	static public Dictionary<string , Dictionary<int,META_DATA> > dic_Data_int_meta = new Dictionary<string, Dictionary<int, META_DATA>>();
+	static public Dictionary<string , Dictionary<string,META_DATA> > dic_Data_str_meta = new Dictionary<string, Dictionary<string, META_DATA>>();
 
 	// 언어 코드 -> 인덱스
 	static public List<string> CODE_TO_IDX = new List<string>();
@@ -60,15 +80,17 @@ public class SJ_Language
 	{
 		try
 		{
-
+			
 			int load_count = 0;
-			int base_col = 5; // 기본 데이터(아이디 , 메타 데이터 등등)
+
+			// 메터데이터 3개로 늘림..!!!!!!!!!!
+			int base_col = 7; // 기본 데이터(아이디 , 메타 데이터 등등)
 			read_Recent_Tag = "";
 			while(true)
 			{
 				if( read_CSV_Line < 1 )
 				{
-					// 5 + lang 
+					// base_col + lang 
 					// 기본 데이터(아이디 , 메타 데이터 등등) + 언어 갯수
 					read_CSV_Line = base_col + Total_Lang;
 				}
@@ -76,13 +98,16 @@ public class SJ_Language
 				// `` 분류,	ID_Num,	ID_Str,	주석 ,언어들..		
 				List<string> strs = SJ_CSV_Read.Read_Line(read_CSV_Line );
 
-				if( strs == null || strs.Count < 5 ) break;
-
+				// 최소 2 열은 채워야 한다.
+				if( strs == null || strs.Count < 2 ) break;
 
 				string tag = strs[0];
 				string str_id = strs[1];
 				string str_word = strs[2];
-				string str_meta = strs[4];
+				// 3 번 desc 
+				string str_meta_1 = strs[4];
+				string str_meta_2 = strs[5];
+				string str_meta_3 = strs[6];
 
 				if( string.IsNullOrEmpty(tag) )continue;
 
@@ -91,6 +116,7 @@ public class SJ_Language
 
 				// id 
 				int id_n = -1;
+				META_DATA meta_data = new();
 				if( int.TryParse( str_id , out id_n ) )
 				{
 					Dictionary<int , List<string> > dic_sub = null;
@@ -102,13 +128,15 @@ public class SJ_Language
 					dic_sub[id_n] = list_word;
 
 
-					Dictionary<int,string> dic_sub_meta = null;
+					Dictionary<int,META_DATA> dic_sub_meta = null;
 					if( dic_Data_int_meta.TryGetValue( tag , out dic_sub_meta ) == false )
 					{
-						dic_sub_meta = new Dictionary<int,string>();
+						dic_sub_meta = new Dictionary<int,META_DATA>();
 						dic_Data_int_meta[tag] = dic_sub_meta;
 					}
-					dic_sub_meta[id_n] = str_meta;
+
+					meta_data.SetMeta( str_meta_1 , str_meta_2 , str_meta_3 );
+					dic_sub_meta[id_n] = meta_data;
 
 				}else{
 					
@@ -127,13 +155,14 @@ public class SJ_Language
 					dic_sub[str_word] = list_word;				
 
 
-					Dictionary<string,string> dic_sub_meta = null;
+					Dictionary<string,META_DATA> dic_sub_meta = null;
 					if( dic_Data_str_meta.TryGetValue( tag , out dic_sub_meta ) == false )
 					{
-						dic_sub_meta = new Dictionary<string,string>();
+						dic_sub_meta = new Dictionary<string,META_DATA>();
 						dic_Data_str_meta[tag] = dic_sub_meta;
 					}
-					dic_sub_meta[str_word] = str_meta;
+					meta_data.SetMeta( str_meta_1 , str_meta_2 , str_meta_3 );
+					dic_sub_meta[str_word] = meta_data;
 				}
 
 				load_count++;
@@ -264,32 +293,32 @@ public class SJ_Language
 		return msgs;
 	}
 
-	static public string MetaData( string part  , int id  )
+	static public META_DATA MetaData( string part  , int id  )
 	{
-		Dictionary<int , string> dic_sub = null;
+		Dictionary<int , META_DATA> dic_sub = null;
 		if( dic_Data_int_meta.TryGetValue( part , out dic_sub ) )
 		{
-			string meta = "";
+			META_DATA meta = null;
 			if( dic_sub.TryGetValue( id , out meta ) )
 			{
 				return meta;
 			}
 		}
-		return "";
+		return null;
 	}	
 
-	static public string MetaData( string part  , string word  )
+	static public META_DATA MetaData( string part  , string word  )
 	{
-		Dictionary<string , string> dic_sub = null;
+		Dictionary<string , META_DATA> dic_sub = null;
 		if( dic_Data_str_meta.TryGetValue( part , out dic_sub ) )
 		{
-			string meta = "";
+			META_DATA meta = null;
 			if( dic_sub.TryGetValue( word , out meta ) )
 			{
 				return meta;
 			}
 		}
-		return "";
+		return null;
 	}	
 
 	// [#n] 태그 인자 치환 , 1 부터 시작

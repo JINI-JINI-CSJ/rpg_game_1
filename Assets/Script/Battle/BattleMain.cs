@@ -3,20 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// public class _BATTLE_RESULT_INF
-// {
-//     public int gold;
-//     public int exp;
-//     public List<ItemBase> items = new();
-
-//     public void Clear()
-//     {
-//         gold = 0;
-//         exp = 0;
-//         items.Clear();
-//     }
-// }
-
 
 [System.Serializable]
 public class _ENEMY_BATTLE_INIT

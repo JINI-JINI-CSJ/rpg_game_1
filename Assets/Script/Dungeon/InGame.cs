@@ -11,15 +11,16 @@ public class InGame : MonoBehaviour
     void Awake()
     {
         G = this;
-        SJPool.InitMng();
-        SJSound.Init();
-        SJ_ResPoolSys.Init_Scene();
     }
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        SJPool.InitMng();
+        SJSound.Init();
+        SJ_ResPoolSys.Init_Scene();        
+
         SJ_CSV_Mng.LOAD_FILE_OR_URL = 1;
         SJ_CSV_Mng.Load( typeof( GTF_CSV ) , this , "OnLoadCSV" );
     }
@@ -27,54 +28,67 @@ public class InGame : MonoBehaviour
     public void OnLoadCSV()
     {
         Player.LoadUserFile();
+        Player.FirstPlay();
+        
+        BattlePartyView_Player.Update_Player();
+        Panel_DungeonMain.OnEnd_PlayerMove();        
 
-        GameObject inst_TileMap = null;
+        if( GTF_EventCheckStart.CheckSceneStart() )
+        {
+            // 특수 이벤트 진행
+            return;
+        }
 
+        // 일반 던전 진행
+        // 플레이어에 던전 번호 있다.
+        
+
+        //GameObject inst_TileMap = null;
         // 인트로 씬 끝나고 후원자 선택후
         //if( Player.saveFile.GetFirstPlay_Step() == 1 )
-        {
-            inst_TileMap = IntroFirst();
-        }
+        // {
+        //     //inst_TileMap = IntroFirst();
+        // }
         // else
         // {
             // 일반 던전 맵
         // }
 
-        if( inst_TileMap == null )
-        {
-            Debug.LogError( "맵 타일 없음!!! " );
-            return;
-        }
+        // if( inst_TileMap == null )
+        // {
+        //     Debug.LogError( "맵 타일 없음!!! " );
+        //     return;
+        // }
 
-        GTF_TileMap gTF_TileMap = inst_TileMap.GetComponent<GTF_TileMap>();
-        PlayerMover.G.SetMap( gTF_TileMap );
-        GTF_TileMap.LoadMap();
-        PlayerMover.G.Ready();
-
-
-
-        BattlePartyView_Player.Update_Player();
-
-        //DungeonBattleInCounter.G.incount_inf = gTF_TileMap.dungeonInfo.iNCOUNT_INF;
+        // GTF_TileMap gTF_TileMap = inst_TileMap.GetComponent<GTF_TileMap>();
+        // PlayerMover.G.SetMap( gTF_TileMap );
+        // GTF_TileMap.LoadMap();
+        // PlayerMover.G.Ready();
 
 
-        Panel_DungeonMain.OnEnd_PlayerMove();
 
         // 맵 시작 이벤트
-        if( TEST_NO_EVENT == false )
-            MapEventPlayer.StartEventPlay();
+        // if( TEST_NO_EVENT == false )
+        //     MapEventPlayer.StartEventPlay();
     }
 
-    public GameObject IntroFirst()
-    {
-        GameObject inst_Intro = GameObject.Find( "MapIntro" );
-        if( inst_Intro == null )
-        {
-            inst_Intro = SJ_ResPoolSys.Inst_Obj( "Intro/MapIntro" );            
-        }
-        Player.FirstPlay();
-        return inst_Intro;
-    }
+    // public void LoadMapDungeon( string str )
+    // {
+    //     GameObject inst_TileMap = null;
+
+    //     inst_TileMap = SJ_ResPoolSys.Inst_Obj( str );  
+    //     if( inst_TileMap == null )
+    //     {
+    //         Debug.LogError( "던전 맵 타일 없음!!! " + str );
+    //         return;
+    //     }
+
+    //     GTF_TileMap gTF_TileMap = inst_TileMap.GetComponent<GTF_TileMap>();
+    //     PlayerMover.G.SetMap( gTF_TileMap );
+    //     GTF_TileMap.LoadMap();
+    //     PlayerMover.G.Ready();
+    // }
+
 
     static public void ShowUIDungeon( bool b )
     {

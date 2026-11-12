@@ -264,6 +264,88 @@ public class SJ_SimpleSync
         cur.Invoke();
         return true;
     }
+}
 
 
+/// <summary>
+/// 위랑 같은데 템플릿으로만 구성
+/// </summary>
+/// <typeparam name="T"></typeparam>
+// 
+public class SJ_SimpleSyncTemplate<T>
+{
+    static public SJ_SimpleSyncTemplate<T> G;
+
+    static public Dictionary<string,SJ_SimpleSyncTemplate<T>> dic_global = new();
+
+    // public delegate void OnFunc();
+
+    public List<T> listFunc = new();
+
+
+    public T onFunc_end;
+
+    public void SetDefault()
+    {
+        G = this;
+    }
+
+    public void SetGlobalInstName( string str )
+    {
+        dic_global[str] = this;
+    }
+
+    static public SJ_SimpleSyncTemplate<T> GetInst( string str = null )
+    {
+        SJ_SimpleSyncTemplate<T> inst = G;
+        if( string.IsNullOrEmpty(str) == false )
+        {
+            dic_global.TryGetValue( str , out inst );
+        }
+        return inst;
+    }
+
+    static public bool ADD( T func , string str = null  )
+    {
+        SJ_SimpleSyncTemplate<T> inst = GetInst( str );
+        if( inst == null ) return false;
+        inst._Add( func );
+        return true;
+    }
+
+    static public bool Next( string str = null  )
+    {
+        SJ_SimpleSyncTemplate<T> inst = GetInst( str );
+        if( inst == null ) return false;
+        inst._Next();
+        return true;
+    }
+
+
+    public void _Add( T func )
+    {
+        listFunc.Add(func);
+    }
+
+    public void _Add_Next( T func )
+    {
+        _Add( func );
+        _Next();
+    }   
+
+    public bool _Next()
+    {
+        if( listFunc.Count < 1 )
+        {
+            OnExecFunc( onFunc_end );
+            return false;
+        }
+        T cur = listFunc[0];
+        listFunc.RemoveAt(0);
+
+        OnExecFunc(cur);
+        return true;
+    }
+
+    virtual public void OnExecFunc( T t ){}
 }

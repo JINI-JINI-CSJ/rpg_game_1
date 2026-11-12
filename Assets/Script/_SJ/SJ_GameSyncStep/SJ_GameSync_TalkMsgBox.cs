@@ -19,6 +19,11 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
     public string   ID_PART_Range;
     public int      start_id_Range;
     public int      end_id_Range;
+
+    public bool     closeMsgEnd;
+
+    //public SJ_COMMON.Func_VOID func_end;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,9 +44,14 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
             SJ_UnityUIMng_Curve.CloseOne( OnEnd_ViewBoxAni_OFF );
             return;
         }
+        OpenWindow();
+    }
+
+    public void OpenWindow()
+    {
         GameObject go_popup = SJ_UnityUIMng_Curve.Open( name_Popup , OnEnd_ViewBoxAni_ON );
         dialogueTyper = go_popup.GetComponentInChildren<DialogueTyper>();
-        dialogueTyper.OnDialogueFinished += OnEndLine_TalkBox;
+        SJ_CSharpUtil.ActionFunc_CheckReg( ref dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
     }
 
     public void StartText()
@@ -68,10 +78,17 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
         {
             dialogueTyper.StartDialogue( SJ_Language.STR_RangID( ID_PART_Range , start_id_Range , end_id_Range ) );
         }
-        else
-        {
-            Debug.LogError( "사용 설정 없음" );
-        }
+        // else
+        // {
+        //     Debug.LogError( "사용 설정 없음" );
+        // }
+    }
+
+    // 단일 메시지 열기
+    public void StartText_OneStep( string msg )
+    {
+        OpenWindow();
+        dialogueTyper.StartDialogue( msg );
     }
 
     public void OnEnd_ViewBoxAni_ON()
@@ -80,14 +97,23 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
     }
 
     // 모든 라인 출력이면 종료 시작
+    // 단일 메세지 였다면 그냥 종료 함수
     public void OnEndLine_TalkBox()
     {
         Debug.Log( "OnEndLine_TalkBox" );
+        if( closeMsgEnd )
+            CloseMsgBox();
+        else 
+            OnEndFunc();
+    }
+
+    public void CloseMsgBox()
+    {
         SJ_UnityUIMng_Curve.CloseOne( OnEnd_ViewBoxAni_OFF );
     }
 
     public void OnEnd_ViewBoxAni_OFF()
     {
-        SJ_SimpleSyncMono.NextPlay();
+        OnEndFunc();
     }
 }

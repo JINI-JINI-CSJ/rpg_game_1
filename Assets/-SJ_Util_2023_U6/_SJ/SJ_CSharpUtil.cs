@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Reflection;
+using System.Linq;
 
 // 유니티 
 //using UnityEngine;
@@ -163,6 +164,14 @@ public class SJ_CSharpUtil
                         }
                 }
                 return false;
+        }
+
+        static public void ActionFunc_CheckReg( ref Action action_base , Action act_call )
+        {
+                if (!action_base?.GetInvocationList().Contains((Action)act_call) ?? true)
+                {
+                        action_base += act_call;
+                }
         }
 }
 

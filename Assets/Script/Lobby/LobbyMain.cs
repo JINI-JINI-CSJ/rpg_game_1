@@ -9,13 +9,13 @@ public class LobbyMain : MonoBehaviour
     void Awake()
     {
         G = this;
-        SJPool.InitMng();
-        SJSound.Init();
-        SJ_ResPoolSys.Init_Scene();
     }
 
     void Start()
     {
+        SJPool.InitMng();
+        SJSound.Init();
+        SJ_ResPoolSys.Init_Scene();        
         SJ_CSV_Mng.LOAD_FILE_OR_URL = 1;
         SJ_CSV_Mng.Load( typeof( GTF_CSV ) , this , "OnLoadCSV" );
     }
@@ -23,25 +23,32 @@ public class LobbyMain : MonoBehaviour
     public void OnLoadCSV()
     {
         Player.LoadUserFile();
-
-        //if( Player.saveFile.GetFirstPlay_Step() == 2 )
-        {
-            GameObject inst_IntroLobby = IntroLobby();
-            SJ_SimpleSyncMono simpleSyncMono = inst_IntroLobby.GetComponent<SJ_SimpleSyncMono>();
-            simpleSyncMono.StartPlay();
-        }
-    }
-
-    public GameObject IntroLobby()
-    {
-        GameObject inst_Intro = GameObject.Find( "IntroLobby" );
-        if( inst_Intro == null )
-        {
-            inst_Intro = SJ_ResPoolSys.Inst_Obj( "Intro/IntroLobby" );            
-        }
         Player.FirstPlay();
-        return inst_Intro;
+
+        if( GTF_EventCheckStart.CheckSceneStart() )
+        {
+            // 특수 이벤트 진행
+            return;
+        }
+
+        // //if( Player.saveFile.GetFirstPlay_Step() == 2 )
+        // {
+        //     GameObject inst_IntroLobby = IntroLobby();
+        //     SJ_SimpleSyncMono simpleSyncMono = inst_IntroLobby.GetComponent<SJ_SimpleSyncMono>();
+        //     simpleSyncMono.StartPlay();
+        // }
     }
+
+    // public GameObject IntroLobby()
+    // {
+    //     GameObject inst_Intro = GameObject.Find( "IntroLobby" );
+    //     if( inst_Intro == null )
+    //     {
+    //         inst_Intro = SJ_ResPoolSys.Inst_Obj( "Intro/IntroLobby" );            
+    //     }
+    //     Player.FirstPlay();
+    //     return inst_Intro;
+    // }
 
 
 

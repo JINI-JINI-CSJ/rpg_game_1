@@ -84,6 +84,12 @@ public class DialogueTyper : MonoBehaviour
         NextLine();
     }
 
+    // csj
+    public void StartDialogue(string msg)
+    {
+        StartDialogue( new List<string>(){msg} );
+    }
+
     /// <summary>
     /// 외부 입력 처리 진입점.
     /// - 타이핑 중이면: 즉시 전체 출력

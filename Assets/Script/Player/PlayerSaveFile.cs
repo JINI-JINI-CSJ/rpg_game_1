@@ -3,26 +3,49 @@ using UnityEngine;
 
 public class PlayerSaveFile
 {
-    // 0 : 완전 처음 후원자 선택
-    // 1 : 처음 숲 던전
-    // 2 : 처음 도시 시작
+    static public PlayerSaveFile G;
+
+    // 0 : 최초 
+    // 1 : 처음 인트로 여신 대화 끝
+    // 2 : 촌락 대화 끝
     public int firstStep;
 
-    public void Save()
+    public PlayerSaveFile()
+    {
+        G = this;
+    }
+
+    public void _Save()
     {
         
     }
 
-    public void Load()
+    public void _Load()
     {
         
     }
 
-    public void SetFirstPlay_Step( int n )
+    static public void Save()
+    {
+        G?._Save();
+    }
+
+    static public void Load()
+    {
+        G?._Load();
+    }
+
+    public void _SetFirstPlay_Step( int n )
     {
         firstStep = n;
     }
 
-    public int GetFirstPlay_Step(){return firstStep;}
+    static public void SetFirstPlay_Step( int n )
+    {
+        G?._SetFirstPlay_Step(n);
+    }
 
+    public int _GetFirstPlay_Step(){return firstStep;}
+
+    static public int GetFirstPlay_Step(){return G._GetFirstPlay_Step();}
 }
