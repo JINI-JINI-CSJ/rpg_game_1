@@ -31,8 +31,7 @@ public class SJ_UIDefaultShortMsg : MonoBehaviour
     {
         if( sJ_Curve.play )
         {
-            float val_cur = sJ_Curve.UpdateCurve();
-            OnShortMsg_Trans(val_cur);
+            UpdateCurveTrans();
             if( sJ_Curve.play == false )
             {
                 tr_shortMsg.gameObject.SetActive(false);
@@ -40,6 +39,12 @@ public class SJ_UIDefaultShortMsg : MonoBehaviour
             // 일단 간단하게 맨아래로 매 프레임 마다.
             transform.SetAsLastSibling();
         }
+    }
+
+    void UpdateCurveTrans()
+    {
+        float val_cur = sJ_Curve.UpdateCurve();
+        OnShortMsg_Trans(val_cur);
     }
 
     virtual public void OnShortMsg_Trans( float val )
@@ -54,6 +59,7 @@ public class SJ_UIDefaultShortMsg : MonoBehaviour
         tr_shortMsg.gameObject.SetActive(true);
         text_msg.text = msg;
         sJ_Curve.StartTime();
+        UpdateCurveTrans();
     }
 
     static public void SetMsg( string msg )

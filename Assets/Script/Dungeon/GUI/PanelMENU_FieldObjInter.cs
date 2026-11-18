@@ -30,6 +30,11 @@ public class PanelMENU_FieldObjInter : MonoBehaviour
         G = this;
     }
 
+    void OnEnable()
+    {
+        G = this;
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -38,6 +43,8 @@ public class PanelMENU_FieldObjInter : MonoBehaviour
 
     static public void Clear_MENU()
     {
+        if( G == null ) return;
+
         G.gameObject.SetActive(true);
         G.menus_add.Clear();
         foreach( var s in G._BUTTONs )s.go_BT.SetActive(false);

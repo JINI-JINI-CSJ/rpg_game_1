@@ -78,6 +78,21 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		}
 		sJ_Curve.StartTime_PlayDir( true );//그외에는 그냥 오픈 애니
 	}
+	public async Awaitable StartFunc_FWD_Awaitable(  bool force_start = false )
+	{
+		Init();
+		if( force_start == false && cur_toggle && sJ_Curve.play == false )
+		{	
+			return;
+		}
+		sJ_Curve.StartTime_PlayDir( true );
+		while( true )
+		{
+			await Awaitable.NextFrameAsync();
+			if( sJ_Curve.play == false ) return;
+		}
+	}
+	
 
 	// 역방향 플레이
 	public void StartFunc_BACK( SJ_COMMON.Func_VOID func_end = null , bool force_start = false )
@@ -93,6 +108,22 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		}
 		sJ_Curve.StartTime_PlayDir( false );
 	}
+
+	public async Awaitable StartFunc_BACK_Awaitable(  bool force_start = false )
+	{
+		Init();
+		if( force_start == false &&  cur_toggle == false && sJ_Curve.play == false )
+		{	
+			return;
+		}
+		sJ_Curve.StartTime_PlayDir( false );
+		while( true )
+		{
+			await Awaitable.NextFrameAsync();
+			if( sJ_Curve.play == false ) return;
+		}
+	}
+
 
 	public void OnUpdateCurve()
 	{

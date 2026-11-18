@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,9 @@ public class GTF_Global : MonoBehaviour
 {
     static public GTF_Global G;
     public Image    img_FirstBlack;
+
+    // 현재 씬의 기본 창 ,ui
+    public List<GameObject> lt_BaseCurUI;
 
     void Awake()
     {
@@ -39,4 +43,14 @@ public class GTF_Global : MonoBehaviour
         GameObject go = SJ_UnityUIMng_Curve.Open( "PanelPopup_TalkChrImg" );
         return go.GetComponent<SJ_UIGameTalkChr>();
     }
+
+    // 게임 현재 주 메뉴 보이기 여부
+    // 씬마다 다르다.
+    static public void ShowMainUI( bool b )
+    {
+        foreach( var s in G.lt_BaseCurUI )
+        {
+            s.SetActive(b);
+        }
+    } 
 }

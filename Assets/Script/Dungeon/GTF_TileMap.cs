@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.SettingsManagement;
 using UnityEngine;
 
 /// <summary>
@@ -19,9 +20,17 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
     public MapEventPlayer mapEvent;
     public DungeonInfo dungeonInfo = new();
     public Mng_X128SS random_dungeon;
+
+    public Material mat_skyBox;
+
     void Awake()
     {
         G = this;
+    }
+
+    static public GTF_TileMap CurTileMap()
+    {
+        return G;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,6 +54,11 @@ public class GTF_TileMap : SJ_MapTileViewer_claude
     {
         random_dungeon = new( (uint)dungeonInfo.randomSeed );
         MENU_Load();
+
+        if( mat_skyBox != null )
+        {
+            RenderSettings.skybox = mat_skyBox;
+        }
     }
 
     static public Mng_X128SS Random()

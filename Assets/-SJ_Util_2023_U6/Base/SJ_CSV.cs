@@ -58,19 +58,10 @@ public	class SJ_CSV_Common
 
 	static public int TryParseInt( string str )
 	{
-		if( str.Length < 1 ) return 0;
+		if( string.IsNullOrEmpty(str) ) return 0;
 
 		int val = 0;
 		int.TryParse( str , out val );
-		//try
-		//{
-		//	int m = int.Parse(str);
-		//}
-		//catch (FormatException e)
-		//{
-		//	Debug.Log(" TryParseInt " + "[" + str + "] " + e.Message);
-		//}
-
 		return val;
 	}
 

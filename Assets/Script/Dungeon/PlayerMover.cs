@@ -29,6 +29,11 @@ public class PlayerMover : SJ_MapTileMover
         //sJ_MapTile = mapView_Claude;
     }
 
+    void Update()
+    {
+        OnUpdateInput();
+    }
+
     public void SetMap(GTF_TileMap tile_map )
     {
         mapView_Claude = tile_map;
@@ -49,6 +54,7 @@ public class PlayerMover : SJ_MapTileMover
     public void Prc_MoveEnd()
     {
         // 트리거 레이어 2 번 , 현재 타일
+
         ObjectPlacement placement = mapView_Claude.GetObjectPlacement( 2 , cur_pos );
         if( placement != null )
         {

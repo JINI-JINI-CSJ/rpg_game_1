@@ -77,7 +77,7 @@ public class BattleMain : MonoBehaviour
     // 적군을 세팅해서 넘겨주기
     public void InitBattle( BattleParty bp_enemy )
     {
-        PlayerMover.G.SetInputAble( false );
+        GTF_Global.PlayerInputAble( false , true );
 
         // 인트로 애니
         // bgm

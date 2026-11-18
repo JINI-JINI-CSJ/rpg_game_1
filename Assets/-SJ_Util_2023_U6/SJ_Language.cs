@@ -46,7 +46,12 @@ public class SJ_Language
 
 		public void Debug_Meta()
 		{
-			Debug.Log( "META_DATA : " + meta_1 + " : " + meta_2 + " : " + meta_3 );
+			Debug.Log( "META_DATA : [" + meta_1 + "]  [" + meta_2 + "] [" + meta_3 + "]" );
+		}
+
+		public object[] Arg23()
+		{
+			return new object[] { meta_2, meta_3 };
 		}
 	}
 

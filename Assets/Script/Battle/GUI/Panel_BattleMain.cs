@@ -31,7 +31,7 @@ public class Panel_BattleMain : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -43,6 +43,7 @@ public class Panel_BattleMain : MonoBehaviour
     static public void InitBattle(){G._InitBattle();}
     public void _InitBattle()
     {
+        Debug.Log( "-->> : " + gameObject.name  );
         Active_TargetMark_ALL(false);
         auto_mode = false;
         gameObject.SetActive(true);
@@ -52,6 +53,7 @@ public class Panel_BattleMain : MonoBehaviour
 
     public void EndBattle()
     {
+        Debug.Log( "EndBattle -->> : " + gameObject.name  );
         gameObject.SetActive(false);
     }
 

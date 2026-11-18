@@ -76,12 +76,11 @@ public class DungeonBattleInCounter : MonoBehaviour
 
         if( incount_inf.NoInCountALL ) return false;
 
-        if( Check_InCount() )
-        {
-            // 전투 시작
-            //func_InCount?.Invoke();
-            return true;
-        }
+        // if( Check_InCount() )
+        // {
+        //     // 전투 시작
+        //     return true;
+        // }
 
         return false;
     }

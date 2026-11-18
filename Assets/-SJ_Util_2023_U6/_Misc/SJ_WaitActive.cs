@@ -38,6 +38,8 @@ public class SJ_WaitActive : MonoBehaviour
 
 	public void StartWait()
 	{
+		if( go_Active == null ) go_Active = gameObject;
+
 		enabled = true;
 		StopAllCoroutines();		
 		if (go_Active == null)

@@ -91,6 +91,9 @@ public	class SJ_Curve
 		else					time_cur = Time.realtimeSinceStartup - realTime_Start;
 
 		float	r = time_cur / time;
+
+//		Debug.Log( "UpdateCurve :" + time_cur + " : " + time + " : " + r );
+
 		if( r >= 1.0f )
 		{
 			switch( loop_type )

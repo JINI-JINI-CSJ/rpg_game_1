@@ -1,4 +1,5 @@
 using System;
+using SJ_CommandInputManager;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -29,6 +30,7 @@ public class SJ_MapTileMover : MonoBehaviour
     public _DIR_NEWS        cur_dir;
     public Vector2Int       cur_pos;
     public PlayerInput      playerInput;
+    _DIR_NEWS input_cur_dir = _DIR_NEWS.None;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -45,6 +47,10 @@ public class SJ_MapTileMover : MonoBehaviour
     public void SetInputAble( bool b )
     {
         playerInput.enabled = b;
+        if( b == false )
+        {
+            input_cur_dir = _DIR_NEWS.None;
+        }
     }
 
     public void InitPos( Vector2Int pos , _DIR_NEWS dir = _DIR_NEWS.N )
@@ -148,6 +154,7 @@ public class SJ_MapTileMover : MonoBehaviour
     {
         if( CheckMapTile() == false ) return false;
         if( pos_tar == cur_pos ) return false;
+        if( curve_trans.isPlaying() ) return false;
 
         Vector3 pos_move_target = sJ_MapTile.GetPos( pos_tar );
 
@@ -169,6 +176,7 @@ public class SJ_MapTileMover : MonoBehaviour
     {
         if( CheckMapTile() == false ) return false;
         if( cur_dir == dir_target )
+        if( curve_trans.isPlaying() ) return false;
 
         curve_trans.func_OnEnd = OnMoveEnd;
         curve_trans.use_pos = false;
@@ -188,6 +196,8 @@ public class SJ_MapTileMover : MonoBehaviour
     // true : 전진 , false : 후진
     public bool StartMove_FB( bool front_back  )
     {
+        if( curve_trans.isPlaying() ) return false;
+
         Vector2Int pos = cur_pos;
         Vector2Int pos_next_off = MovePosCurDir( front_back );
         pos += pos_next_off;
@@ -199,6 +209,8 @@ public class SJ_MapTileMover : MonoBehaviour
     // 왼쪽 : -1 , 오른쪽 : 1
     public bool StartRot_LR( int left_right  )
     {
+        if( curve_trans.isPlaying() ) return false;
+
         _DIR_NEWS dir_target = Offset_DIR_NEWS( cur_dir , left_right );
         return StartRot( dir_target );
     }
@@ -241,8 +253,17 @@ public class SJ_MapTileMover : MonoBehaviour
 
     public void OnMove(InputValue value)
     {
+        if( playerInput.enabled == false )return;
+
         _DIR_NEWS dir = MoveKey_ByVec2( value.Get<Vector2>() );
-        switch( dir )
+        input_cur_dir = dir;
+    }
+
+    public void OnUpdateInput()
+    {
+        if( playerInput.enabled == false )return;
+
+        switch( input_cur_dir )
         {
             case _DIR_NEWS.N: MoveFront();break;
             case _DIR_NEWS.S: MoveBack();break;

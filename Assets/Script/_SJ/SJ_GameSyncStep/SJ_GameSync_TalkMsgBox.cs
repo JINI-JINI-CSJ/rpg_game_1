@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 // 닫을때는  use_msg == false && useID == false
@@ -6,6 +7,7 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 {
     public string name_Popup;
 
+    // 미리 링크 해놓아야 한다.
     public DialogueTyper dialogueTyper;
     // 뷰박스 상위 객체
     //public GameObject go_parViewBox;
@@ -49,9 +51,14 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
 
     public void OpenWindow()
     {
-        GameObject go_popup = SJ_UnityUIMng_Curve.Open( name_Popup , OnEnd_ViewBoxAni_ON );
-        dialogueTyper = go_popup.GetComponentInChildren<DialogueTyper>();
+        // GameObject go_popup = SJ_UnityUIMng_Curve.Open( name_Popup , OnEnd_ViewBoxAni_ON );
+        // dialogueTyper = go_popup.GetComponentInChildren<DialogueTyper>();
+        // SJ_CSharpUtil.ActionFunc_CheckReg( ref dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
+
+        if( dialogueTyper == null )dialogueTyper = SJ_UnityUIMng_Curve.FindPanel( name_Popup ).GetComponent<DialogueTyper>();
+        
         SJ_CSharpUtil.ActionFunc_CheckReg( ref dialogueTyper.OnDialogueFinished , OnEndLine_TalkBox );
+        SJ_UnityUIMng_Curve.Open_Async( name_Popup );
     }
 
     public void StartText()
@@ -110,6 +117,12 @@ public class SJ_GameSync_TalkMsgBox : SJ_GameSyncStepBase
     public void CloseMsgBox()
     {
         SJ_UnityUIMng_Curve.CloseOne( OnEnd_ViewBoxAni_OFF );
+    }
+
+    public async Awaitable CloseMsgBoxAwait()
+    {
+        await SJ_UnityUIMng_Curve.CloseOneAwait();
+        OnEnd_ViewBoxAni_OFF();
     }
 
     public void OnEnd_ViewBoxAni_OFF()

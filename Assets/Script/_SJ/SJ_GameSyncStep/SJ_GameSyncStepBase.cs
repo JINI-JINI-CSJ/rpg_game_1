@@ -9,11 +9,11 @@ public class SJ_GameSyncStepBase : MonoBehaviour
     public string DESC;
     
 
-    public SJ_COMMON.Func_VOID func_end;
+    public SJ_COMMON.Func_VOID func_endStep;
 
     public void OnEndFunc()
     {
-        if( func_end != null ) func_end.Invoke();
+        if( func_endStep != null ) func_endStep.Invoke();
         else SJ_SimpleSyncMono.NextPlay();  
     }
 }

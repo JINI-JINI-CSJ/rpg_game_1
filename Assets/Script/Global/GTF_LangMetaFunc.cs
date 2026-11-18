@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
@@ -22,20 +23,23 @@ public class GTF_LangMetaFunc : MonoBehaviour
     void Awake()
     {
         G = this;
+        SJ_SyncFuncLangPart.G.obj_call_default = this;
         SJ_SyncFuncLangPart.RegFunc_MsgBase( Func_LangStr );
-        SJ_SyncFuncLangPart.RegFunc( "PLAYER_INPUT" , PLAYER_INPUT );
-        SJ_SyncFuncLangPart.RegFunc( "TALK_BOX" , TALK_BOX );
-        SJ_SyncFuncLangPart.RegFunc( "LOAD_PREFAB" , LOAD_PREFAB );
-        SJ_SyncFuncLangPart.RegFunc( "LOAD_DUNGEON" , LOAD_DUNGEON );
-        SJ_SyncFuncLangPart.RegFunc( "DELETE_PREFAB" , DELETE_PREFAB );
-        SJ_SyncFuncLangPart.RegFunc( "FADE" , FADE );
-        SJ_SyncFuncLangPart.RegFunc( "SHOW_CHR_IMG" , SHOW_CHR_IMG );
-        SJ_SyncFuncLangPart.RegFunc( "ENTER_CITY_PLACE" , ENTER_CITY_PLACE );
-        SJ_SyncFuncLangPart.RegFunc( "SAVE_FILE" , SAVE_FILE );
-        SJ_SyncFuncLangPart.RegFunc( "SYNC_EVT_END" , SYNC_EVT_END );
 
-        uiFade.func_end = OnEndFunc;
-        talkMsgBox.func_end = OnEndFunc;
+        // SJ_SyncFuncLangPart.RegFunc( "PLAYER_INPUT" , PLAYER_INPUT );
+        // SJ_SyncFuncLangPart.RegFunc( "TALK_BOX" , TALK_BOX );
+        // SJ_SyncFuncLangPart.RegFunc( "LOAD_PREFAB" , LOAD_PREFAB );
+        // SJ_SyncFuncLangPart.RegFunc( "LOAD_DUNGEON" , LOAD_DUNGEON );
+        // SJ_SyncFuncLangPart.RegFunc( "DELETE_PREFAB" , DELETE_PREFAB );
+        // SJ_SyncFuncLangPart.RegFunc( "FADE" , FADE );
+        // SJ_SyncFuncLangPart.RegFunc( "SHOW_CHR_IMG" , SHOW_CHR_IMG );
+        // SJ_SyncFuncLangPart.RegFunc( "ENTER_CITY_PLACE" , ENTER_CITY_PLACE );
+        // SJ_SyncFuncLangPart.RegFunc( "ACTIVE_POPUP" , ACTIVE_POPUP );
+        // SJ_SyncFuncLangPart.RegFunc( "SAVE_FILE" , SAVE_FILE );
+        // SJ_SyncFuncLangPart.RegFunc( "SYNC_EVT_END" , SYNC_EVT_END );
+
+        uiFade.func_endStep = OnEndFunc;
+        talkMsgBox.func_endStep = OnEndFunc;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -76,17 +80,22 @@ public class GTF_LangMetaFunc : MonoBehaviour
         // 
         if( s2 == "CLOSE" )
         {
-            talkMsgBox.CloseMsgBox();
+            talkMsgBox.CloseMsgBoxAwait();
         }
 
-        SJ_SyncFuncLangPart.NextExec();
+        //SJ_SyncFuncLangPart.NextExec();
     }
 
     // s2 : true , false
     // 전체 게임 입력
     public void PLAYER_INPUT( string s2 , string s3 )
     {
-        GTF_Global.PlayerInputAble( STR_TRUE_FALSE(s2) , true );
+        bool b = STR_TRUE_FALSE(s2);
+        GTF_Global.PlayerInputAble( b , true );
+
+        // 유아이도 여기서 처리하자.
+        GTF_Global.ShowMainUI( b );
+
         SJ_SyncFuncLangPart.NextExec();
     }
 
@@ -146,6 +155,12 @@ public class GTF_LangMetaFunc : MonoBehaviour
         SJ_SyncFuncLangPart.NextExec();
     }
 
+    public void ACTIVE_POPUP( string s2 , string s3 )
+    {
+        bool b = STR_TRUE_FALSE(s2);
+        SJ_UnityUIMng_Curve.ActivePanel( b , s3 );
+        SJ_SyncFuncLangPart.NextExec();
+    }
 
     public void SAVE_FILE( string s2 , string s3 )
     {
@@ -158,6 +173,9 @@ public class GTF_LangMetaFunc : MonoBehaviour
         
         SJ_SyncFuncLangPart.NextExec();
     }
+
+
+
     public void ENTER_CITY_PLACE( string s2 , string s3 )
     {
         

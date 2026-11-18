@@ -27,8 +27,13 @@ public class SJ_SyncFuncLangPart
     // 메타 함수
     // meta_1 은 함수명
     public delegate void OnFunc_LangMETA( string meta_2 , string meta_3 );
+
     // 각 메타 함수 실행할 것들 , 첫번째 인자로 등록을 한다.
     public Dictionary<string , OnFunc_LangMETA > dic_OnFunc_LangMETA = new();
+
+    // 위의 등록 없이 호출할 객체
+    public object obj_call_default;
+
 
 
     public SJ_SyncFuncLangPart()
@@ -100,7 +105,17 @@ public class SJ_SyncFuncLangPart
             else
             {
                 // 에러 !!! 함수 없음
-                Debug.LogError( "함수없음!! : " + meta.meta_1 );
+                //Debug.LogError( "함수없음!! : " + meta.meta_1 );
+
+                if( obj_call_default != null )
+                {
+                    SJ_CSharpUtil.CallStrFunc_Args( obj_call_default , meta.meta_1 , meta.Arg23() );
+                }
+                else
+                {
+                    Debug.LogError( "함수없음!! : " + meta.meta_1 );
+                }
+
             }
         }
 
