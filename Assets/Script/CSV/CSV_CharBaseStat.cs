@@ -71,6 +71,14 @@ public class CSV_CharBaseStat : SJ_CSV_BaseObj
     public CSV_Skill GetWeaponSkill(){return GTF_CSV.csv_SkillPage_NORMAL.Find_Int( Weapon_Skill_ID ) as CSV_Skill;}
     public CSV_Skill GetArmorSkill(){return GTF_CSV.csv_SkillPage_NORMAL.Find_Int( Armor_Skill_ID ) as CSV_Skill;}
 
+    public string GetName()
+    {
+        return SJ_Language.Str( "CHAR_NAME" , ID_int );
+    }
+    public string GetDesc()
+    {
+        return SJ_Language.Str( "CHAR_DESC" , ID_int );
+    }
 }
 
 

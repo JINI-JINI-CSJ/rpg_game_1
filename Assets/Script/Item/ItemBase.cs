@@ -76,6 +76,21 @@ public class ItemBase
         charPrcValue.Copy( csv.charPrcValue );
     }
 
+    public string LangName()
+    {
+        return "";
+    }
+
+    public string GetName()
+    {
+        return csv?.GetName();
+    }
+
+    public string GetDesc()
+    {
+        return csv?.GetDesc();
+    }
+
     // 기존 csv 기준으로 레벨링
     public void Leveling( int lv )
     {

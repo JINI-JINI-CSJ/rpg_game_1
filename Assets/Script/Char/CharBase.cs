@@ -81,6 +81,15 @@ public class CharBase
         charPrcValue.func_UpdateALL = OnUpdate_PrcValue;
     }
 
+    public string GetName()
+    {
+        return csv?.GetName();
+    }
+
+    public string GetDesc()
+    {
+        return csv?.GetDesc();
+    }
     public bool Check_JOB_BASE( JOB_BASE job_base )
     {
         if( csv.jOB_BASE == job_base ) return true;

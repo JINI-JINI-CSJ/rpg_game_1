@@ -10,6 +10,8 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 
 	public bool use_local_world; // local = false , world = true;
 
+	public bool forward_Hide = false;
+
 	public bool backward_Hide = true;
 
 	public GameObject main_obj;
@@ -31,6 +33,9 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 	public Color color_s;
 	public Color color_e;
 	public Image image_Color;
+
+	// 캔버스 그룹 알파
+	public CanvasGroup canvasGroup;
 
 	// false : 초기  , true : 완료
 	// true 인 상태에서 플레이 시작하면 backward 플레이
@@ -77,6 +82,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 			return;
 		}
 		sJ_Curve.StartTime_PlayDir( true );//그외에는 그냥 오픈 애니
+		OnUpdateCurve();
 	}
 	public async Awaitable StartFunc_FWD_Awaitable(  bool force_start = false )
 	{
@@ -86,11 +92,13 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 			return;
 		}
 		sJ_Curve.StartTime_PlayDir( true );
+		OnUpdateCurve();
 		while( true )
 		{
 			await Awaitable.NextFrameAsync();
 			if( sJ_Curve.play == false ) return;
 		}
+		
 	}
 	
 
@@ -107,6 +115,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 			return;
 		}
 		sJ_Curve.StartTime_PlayDir( false );
+		OnUpdateCurve();
 	}
 
 	public async Awaitable StartFunc_BACK_Awaitable(  bool force_start = false )
@@ -117,6 +126,7 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 			return;
 		}
 		sJ_Curve.StartTime_PlayDir( false );
+		OnUpdateCurve();
 		while( true )
 		{
 			await Awaitable.NextFrameAsync();
@@ -143,6 +153,14 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		{
 			image_Color.color = Color.Lerp( color_s , color_e , sJ_Curve.curve_cur );
 		}
+
+		// 캔버스 그룹 등록 여부
+		if( canvasGroup != null )
+		{
+			// 위의 컬러로 하자.
+			Color col = Color.Lerp( color_s , color_e , sJ_Curve.curve_cur );
+			canvasGroup.alpha = col.a;
+		}
 	}
 
 	public void OnEndCurve()
@@ -152,14 +170,12 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
 		if( cur_toggle )
 		{
 			func_OnEndToggle_ON?.Invoke();
+			if( forward_Hide )ActiveObj( false );
 		}
 		else
 		{
 			func_OnEndToggle_OFF?.Invoke();
-			if( backward_Hide )
-			{
-				ActiveObj( false );
-			}
+			if( backward_Hide )ActiveObj( false );
 		}
 	}
 
@@ -173,4 +189,33 @@ public class SJ_Curve_TransObjToggle : MonoBehaviour
     {
         sJ_Curve.UpdateCurve();
     }
+
+	static public GameObject StartPlay_FromCanvas( string go_name , SJ_COMMON.Func_VOID func_end = null , bool force_start = false , bool last_child = true)
+	{
+		GameObject go_canvas = GameObject.Find( "Canvas" );
+		if( go_canvas == null )
+		{
+			Debug.LogError( "go_canvas == null" );
+			return null;
+		}
+		 
+		Transform tr_go = go_canvas.transform.Find( go_name );
+		if( tr_go == null )
+		{
+			Debug.LogError( "tr_go == null " + go_name );
+			return null;
+		}
+
+		SJ_Curve_TransObjToggle transObjToggle = tr_go.GetComponent<SJ_Curve_TransObjToggle>();
+		if( transObjToggle == null )
+		{
+			Debug.LogError( "transObjToggle == null " + go_name );
+			return null;
+		}
+
+		if( last_child )tr_go.SetAsLastSibling();
+		
+		transObjToggle.StartFunc_FWD( func_end , force_start );
+		return tr_go.gameObject;
+	}
 }

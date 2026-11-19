@@ -24,4 +24,14 @@ public class RumorBase
 
     // 현재 상황 , 입수 여부
     public bool cur_Have;
+
+    public string GetName()
+    {
+        return "";
+    }
+
+    public string GetDesc()
+    {
+        return "";
+    }
 }

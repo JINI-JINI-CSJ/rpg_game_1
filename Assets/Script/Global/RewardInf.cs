@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 
 // 보상 정보
@@ -37,6 +38,36 @@ public class RewardInf
     {
         if( rd.NextFloat() <= per_get ) return true;
         return false;
+    }
+
+    public string ToMsg( string add_last = "" )
+    {
+        string str = "";        
+        List<string> lt = new();
+
+        foreach( var s in items )lt.Add(s.GetName());
+        foreach( var s in charBases )lt.Add(s.GetName());
+        foreach( var s in rumors )lt.Add(s.GetName());
+        lt.Add( exp + " EXP" );
+        lt.Add( gold + " GOLD" );
+
+        foreach( var s in lt )
+        {
+            if( string.IsNullOrEmpty(str ) )
+            {
+                str  = s;
+            }
+            else
+            {
+                str += "\n" + s; 
+            }
+        }
+
+        if( string.IsNullOrEmpty( add_last ) == false )
+        {
+            str += "\n" + add_last; 
+        }
+        return str;
     }
 
     public void Write( BinaryWriter bw )

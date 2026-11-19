@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 
@@ -181,7 +182,21 @@ public class BattleMain : MonoBehaviour
 
         result_inf.Clear();
         GTF_CSV.ResultBattle( battleParty_Enemy.GetALL(false) , out result_inf.gold , out result_inf.exp );
-        SJ_UnityUIMng_Curve.Open( "Panel_BattleWin" );
+
+        // 창 띄우지 않고 빠른 알림만으로..
+        //SJ_UnityUIMng_Curve.Open( "Panel_BattleWin" );
+
+        //
+        string msg = result_inf.ToMsg( SJ_Language.Str( "BASE" , "GET_MSG" ) );
+
+        // 간단 팝업 승리 메시지
+        GameObject go_win_popup = SJ_Curve_TransObjToggle.StartPlay_FromCanvas( "PanelPopup_BattleResult_Mini" );
+
+        Text ui_text = go_win_popup.GetComponentInChildren<Text>(true);
+        ui_text.text = msg;
+
+        // 바로 탐험 모드
+        _OnOK_ResultPopup();
     }
 
     static public void OnOK_ResultPopup()
